@@ -1,4 +1,5 @@
-![App Banner](items/readme.png)
+<img src="items/readme.jpg" alt="App Banner" width="100%">
+
 
 # Movie Discovery App
 
@@ -49,12 +50,6 @@ The application fetches movie data from The Movie Database (TMDB) API and provid
 | Week 2 | API integration with Retrofit, dynamic movie list display | Networking layer, dynamic grid of movies |
 | Week 3 | Navigation to details, movie detail screen, unit testing | Navigation working, detail screen ready, tests passing |
 | Week 4 | Search functionality, security improvements, UI polish, documentation | Search feature, secure API key storage, final polish |
-
----
-
-## Screenshots
-![Home Screen](screenshots/home_screen.png)  
-![Detail Screen](screenshots/detail_screen.png)
 
 ---
 
