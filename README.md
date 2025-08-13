@@ -1,4 +1,4 @@
-<img src="items/readme.jpg" alt="App Banner" width="100%">
+<img src="itemss/readme.jpg" alt="App Banner" width="100%">
 
 
 # Movie Discovery App
