@@ -52,7 +52,17 @@ The application fetches movie data from The Movie Database (TMDB) API and provid
 | Week 4 | Search functionality, security improvements, UI polish, documentation | Search feature, secure API key storage, final polish |
 
 ---
+## Team Tasks Distribution
 
+| Phase                | Member | GitHub Username | Responsibilities |
+|----------------------|--------|-----------------|------------------|
+| Project Setup        | 1      | Mouhab Mamdouh Zakaria | - Create Android project & configure Gradle.<br>- Setup package structure (data, domain, presentation).<br>- Configure Navigation component. |
+| UI (Home Screen)     | 2      | Sama Ahmed Mohamed Abdelkareem| - Build Home screen UI with Jetpack Compose.<br>- Show trending & popular movies.<br>- Connect with ViewModel & handle states. |
+| UI (Movie Details)   | 3      | Mirna mahmoud mohamed mahmoud | - Build Movie Details screen (poster, overview, rating).<br>- Add “Add to Favorites” button.<br>- API integration for movie details. |
+| UI (Search & Filter) | 4      |Abdelrahman Ahmed ElSayed ElQazaz| - Implement Search screen (text input + results).<br>- Add filtering by genre/rating.<br>- Integrate with API for search. |
+| Local Storage        | 5      | Lina Ashraf Sediq Hamzawy | - Setup Room / DataStore.<br>- Implement Favorites screen.<br>- Save & retrieve favorites.<br>- Add offline cache support. |
+| Testing & Docs       | 6      | Mariam Magdy Soliman Youssef | - Write Unit & UI tests.<br>- Maintain README & documentation.<br>- Prepare final presentation.<br>- Polish UI/UX. |
+---
 ## License
 This project is licensed under the MIT License.
 
