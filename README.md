@@ -52,16 +52,16 @@ The application fetches movie data from The Movie Database (TMDB) API and provid
 | Week 4 | Search functionality, security improvements, UI polish, documentation | Search feature, secure API key storage, final polish |
 
 ---
-## 👥 Team Tasks Distribution
+## Team Tasks Distribution
 
-| Name                                | Member | Phase                | Responsibilities |
-|-------------------------------------|--------|----------------------|------------------|
-| Mouhab Mamdouh Zakaria              | 1      | Project Setup        | - Create Android project & configure Gradle.<br>- Setup package structure (data, domain, presentation).<br>- Configure Navigation component. |
-| Sama Ahmed Mohamed Abdelkareem      | 2      | UI (Home Screen)     | - Build Home screen UI with Jetpack Compose.<br>- Show trending & popular movies.<br>- Connect with ViewModel & handle states. |
-| Mirna Mahmoud Mohamed Mahmoud       | 3      | UI (Movie Details)   | - Build Movie Details screen (poster, overview, rating).<br>- Add “Add to Favorites” button.<br>- API integration for movie details. |
-| Abdelrahman Ahmed ElSayed ElQazaz   | 4      | UI (Search & Filter) | - Implement Search screen (text input + results).<br>- Add filtering by genre/rating.<br>- Integrate with API for search. |
-| Lina Ashraf Sediq Hamzawy           | 5      | Local Storage        | - Setup Room / DataStore.<br>- Implement Favorites screen.<br>- Save & retrieve favorites.<br>- Add offline cache support. |
-| Mariam Magdy Soliman Youssef        | 6      | Testing & Docs       | - Write Unit & UI tests.<br>- Maintain README & documentation.<br>- Prepare final presentation.<br>- Polish UI/UX. |
+| Member | Name                              | Phase                | Responsibilities |
+|--------|-----------------------------------|----------------------|------------------|
+| 1      | Mouhab Mamdouh Zakaria            | Project Setup        | - Create Android project & configure Gradle.<br>- Setup package structure (data, domain, presentation).<br>- Configure Navigation component. |
+| 2      | Sama Ahmed Mohamed Abdelkareem    | UI (Home Screen)     | - Build Home screen UI with Jetpack Compose.<br>- Show trending & popular movies.<br>- Connect with ViewModel & handle states. |
+| 3      | Mirna Mahmoud Mohamed Mahmoud     | UI (Movie Details)   | - Build Movie Details screen (poster, overview, rating).<br>- Add “Add to Favorites” button.<br>- API integration for movie details. |
+| 4      | Abdelrahman Ahmed ElSayed ElQazaz | UI (Search & Filter) | - Implement Search screen (text input + results).<br>- Add filtering by genre/rating.<br>- Integrate with API for search. |
+| 5      | Lina Ashraf Sediq Hamzawy         | Local Storage        | - Setup Room / DataStore.<br>- Implement Favorites screen.<br>- Save & retrieve favorites.<br>- Add offline cache support. |
+| 6      | Mariam Magdy Soliman Youssef      | Testing & Docs       | - Write Unit & UI tests.<br>- Maintain README & documentation.<br>- Prepare final presentation.<br>- Polish UI/UX. |
 ---
 ## License
 This project is licensed under the MIT License.
