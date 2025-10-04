@@ -23,7 +23,54 @@ import com.example.movie_discovery.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchScreen (){
+fun SearchScreen() {
     var query by remember { mutableStateOf("") }
+    Scaffold(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(DarkNavy),
+        containerColor = DarkNavy,
+        topBar = {
+            OutlinedTextField(
+                value = query,
+                onValueChange = { query = it },
+                placeholder = { Text("Search movie", color = TextSecondary) },
+                leadingIcon = {
+                    Icon(Icons.Default.Search, contentDescription = null, tint = TextSecondary)
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .statusBarsPadding()
+                    .padding(16.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = AccentRed,
+                    unfocusedBorderColor = TextSecondary
+                ),
+                singleLine = true
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .padding(paddingValues)
+                .padding(horizontal = 16.dp)
+                .imePadding()
+        ) {
+            Text(
+                text = "Explore More",
+                color = TextPrimary,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(vertical = 12.dp)
+            )
 
-  Scaffold (  )
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(3),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.fillMaxSize()
+            ) {
+            }
+        }
+    }
+}
