@@ -125,20 +125,36 @@ fun SignInScreen(navController: NavController?) {
                         .fillMaxWidth()
                         .padding(vertical = 8.dp)
                 )
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                label = { Text("Password", color = TextSecondary) },
-visualTransformation =PasswordVisualTransformation(),
-                colors = OutlinedTextFieldDefaults.colors(
-focusedBorderColor = AccentRed,
-                    unfocusedBorderColor = TextSecondary,
-focusedTextColor = TextPrimary,
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text("Password", color = TextSecondary) },
+                    visualTransformation = PasswordVisualTransformation(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = AccentRed,
+                        unfocusedBorderColor = TextSecondary,
+                        focusedTextColor = TextPrimary,
 
-            ),
-modifier = Modifier
-    .fillMaxWidth()
-    .padding(vertical = 8.dp))
+                        ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                )
+                Button(
+                    onClick = {
+                        navController?.navigate("home_screen") {
+                            popUpTo(navController.graph.id) { inclusive = true }
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = AccentRed),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(70.dp)
+                        .padding(top = 16.dp, bottom = 8.dp)
+                )
+                {
+                }
             }
         }
     }
