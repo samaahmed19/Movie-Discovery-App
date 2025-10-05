@@ -21,6 +21,11 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.movie_discovery.ui.theme.*
 
+data class Category(
+    val name: String,
+    val imageUrl: String
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen() {
@@ -72,5 +77,46 @@ fun SearchScreen() {
             ) {
             }
         }
+    }
+}
+
+@Composable
+fun CategoryCard(category: Category) {
+    Box(
+        modifier = Modifier
+            .aspectRatio(1f)
+            .clip(RoundedCornerShape(8.dp))
+            .clickable { }
+    ) {
+        AsyncImage(
+            model = category.imageUrl,
+            contentDescription = category.name,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .fillMaxSize()
+                .background(CardBackground)
+        )
+
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .background(CardBackground.copy(alpha = 0.5f))
+        )
+
+        Text(
+            text = category.name,
+            color = TextPrimary,
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.align(Alignment.Center)
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewSearchScreen() {
+    MoviesTheme {
+        com.example.movie_discovery.SearchScreen()
     }
 }
