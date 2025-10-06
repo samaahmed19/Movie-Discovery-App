@@ -174,7 +174,7 @@ fun SignUpScreen(navController: NavController?) {
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Button(
-                    onClick = { /* TODO: Google SignUp */ },
+                    onClick = {  },
                     colors = ButtonDefaults.buttonColors(containerColor = Color.White),
                     shape = CircleShape,
                     contentPadding = PaddingValues(12.dp),
