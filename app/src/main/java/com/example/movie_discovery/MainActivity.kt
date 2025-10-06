@@ -32,12 +32,15 @@ fun MyApp() {
 
                     popUpTo("splash") { inclusive = true }
                 }
+                composable("home") {
+
+
+
+                }
             }
         }
 
 
-        composable("home") {
-            HomeScreen()
-        }
+
     }
 }
