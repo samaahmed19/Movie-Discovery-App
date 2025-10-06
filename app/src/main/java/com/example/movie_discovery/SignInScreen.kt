@@ -111,7 +111,49 @@ fun SignInScreen(navController: NavController?) {
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(bottom = 20.dp)
                 )
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    label = { Text("Email", color = TextSecondary) },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = AccentRed,
+                        unfocusedBorderColor = TextSecondary,
+                        focusedTextColor = TextPrimary,
+                        unfocusedTextColor = TextPrimary
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                )
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text("Password", color = TextSecondary) },
+                    visualTransformation = PasswordVisualTransformation(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = AccentRed,
+                        unfocusedBorderColor = TextSecondary,
+                        focusedTextColor = TextPrimary,
+
+                        ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                )
+                Button(
+                    onClick = {
+
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = AccentRed),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(70.dp)
+                        .padding(top = 16.dp, bottom = 8.dp)
+                ) {
+                    Text("Sign In", color = TextPrimary, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                }
+            }
             }
         }
     }
-}
