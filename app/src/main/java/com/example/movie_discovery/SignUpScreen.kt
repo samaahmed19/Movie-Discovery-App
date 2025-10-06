@@ -152,7 +152,59 @@ fun SignUpScreen(navController: NavController?) {
                         .fillMaxWidth()
                         .padding(vertical = 8.dp)
                 )
+                Button(
+                    onClick = {
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = AccentRed),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(70.dp)
+                        .padding(top = 16.dp, bottom = 8.dp)
+                )
+                {
+                    Text(
+                        "Sign Up",
+                        color = TextPrimary,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Button(
+                    onClick = {  },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                    shape = CircleShape,
+                    contentPadding = PaddingValues(12.dp),
+                    modifier = Modifier.size(50.dp)
+                ) {
+                    Icon(
+                        imageVector = SimpleIcons.Google,
+                        contentDescription = "Google Sign Up",
+                        tint = Color.Unspecified,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
             }
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Already have an account? ", color = TextSecondary, fontSize = 16.sp)
+            Text(
+                text = "SIGN IN",
+                color = AccentRed,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.clickable { navController?.navigate("sign_in_screen") }
+            )
+        }
+        Spacer(modifier = Modifier.height(30.dp))
     }
 }
-    }
