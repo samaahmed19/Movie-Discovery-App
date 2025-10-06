@@ -170,5 +170,21 @@ modifier = Modifier.size(50.dp)
             }
             }
             }
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("New user? ", color = TextSecondary, fontSize = 16.sp)
+            Text(
+                text = "SIGN UP",
+                color = AccentRed,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.clickable { navController?.navigate("sign_up_screen") }
+            )
+        }
+        Spacer(modifier = Modifier.height(30.dp))
         }
     }
