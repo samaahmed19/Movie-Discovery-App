@@ -142,9 +142,7 @@ fun SignInScreen(navController: NavController?) {
                 )
                 Button(
                     onClick = {
-                        navController?.navigate("home_screen") {
-                            popUpTo(navController.graph.id) { inclusive = true }
-                        }
+
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = AccentRed),
                     shape = RoundedCornerShape(8.dp),
@@ -152,10 +150,10 @@ fun SignInScreen(navController: NavController?) {
                         .fillMaxWidth()
                         .height(70.dp)
                         .padding(top = 16.dp, bottom = 8.dp)
-                )
-                {
+                ) {
+                    Text("Sign In", color = TextPrimary, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 }
+            }
             }
         }
     }
-}
