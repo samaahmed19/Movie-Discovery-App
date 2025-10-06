@@ -153,6 +153,21 @@ fun SignInScreen(navController: NavController?) {
                 ) {
                     Text("Sign In", color = TextPrimary, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 }
+                Spacer(modifier = Modifier.height(24.dp))
+            Button(
+                onClick ={},
+colors = ButtonDefaults.buttonColors(contentColor = androidx.compose.ui.graphics.Color.White),
+shape = CircleShape,
+                contentPadding = PaddingValues(12.dp),
+modifier = Modifier.size(50.dp)
+                ) {
+                    Icon(
+                        imageVector = SimpleIcons.Google,
+                        contentDescription = "Google Sign In",
+                        tint = androidx.compose.ui.graphics.Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
+            }
             }
             }
         }
