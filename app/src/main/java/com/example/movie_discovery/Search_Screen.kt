@@ -21,11 +21,6 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.movie_discovery.ui.theme.*
 
-data class Category(
-    val name: String,
-    val imageUrl: String
-)
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen() {
