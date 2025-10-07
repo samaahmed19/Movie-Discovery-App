@@ -1,10 +1,6 @@
 package com.example.movie_discovery
 
-import androidx.compose.ui.draw.shadow
-import androidx.compose.material3.ScrollableTabRow
-import androidx.compose.material3.Tab
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -12,15 +8,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -30,43 +24,56 @@ import androidx.compose.ui.unit.sp
 import com.example.movie_discovery.ui.theme.AccentRed
 import com.example.movie_discovery.ui.theme.Gold
 import com.example.movie_discovery.ui.theme.MoviesTheme
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.runtime.LaunchedEffect
 
-
-
+// -------------------------------
+// Data Model
+// -------------------------------
 data class Movie(
     val id: Int,
     val title: String,
     val rating: Double
 )
 
+// -------------------------------
+// Home Screen
+// -------------------------------
 @Composable
 fun HomeScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(16.dp)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
 
         Text(
-            text = "Popular Movies",
+            text = "Movie Discovery",
             style = MaterialTheme.typography.headlineMedium,
             color = AccentRed,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 16.dp)
+            fontWeight = FontWeight.Bold
         )
+
+
+        SearchBar()
+
+
+        FeaturedMoviesSlider()
+
+
+        MovieTabs()
+
 
         MoviesList(movies = getSampleMovies())
     }
 }
+
+// -------------------------------
+// Search Bar
+// -------------------------------
 @Composable
 fun SearchBar() {
-    androidx.compose.material3.TextField(
+    TextField(
         value = "",
         onValueChange = {},
         modifier = Modifier
@@ -77,6 +84,10 @@ fun SearchBar() {
         enabled = false
     )
 }
+
+// -------------------------------
+//Slider
+// -------------------------------
 @Composable
 fun FeaturedMoviesSlider() {
     LazyRow(
@@ -97,7 +108,9 @@ fun FeaturedMoviesSlider() {
     }
 }
 
-
+// -------------------------------
+// Tabs Section
+// -------------------------------
 @Composable
 fun MovieTabs() {
     val tabs = listOf("Popular", "Top Rated", "Upcoming")
@@ -114,17 +127,23 @@ fun MovieTabs() {
     }
 }
 
-
+// -------------------------------
+// Movies List
+// -------------------------------
 @Composable
 fun MoviesList(movies: List<Movie>) {
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         items(movies) { movie ->
-            MovieCard(movie = movie)
+            AnimatedMovieCard(movie = movie)
         }
     }
 }
+
+// -------------------------------
+// Animated Movie Card
+// -------------------------------
 @Composable
 fun AnimatedMovieCard(movie: Movie) {
     var visible by remember { mutableStateOf(false) }
@@ -135,6 +154,9 @@ fun AnimatedMovieCard(movie: Movie) {
     }
 }
 
+// -------------------------------
+//Movie Card
+// -------------------------------
 @Composable
 fun MovieCard(movie: Movie) {
     Card(
@@ -144,27 +166,26 @@ fun MovieCard(movie: Movie) {
             .shadow(4.dp, RoundedCornerShape(16.dp)),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-    )
-    {
+    ) {
         Box(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
             contentAlignment = Alignment.TopEnd
         ) {
             Icon(
-                imageVector = Icons.Default.FavoriteBorder,
+                imageVector = Icons.Outlined.FavoriteBorder,
                 contentDescription = "Add to favorites",
                 tint = AccentRed,
-                modifier = Modifier
-                    .padding(8.dp)
-                    .size(20.dp)
+                modifier = Modifier.size(20.dp)
             )
         }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(12.dp)
         ) {
-
             Box(
                 modifier = Modifier
                     .height(180.dp)
@@ -195,9 +216,7 @@ fun MovieCard(movie: Movie) {
 
             Spacer(modifier = Modifier.height(6.dp))
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = Icons.Default.Star,
                     contentDescription = "Rating",
@@ -219,6 +238,9 @@ fun MovieCard(movie: Movie) {
     }
 }
 
+// -------------------------------
+// Sample Data
+// ------------------------------
 fun getSampleMovies(): List<Movie> {
     return listOf(
         Movie(id = 1, title = "Pulp Fiction", rating = 4.8),
@@ -230,7 +252,9 @@ fun getSampleMovies(): List<Movie> {
     )
 }
 
-
+// -------------------------------
+// Previews
+// -------------------------------
 @Preview(showBackground = true, name = "Light Mode")
 @Composable
 fun HomeScreenLightPreview() {
