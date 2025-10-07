@@ -10,11 +10,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -23,63 +23,32 @@ import compose.icons.simpleicons.Google
 import com.example.movie_discovery.ui.theme.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.graphics.Color
 
-@Composable
-fun NeonText (
-text: String,
-neonColor: Color,
-modifier: Modifier = Modifier
-){
-Box(modifier = Modifier){
-Text(
-    text = text,
-fontSize =32.sp,
-    fontWeight = FontWeight.Bold,
-    color = Color.Transparent,
-    style = LocalTextStyle.current.copy(
-        shadow = Shadow(
-            color = neonColor.copy(alpha = 0.5f),
-            offset = androidx.compose.ui.geometry.Offset(0f, 0f),
-            blurRadius = 15f
-        )
-    ),
-textAlign = TextAlign.Center
-)
-Text(
-    text =text,
-    fontSize =32.sp,
-fontWeight = FontWeight.Bold,
-    color =Color.White,
-textAlign = TextAlign.Center
-)
-
-}
-
-}
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignInScreen(navController: NavController?) {
-
+fun SignUpScreen(navController: NavController?) {
     val scrollState = rememberScrollState()
 
+    var firstName by remember { mutableStateOf("") }
+    var lastName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
 
     val backgroundBrush = Brush.verticalGradient(
         colors = listOf(DarkNavy, CardBackground.copy(alpha = 0.8f), DarkNavy)
     )
-
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(backgroundBrush)
-            .padding(horizontal = 24.dp)
+            .padding(24.dp)
             .verticalScroll(scrollState)
             .imePadding(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.height(40.dp))
-
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(bottom = 40.dp)
@@ -88,7 +57,6 @@ fun SignInScreen(navController: NavController?) {
                 text = "Movie",
                 neonColor = Color.Cyan.copy(alpha = 0.9f)
             )
-
             com.example.movie_discovery.NeonText(
                 text = "Discovery",
                 neonColor = AccentRed.copy(alpha = 0.8f)
@@ -105,12 +73,41 @@ fun SignInScreen(navController: NavController?) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Sign In",
+                    text = "Sign Up",
                     color = TextPrimary,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(bottom = 20.dp)
                 )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    OutlinedTextField(
+                        value = firstName,
+                        onValueChange = { firstName = it },
+                        label = { Text("First Name", color = TextSecondary) },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = AccentRed,
+                            unfocusedBorderColor = TextSecondary,
+                            focusedTextColor = TextPrimary,
+                            unfocusedTextColor = TextPrimary
+                        ),
+                        modifier = Modifier.weight(1f)
+                    )
+                    OutlinedTextField(
+                        value = lastName,
+                        onValueChange = { lastName = it },
+                        label = { Text("Last Name", color = TextSecondary) },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = AccentRed,
+                            unfocusedBorderColor = TextSecondary,
+                            focusedTextColor = TextPrimary,
+                            unfocusedTextColor = TextPrimary
+                        ),
+                        modifier = Modifier.weight(1f)
+                    )
+                }
                 OutlinedTextField(
                     value = email,
                     onValueChange = { email = it },
@@ -134,15 +131,29 @@ fun SignInScreen(navController: NavController?) {
                         focusedBorderColor = AccentRed,
                         unfocusedBorderColor = TextSecondary,
                         focusedTextColor = TextPrimary,
-
-                        ),
+                        unfocusedTextColor = TextPrimary
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                )
+                OutlinedTextField(
+                    value = confirmPassword,
+                    onValueChange = { confirmPassword = it },
+                    label = { Text("Confirm Password", color = TextSecondary) },
+                    visualTransformation = PasswordVisualTransformation(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = AccentRed,
+                        unfocusedBorderColor = TextSecondary,
+                        focusedTextColor = TextPrimary,
+                        unfocusedTextColor = TextPrimary
+                    ),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 8.dp)
                 )
                 Button(
                     onClick = {
-
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = AccentRed),
                     shape = RoundedCornerShape(8.dp),
@@ -150,41 +161,50 @@ fun SignInScreen(navController: NavController?) {
                         .fillMaxWidth()
                         .height(70.dp)
                         .padding(top = 16.dp, bottom = 8.dp)
-                ) {
-                    Text("Sign In", color = TextPrimary, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                )
+                {
+                    Text(
+                        "Sign Up",
+                        color = TextPrimary,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
+
                 Spacer(modifier = Modifier.height(24.dp))
-            Button(
-                onClick ={},
-colors = ButtonDefaults.buttonColors(contentColor = androidx.compose.ui.graphics.Color.White),
-shape = CircleShape,
-                contentPadding = PaddingValues(12.dp),
-modifier = Modifier.size(50.dp)
+
+                Button(
+                    onClick = {  },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                    shape = CircleShape,
+                    contentPadding = PaddingValues(12.dp),
+                    modifier = Modifier.size(50.dp)
                 ) {
                     Icon(
                         imageVector = SimpleIcons.Google,
-                        contentDescription = "Google Sign In",
-                        tint = androidx.compose.ui.graphics.Color.White,
+                        contentDescription = "Google Sign Up",
+                        tint = Color.Unspecified,
                         modifier = Modifier.size(24.dp)
                     )
+                }
             }
-            }
-            }
+        }
+
         Spacer(modifier = Modifier.height(20.dp))
 
         Row(
             horizontalArrangement = Arrangement.Center,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("New user? ", color = TextSecondary, fontSize = 16.sp)
+            Text("Already have an account? ", color = TextSecondary, fontSize = 16.sp)
             Text(
-                text = "SIGN UP",
+                text = "SIGN IN",
                 color = AccentRed,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.clickable { navController?.navigate("sign_up_screen") }
+                modifier = Modifier.clickable { navController?.navigate("sign_in_screen") }
             )
         }
         Spacer(modifier = Modifier.height(30.dp))
-        }
     }
+}
