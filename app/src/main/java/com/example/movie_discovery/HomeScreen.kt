@@ -32,6 +32,8 @@ import com.example.movie_discovery.ui.theme.Gold
 import com.example.movie_discovery.ui.theme.MoviesTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.outlined.FavoriteBorder
+
 
 data class Movie(
     val id: Int,
@@ -132,6 +134,19 @@ fun MovieCard(movie: Movie) {
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     )
     {
+        Box(
+            modifier = Modifier.fillMaxWidth(),
+            contentAlignment = Alignment.TopEnd
+        ) {
+            Icon(
+                imageVector = Icons.Default.FavoriteBorder,
+                contentDescription = "Add to favorites",
+                tint = AccentRed,
+                modifier = Modifier
+                    .padding(8.dp)
+                    .size(20.dp)
+            )
+        }
         Column(
             modifier = Modifier
                 .fillMaxSize()
