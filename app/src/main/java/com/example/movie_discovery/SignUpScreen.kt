@@ -55,16 +55,16 @@ fun SignUpScreen(navController: NavController?) {
         ) {
             com.example.movie_discovery.NeonText(
                 text = "Movie",
-                neonColor = Color.Cyan.copy(alpha = 0.9f)
+                neonColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.9f)
             )
             com.example.movie_discovery.NeonText(
                 text = "Discovery",
-                neonColor = AccentRed.copy(alpha = 0.8f)
+                neonColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
             )
         }
         Card(
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = CardBackground),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -74,7 +74,7 @@ fun SignUpScreen(navController: NavController?) {
             ) {
                 Text(
                     text = "Sign Up",
-                    color = TextPrimary,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(bottom = 20.dp)
@@ -88,10 +88,10 @@ fun SignUpScreen(navController: NavController?) {
                         onValueChange = { firstName = it },
                         label = { Text("First Name", color = TextSecondary) },
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = AccentRed,
-                            unfocusedBorderColor = TextSecondary,
-                            focusedTextColor = TextPrimary,
-                            unfocusedTextColor = TextPrimary
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(0.5f),
+                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface
                         ),
                         modifier = Modifier.weight(1f)
                     )
@@ -100,10 +100,10 @@ fun SignUpScreen(navController: NavController?) {
                         onValueChange = { lastName = it },
                         label = { Text("Last Name", color = TextSecondary) },
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = AccentRed,
-                            unfocusedBorderColor = TextSecondary,
-                            focusedTextColor = TextPrimary,
-                            unfocusedTextColor = TextPrimary
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(0.5f),
+                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface
                         ),
                         modifier = Modifier.weight(1f)
                     )
@@ -113,10 +113,10 @@ fun SignUpScreen(navController: NavController?) {
                     onValueChange = { email = it },
                     label = { Text("Email", color = TextSecondary) },
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = AccentRed,
-                        unfocusedBorderColor = TextSecondary,
-                        focusedTextColor = TextPrimary,
-                        unfocusedTextColor = TextPrimary
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(0.5f),
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -128,10 +128,10 @@ fun SignUpScreen(navController: NavController?) {
                     label = { Text("Password", color = TextSecondary) },
                     visualTransformation = PasswordVisualTransformation(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = AccentRed,
-                        unfocusedBorderColor = TextSecondary,
-                        focusedTextColor = TextPrimary,
-                        unfocusedTextColor = TextPrimary
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(0.5f),
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -143,10 +143,10 @@ fun SignUpScreen(navController: NavController?) {
                     label = { Text("Confirm Password", color = TextSecondary) },
                     visualTransformation = PasswordVisualTransformation(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = AccentRed,
-                        unfocusedBorderColor = TextSecondary,
-                        focusedTextColor = TextPrimary,
-                        unfocusedTextColor = TextPrimary
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(0.5f),
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -155,7 +155,7 @@ fun SignUpScreen(navController: NavController?) {
                 Button(
                     onClick = {
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = AccentRed),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -165,7 +165,7 @@ fun SignUpScreen(navController: NavController?) {
                 {
                     Text(
                         "Sign Up",
-                        color = TextPrimary,
+                        color = MaterialTheme.colorScheme.onPrimary,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -175,7 +175,7 @@ fun SignUpScreen(navController: NavController?) {
 
                 Button(
                     onClick = {  },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onSurface),
                     shape = CircleShape,
                     contentPadding = PaddingValues(12.dp),
                     modifier = Modifier.size(50.dp)
@@ -196,10 +196,10 @@ fun SignUpScreen(navController: NavController?) {
             horizontalArrangement = Arrangement.Center,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Already have an account? ", color = TextSecondary, fontSize = 16.sp)
+            Text("Already have an account? ", color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f), fontSize = 16.sp)
             Text(
                 text = "SIGN IN",
-                color = AccentRed,
+                color = MaterialTheme.colorScheme.primary,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.clickable { navController?.navigate("sign_in_screen") }
