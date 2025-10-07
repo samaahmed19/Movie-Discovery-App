@@ -33,13 +33,16 @@ fun SearchScreen() {
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
-            .background(DarkNavy),
-        containerColor = DarkNavy,
+            .background(MaterialTheme.colorScheme.background),
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             OutlinedTextField(
                 value = query,
                 onValueChange = { query = it },
-                placeholder = { Text("Search movie", color = TextSecondary) },
+                placeholder = { Text(
+                    "Search movie",
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
+                ) },
                 leadingIcon = {
                     Icon(Icons.Default.Search, contentDescription = null, tint = TextSecondary)
                 },
@@ -48,8 +51,8 @@ fun SearchScreen() {
                     .statusBarsPadding()
                     .padding(16.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = AccentRed,
-                    unfocusedBorderColor = TextSecondary
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
                 ),
                 singleLine = true
             )
@@ -63,7 +66,7 @@ fun SearchScreen() {
         ) {
             Text(
                 text = "Explore More",
-                color = TextPrimary,
+                color = MaterialTheme.colorScheme.onBackground,
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(vertical = 12.dp)
@@ -94,18 +97,18 @@ fun CategoryCard(category: Category) {
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxSize()
-                .background(CardBackground)
+                .background(MaterialTheme.colorScheme.surface)
         )
 
         Box(
             modifier = Modifier
                 .matchParentSize()
-                .background(CardBackground.copy(alpha = 0.5f))
+                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.5f))
         )
 
         Text(
             text = category.name,
-            color = TextPrimary,
+            color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.align(Alignment.Center)
@@ -113,10 +116,18 @@ fun CategoryCard(category: Category) {
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, name = "Light Mode")
 @Composable
-fun PreviewSearchScreen() {
-    MoviesTheme {
-        com.example.movie_discovery.SearchScreen()
+fun PreviewSearchScreenDark() {
+    MoviesTheme(darkTheme = false) {
+        SearchScreen()
+    }
+}
+
+@Preview(showBackground = true, name = "Dark Mode")
+@Composable
+fun PreviewSearchScreenLight() {
+    MoviesTheme(darkTheme = true) {
+        SearchScreen()
     }
 }
