@@ -33,6 +33,9 @@ import com.example.movie_discovery.ui.theme.MoviesTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.runtime.LaunchedEffect
+
 
 
 data class Movie(
@@ -120,6 +123,15 @@ fun MoviesList(movies: List<Movie>) {
         items(movies) { movie ->
             MovieCard(movie = movie)
         }
+    }
+}
+@Composable
+fun AnimatedMovieCard(movie: Movie) {
+    var visible by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { visible = true }
+
+    AnimatedVisibility(visible = visible) {
+        MovieCard(movie)
     }
 }
 
