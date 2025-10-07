@@ -2,27 +2,27 @@ package com.example.movie_discovery
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.movie_discovery.ui.theme.AccentRed
-import com.example.movie_discovery.ui.theme.Gold
 import com.example.movie_discovery.ui.theme.MoviesTheme
 
 // -------------------------------
@@ -31,7 +31,8 @@ import com.example.movie_discovery.ui.theme.MoviesTheme
 data class Movie(
     val id: Int,
     val title: String,
-    val rating: Double
+    val rating: Double,
+    val posterUrl: String
 )
 
 // -------------------------------
@@ -54,15 +55,11 @@ fun HomeScreen() {
             fontWeight = FontWeight.Bold
         )
 
-
         SearchBar()
-
 
         FeaturedMoviesSlider()
 
-
         MovieTabs()
-
 
         MoviesList(movies = getSampleMovies())
     }
@@ -86,24 +83,31 @@ fun SearchBar() {
 }
 
 // -------------------------------
-//Slider
+// Slider Section
 // -------------------------------
 @Composable
 fun FeaturedMoviesSlider() {
+    val featuredImages = listOf(
+        "https://image.tmdb.org/t/p/w500/ctMserH8g2SeOAnCw5gFjdQF8mo.jpg",
+        "https://image.tmdb.org/t/p/w500/6oom5QYQ2yQTMJIbnvbkBL9cHo6.jpg",
+        "https://image.tmdb.org/t/p/w500/9O7gLzmreU0nGkIB6K3BsJbzvNv.jpg",
+        "https://image.tmdb.org/t/p/w500/rCzpDGLbOoPwLjy3OAm5NUPOTrC.jpg",
+        "https://image.tmdb.org/t/p/w500/zpYf5JXfxybYyTfXYyZ9KJ8MGe1.jpg"
+    )
+
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        items(5) {
-            Box(
+        items(featuredImages) { image ->
+            AsyncImage(
+                model = image,
+                contentDescription = "Featured Movie",
                 modifier = Modifier
                     .width(280.dp)
                     .height(160.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color.Gray.copy(alpha = 0.3f)),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("FEATURED", color = Color.White)
-            }
+                    .clip(RoundedCornerShape(16.dp)),
+                contentScale = ContentScale.Crop
+            )
         }
     }
 }
@@ -150,105 +154,135 @@ fun AnimatedMovieCard(movie: Movie) {
     LaunchedEffect(Unit) { visible = true }
 
     AnimatedVisibility(visible = visible) {
-        MovieCard(movie)
+        MovieCard(movie = movie)
     }
 }
 
 // -------------------------------
-//Movie Card
+// Movie Card
 // -------------------------------
 @Composable
-fun MovieCard(movie: Movie) {
+fun MovieCard(
+    movie: Movie,
+    modifier: Modifier = Modifier
+) {
+    var isFavorite by remember { mutableStateOf(false) }
+
     Card(
-        modifier = Modifier
+        modifier = modifier
             .width(160.dp)
-            .height(260.dp)
-            .shadow(4.dp, RoundedCornerShape(16.dp)),
+            .height(260.dp),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+        elevation = CardDefaults.cardElevation(6.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            contentAlignment = Alignment.TopEnd
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.FavoriteBorder,
-                contentDescription = "Add to favorites",
-                tint = AccentRed,
-                modifier = Modifier.size(20.dp)
-            )
-        }
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(12.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .height(180.dp)
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.3f)),
-                contentAlignment = Alignment.Center
+        Box {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    text = "POSTER",
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Medium
+                AsyncImage(
+                    model = movie.posterUrl,
+                    contentDescription = movie.title,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(190.dp)
+                        .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)),
+                    contentScale = ContentScale.Crop
                 )
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp, vertical = 6.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = movie.title,
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Star,
+                            contentDescription = "Rating",
+                            tint = Color(0xFFFFD700),
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "${movie.rating}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.Gray
+                        )
+                    }
+                }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Text(
-                text = movie.title,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onBackground,
-                fontWeight = FontWeight.Medium,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.fillMaxWidth()
+            Icon(
+                imageVector = Icons.Filled.Favorite,
+                contentDescription = "Favorite",
+                tint = if (isFavorite) Color.Red else Color.LightGray,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(10.dp)
+                    .size(24.dp)
+                    .clickable { isFavorite = !isFavorite }
             )
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Default.Star,
-                    contentDescription = "Rating",
-                    tint = Gold,
-                    modifier = Modifier.size(16.dp)
-                )
-
-                Spacer(modifier = Modifier.width(4.dp))
-
-                Text(
-                    text = movie.rating.toString(),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium
-                )
-            }
         }
     }
 }
 
 // -------------------------------
 // Sample Data
-// ------------------------------
+// -------------------------------
 fun getSampleMovies(): List<Movie> {
     return listOf(
-        Movie(id = 1, title = "Pulp Fiction", rating = 4.8),
-        Movie(id = 2, title = "The Lord of the Rings", rating = 4.9),
-        Movie(id = 3, title = "The Shawshank Redemption", rating = 4.9),
-        Movie(id = 4, title = "The Dark Knight", rating = 4.8),
-        Movie(id = 5, title = "Inception", rating = 4.7),
-        Movie(id = 6, title = "Interstellar", rating = 4.8)
+        Movie(
+            id = 1,
+            title = "Pulp Fiction",
+            rating = 4.8,
+            posterUrl = "https://image.tmdb.org/t/p/w500/d5iIlFn5s0ImszYzBPb8JPIfbXD.jpg"
+        ),
+        Movie(
+            id = 2,
+            title = "The Lord of the Rings",
+            rating = 4.9,
+            posterUrl = "https://image.tmdb.org/t/p/w500/6oom5QYQ2yQTMJIbnvbkBL9cHo6.jpg"
+        ),
+        Movie(
+            id = 3,
+            title = "The Shawshank Redemption",
+            rating = 4.9,
+            posterUrl = "https://image.tmdb.org/t/p/w500/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg"
+        ),
+        Movie(
+            id = 4,
+            title = "The Dark Knight",
+            rating = 4.8,
+            posterUrl = "https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg"
+        ),
+        Movie(
+            id = 5,
+            title = "Inception",
+            rating = 4.7,
+            posterUrl = "https://image.tmdb.org/t/p/w500/edv5CZvWj09upOsy2Y6IwDhK8bt.jpg"
+        ),
+        Movie(
+            id = 6,
+            title = "Interstellar",
+            rating = 4.8,
+            posterUrl = "https://image.tmdb.org/t/p/w500/rAiYTfKGqDCRIIqo664sY9XZIvQ.jpg"
+        )
     )
 }
 
