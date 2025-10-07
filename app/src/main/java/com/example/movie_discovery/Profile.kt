@@ -89,14 +89,12 @@ fun ProfileScreen() {
 
 @Composable
 fun ProfileListItem(text: String, count: Int = 0) {
-    val interactionSource = remember { MutableInteractionSource() }
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surface, shape = MaterialTheme.shapes.medium)
             .clickable(
-                interactionSource = interactionSource,
                 onClick = { /* navigate */ }
             )
             .padding(16.dp)
