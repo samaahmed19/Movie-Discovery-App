@@ -1,6 +1,7 @@
 package com.example.movie_discovery
 
 import androidx.compose.animation.AnimatedVisibility
+import com.example.movie_discovery.ui.theme.MoviesTheme
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -39,7 +40,8 @@ data class Movie(
 // Home Screen
 // -------------------------------
 @Composable
-fun HomeScreen() {
+fun HomeScreen(onMovieClick: (String) -> Unit,
+               onSearchClick: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -55,13 +57,14 @@ fun HomeScreen() {
             fontWeight = FontWeight.Bold
         )
 
-        SearchBar()
+        SearchBar(onSearchClick = onSearchClick)
 
         FeaturedMoviesSlider()
 
         MovieTabs()
 
-        MoviesList(movies = getSampleMovies())
+        MoviesList(  movies = getSampleMovies(),
+            onMovieClick = onMovieClick)
     }
 }
 
@@ -69,13 +72,14 @@ fun HomeScreen() {
 // Search Bar
 // -------------------------------
 @Composable
-fun SearchBar() {
+fun SearchBar(onSearchClick: () -> Unit) {
     TextField(
         value = "",
         onValueChange = {},
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp)),
+            .clip(RoundedCornerShape(12.dp))
+            .clickable { onSearchClick() },
         placeholder = { Text("Search movies...") },
         singleLine = true,
         enabled = false
@@ -135,12 +139,14 @@ fun MovieTabs() {
 // Movies List
 // -------------------------------
 @Composable
-fun MoviesList(movies: List<Movie>) {
+fun MoviesList(movies: List<Movie>,
+               onMovieClick: (String) -> Unit) {
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         items(movies) { movie ->
-            AnimatedMovieCard(movie = movie)
+            AnimatedMovieCard(movie = movie, onMovieClick = onMovieClick)
+
         }
     }
 }
@@ -149,12 +155,13 @@ fun MoviesList(movies: List<Movie>) {
 // Animated Movie Card
 // -------------------------------
 @Composable
-fun AnimatedMovieCard(movie: Movie) {
+fun AnimatedMovieCard(movie: Movie, onMovieClick: (String) -> Unit) {
     var visible by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { visible = true }
 
     AnimatedVisibility(visible = visible) {
-        MovieCard(movie = movie)
+        MovieCard(  movie = movie,
+            onMovieClick = onMovieClick )
     }
 }
 
@@ -164,14 +171,16 @@ fun AnimatedMovieCard(movie: Movie) {
 @Composable
 fun MovieCard(
     movie: Movie,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onMovieClick: (String) -> Unit = {}
 ) {
     var isFavorite by remember { mutableStateOf(false) }
 
     Card(
         modifier = modifier
             .width(160.dp)
-            .height(260.dp),
+            .height(260.dp)
+            .clickable { onMovieClick(movie.title) },
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(6.dp),
         colors = CardDefaults.cardColors(
@@ -293,7 +302,8 @@ fun getSampleMovies(): List<Movie> {
 @Composable
 fun HomeScreenLightPreview() {
     MoviesTheme(darkTheme = false) {
-        HomeScreen()
+        HomeScreen(onMovieClick = {},
+            onSearchClick = {})
     }
 }
 
@@ -301,6 +311,7 @@ fun HomeScreenLightPreview() {
 @Composable
 fun HomeScreenDarkPreview() {
     MoviesTheme(darkTheme = true) {
-        HomeScreen()
+        HomeScreen(onMovieClick = {},
+            onSearchClick = {})
     }
 }
