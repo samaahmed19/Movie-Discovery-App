@@ -240,7 +240,7 @@ fun MovieCard(movie: Movie) {
 
 // -------------------------------
 // Sample Data
-// -------------------------------
+// ------------------------------
 fun getSampleMovies(): List<Movie> {
     return listOf(
         Movie(id = 1, title = "Pulp Fiction", rating = 4.8),
