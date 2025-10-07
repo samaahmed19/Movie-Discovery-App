@@ -4,9 +4,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,6 +27,9 @@ fun MyApp() {
         navController = navController,
         startDestination = "splash"
     ) {
+        // ---------------------------
+        // Splash Screen
+        // ---------------------------
         composable("splash") {
             SplashScreen(
                 onTimeout = {
@@ -35,8 +40,37 @@ fun MyApp() {
             )
         }
 
+        // ---------------------------
+        // Home Screen
+        // ---------------------------
         composable("home") {
-            HomeScreen()
+            HomeScreen(
+                onMovieClick = { movieTitle ->
+                    navController.navigate("details/$movieTitle")
+                },
+                onSearchClick = {
+                    navController.navigate("search")
+                }
+            )
+        }
+
+        // ---------------------------
+        // Search Screen
+        // ---------------------------
+        composable("search") {
+            SearchScreen()
+        }
+
+        // ---------------------------
+        // Movie Details Screen
+        // ---------------------------
+        composable(
+            route = "details/{movieTitle}",
+            arguments = listOf(navArgument("movieTitle") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val movieTitle = backStackEntry.arguments?.getString("movieTitle")
+            val movie = getSampleMovies().find { it.title == movieTitle }
+            MovieDetailsScreen(movie = movie ?: getSampleMovies()[0])
         }
     }
 }
