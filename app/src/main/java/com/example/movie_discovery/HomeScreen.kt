@@ -53,6 +53,22 @@ fun HomeScreen() {
     }
 }
 
+@Composable
+fun SearchBar(
+    query: String,
+    onQueryChange: (String) -> Unit
+) {
+    androidx.compose.material3.TextField(
+        value = query,
+        onValueChange = onQueryChange,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp)),
+        placeholder = { Text("Search movies...") },
+        singleLine = true
+    )
+}
+
 
 @Composable
 fun MoviesList(movies: List<Movie>) {
