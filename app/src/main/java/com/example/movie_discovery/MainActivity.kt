@@ -50,7 +50,7 @@ fun MyApp() {
         // ---------------------------
         // Sign Up Screen
         // ---------------------------
-        composable("signup") {
+        composable("signUpScreen") {
             SignUpScreen(navController = navController)
         }
 
