@@ -49,7 +49,7 @@ fun ProfileScreen() {
                 Text(
                     text = "Username",
                     style = MaterialTheme.typography.headlineSmall.copy(
-                        color = AccentRed,
+                        color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold
                     )
                 )
