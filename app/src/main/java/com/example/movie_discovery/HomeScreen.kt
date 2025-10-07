@@ -1,5 +1,10 @@
 package com.example.movie_discovery
 
+import androidx.compose.ui.draw.shadow
+import androidx.compose.material3.ScrollableTabRow
+import androidx.compose.material3.Tab
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -25,6 +30,10 @@ import androidx.compose.ui.unit.sp
 import com.example.movie_discovery.ui.theme.AccentRed
 import com.example.movie_discovery.ui.theme.Gold
 import com.example.movie_discovery.ui.theme.MoviesTheme
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.outlined.FavoriteBorder
+
 
 data class Movie(
     val id: Int,
@@ -52,6 +61,55 @@ fun HomeScreen() {
         MoviesList(movies = getSampleMovies())
     }
 }
+@Composable
+fun SearchBar() {
+    androidx.compose.material3.TextField(
+        value = "",
+        onValueChange = {},
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp)),
+        placeholder = { Text("Search movies...") },
+        singleLine = true,
+        enabled = false
+    )
+}
+@Composable
+fun FeaturedMoviesSlider() {
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        items(5) {
+            Box(
+                modifier = Modifier
+                    .width(280.dp)
+                    .height(160.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color.Gray.copy(alpha = 0.3f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("FEATURED", color = Color.White)
+            }
+        }
+    }
+}
+
+
+@Composable
+fun MovieTabs() {
+    val tabs = listOf("Popular", "Top Rated", "Upcoming")
+    var selectedTab by remember { mutableStateOf(0) }
+
+    ScrollableTabRow(selectedTabIndex = selectedTab) {
+        tabs.forEachIndexed { index, title ->
+            Tab(
+                selected = selectedTab == index,
+                onClick = { selectedTab = index },
+                text = { Text(title) }
+            )
+        }
+    }
+}
 
 
 @Composable
@@ -70,13 +128,25 @@ fun MovieCard(movie: Movie) {
     Card(
         modifier = Modifier
             .width(160.dp)
-            .height(260.dp),
+            .height(260.dp)
+            .shadow(4.dp, RoundedCornerShape(16.dp)),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.Transparent
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-    ) {
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+    )
+    {
+        Box(
+            modifier = Modifier.fillMaxWidth(),
+            contentAlignment = Alignment.TopEnd
+        ) {
+            Icon(
+                imageVector = Icons.Default.FavoriteBorder,
+                contentDescription = "Add to favorites",
+                tint = AccentRed,
+                modifier = Modifier
+                    .padding(8.dp)
+                    .size(20.dp)
+            )
+        }
         Column(
             modifier = Modifier
                 .fillMaxSize()
