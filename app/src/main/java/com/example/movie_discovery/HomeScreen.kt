@@ -1,5 +1,9 @@
 package com.example.movie_discovery
 
+import androidx.compose.material3.ScrollableTabRow
+import androidx.compose.material3.Tab
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -25,6 +29,8 @@ import androidx.compose.ui.unit.sp
 import com.example.movie_discovery.ui.theme.AccentRed
 import com.example.movie_discovery.ui.theme.Gold
 import com.example.movie_discovery.ui.theme.MoviesTheme
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 data class Movie(
     val id: Int,
@@ -52,21 +58,34 @@ fun HomeScreen() {
         MoviesList(movies = getSampleMovies())
     }
 }
-
 @Composable
-fun SearchBar(
-    query: String,
-    onQueryChange: (String) -> Unit
-) {
+fun SearchBar() {
     androidx.compose.material3.TextField(
-        value = query,
-        onValueChange = onQueryChange,
+        value = "",
+        onValueChange = {},
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp)),
         placeholder = { Text("Search movies...") },
-        singleLine = true
+        singleLine = true,
+        enabled = false
     )
+}
+
+@Composable
+fun MovieTabs() {
+    val tabs = listOf("Popular", "Top Rated", "Upcoming")
+    var selectedTab by remember { mutableStateOf(0) }
+
+    ScrollableTabRow(selectedTabIndex = selectedTab) {
+        tabs.forEachIndexed { index, title ->
+            Tab(
+                selected = selectedTab == index,
+                onClick = { selectedTab = index },
+                text = { Text(title) }
+            )
+        }
+    }
 }
 
 
