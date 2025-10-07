@@ -1,4 +1,5 @@
 package com.example.movie_discovery
+
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -20,27 +21,22 @@ class MainActivity : ComponentActivity() {
 fun MyApp() {
     val navController = rememberNavController()
 
-
     NavHost(
         navController = navController,
         startDestination = "splash"
     ) {
-
         composable("splash") {
-            SplashScreen {
-                navController.navigate("home") {
-
-                    popUpTo("splash") { inclusive = true }
+            SplashScreen(
+                onTimeout = {
+                    navController.navigate("home") {
+                        popUpTo("splash") { inclusive = true }
+                    }
                 }
-                composable("home") {
-
-
-
-                }
-            }
+            )
         }
 
-
-
+        composable("home") {
+            HomeScreen()
+        }
     }
 }
