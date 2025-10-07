@@ -159,7 +159,13 @@ fun SignInScreen(navController: NavController?) {
                 }
                 Spacer(modifier = Modifier.height(24.dp))
             Button(
-                onClick ={},
+                onClick ={
+                    navController?.navigate("home"){
+                        popUpTo(navController.graph.id){
+                            inclusive = true
+                        }
+                    }
+                },
 colors = ButtonDefaults.buttonColors(contentColor = MaterialTheme.colorScheme.onSurface),
 shape = CircleShape,
                 contentPadding = PaddingValues(12.dp),

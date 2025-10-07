@@ -73,6 +73,9 @@ fun SearchScreen() {
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier.fillMaxSize()
             ) {
+                items(sampleCategories) { category ->
+                    CategoryCard(category)
+                }
             }
         }
     }
