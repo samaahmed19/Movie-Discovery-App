@@ -1,5 +1,8 @@
 package com.example.movie_discovery
 
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Person
+
 import androidx.compose.animation.AnimatedVisibility
 import com.example.movie_discovery.ui.theme.MoviesTheme
 import androidx.compose.foundation.background
@@ -50,12 +53,41 @@ fun HomeScreen(onMovieClick: (String) -> Unit,
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
 
-        Text(
-            text = "Movie Discovery",
-            style = MaterialTheme.typography.headlineMedium,
-            color = AccentRed,
-            fontWeight = FontWeight.Bold
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = "Movie Discovery",
+                style = MaterialTheme.typography.headlineMedium,
+                color = AccentRed,
+                fontWeight = FontWeight.Bold
+            )
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                IconButton(onClick = { /* TODO: Navigate to Profile Screen */ }) {
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = "Profile",
+                        tint = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+
+                IconButton(onClick = { }) {
+                    Icon(
+                        imageVector = Icons.Default.Settings,
+                        contentDescription = "Settings",
+                        tint = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+            }
+        }
+
 
         SearchBar(onSearchClick = onSearchClick)
 
