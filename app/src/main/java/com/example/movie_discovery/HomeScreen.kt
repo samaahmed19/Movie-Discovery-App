@@ -44,7 +44,8 @@ data class Movie(
 // -------------------------------
 @Composable
 fun HomeScreen(onMovieClick: (String) -> Unit,
-               onSearchClick: () -> Unit) {
+               onSearchClick: () -> Unit,
+               onProfileClick: () -> Unit ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -70,7 +71,7 @@ fun HomeScreen(onMovieClick: (String) -> Unit,
             Row(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                IconButton(onClick = { /* TODO: Navigate to Profile Screen */ }) {
+                IconButton(onClick = { onProfileClick() }) {
                     Icon(
                         imageVector = Icons.Default.Person,
                         contentDescription = "Profile",
@@ -335,7 +336,8 @@ fun getSampleMovies(): List<Movie> {
 fun HomeScreenLightPreview() {
     MoviesTheme(darkTheme = false) {
         HomeScreen(onMovieClick = {},
-            onSearchClick = {})
+            onSearchClick = {},
+            onProfileClick={})
     }
 }
 
@@ -344,6 +346,7 @@ fun HomeScreenLightPreview() {
 fun HomeScreenDarkPreview() {
     MoviesTheme(darkTheme = true) {
         HomeScreen(onMovieClick = {},
-            onSearchClick = {})
+            onSearchClick = {},
+            onProfileClick={})
     }
 }
