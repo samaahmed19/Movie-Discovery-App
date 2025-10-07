@@ -23,6 +23,7 @@ import compose.icons.simpleicons.Google
 import com.example.movie_discovery.ui.theme.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
 fun NeonText (
@@ -66,7 +67,10 @@ fun SignInScreen(navController: NavController?) {
     var password by remember { mutableStateOf("") }
 
     val backgroundBrush = Brush.verticalGradient(
-        colors = listOf(DarkNavy, CardBackground.copy(alpha = 0.8f), DarkNavy)
+        colors = listOf(
+            MaterialTheme.colorScheme.background,
+            MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
+            MaterialTheme.colorScheme.background)
     )
 
     Column(
@@ -86,17 +90,17 @@ fun SignInScreen(navController: NavController?) {
         ) {
             com.example.movie_discovery.NeonText(
                 text = "Movie",
-                neonColor = Color.Cyan.copy(alpha = 0.9f)
+                neonColor = MaterialTheme.colorScheme.primary
             )
 
             com.example.movie_discovery.NeonText(
                 text = "Discovery",
-                neonColor = AccentRed.copy(alpha = 0.8f)
+                neonColor = MaterialTheme.colorScheme.secondary
             )
         }
         Card(
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = CardBackground),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -106,7 +110,7 @@ fun SignInScreen(navController: NavController?) {
             ) {
                 Text(
                     text = "Sign In",
-                    color = TextPrimary,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(bottom = 20.dp)
@@ -116,10 +120,10 @@ fun SignInScreen(navController: NavController?) {
                     onValueChange = { email = it },
                     label = { Text("Email", color = TextSecondary) },
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = AccentRed,
-                        unfocusedBorderColor = TextSecondary,
-                        focusedTextColor = TextPrimary,
-                        unfocusedTextColor = TextPrimary
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -131,9 +135,9 @@ fun SignInScreen(navController: NavController?) {
                     label = { Text("Password", color = TextSecondary) },
                     visualTransformation = PasswordVisualTransformation(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = AccentRed,
-                        unfocusedBorderColor = TextSecondary,
-                        focusedTextColor = TextPrimary,
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
 
                         ),
                     modifier = Modifier
@@ -144,19 +148,19 @@ fun SignInScreen(navController: NavController?) {
                     onClick = {
 
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = AccentRed),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(70.dp)
                         .padding(top = 16.dp, bottom = 8.dp)
                 ) {
-                    Text("Sign In", color = TextPrimary, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Text("Sign In", color = MaterialTheme.colorScheme.onPrimary, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 }
                 Spacer(modifier = Modifier.height(24.dp))
             Button(
                 onClick ={},
-colors = ButtonDefaults.buttonColors(contentColor = androidx.compose.ui.graphics.Color.White),
+colors = ButtonDefaults.buttonColors(contentColor = MaterialTheme.colorScheme.onSurface),
 shape = CircleShape,
                 contentPadding = PaddingValues(12.dp),
 modifier = Modifier.size(50.dp)
@@ -176,10 +180,10 @@ modifier = Modifier.size(50.dp)
             horizontalArrangement = Arrangement.Center,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("New user? ", color = TextSecondary, fontSize = 16.sp)
+            Text("New user? ", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f), fontSize = 16.sp)
             Text(
                 text = "SIGN UP",
-                color = AccentRed,
+                color = MaterialTheme.colorScheme.primary,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.clickable { navController?.navigate("sign_up_screen") }
