@@ -1,7 +1,9 @@
 package com.example.movie_discovery
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,6 +25,7 @@ import compose.icons.simpleicons.Google
 import com.example.movie_discovery.ui.theme.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import com.example.movie_discovery.NeonText
 import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
@@ -50,7 +53,7 @@ Text(
     text =text,
     fontSize =32.sp,
 fontWeight = FontWeight.Bold,
-    color =Color.White,
+    color = MaterialTheme.colorScheme.onBackground,
 textAlign = TextAlign.Center
 )
 
@@ -63,15 +66,22 @@ fun SignInScreen(navController: NavController?) {
 
     val scrollState = rememberScrollState()
 
-    var email by remember { mutableStateOf("") }
+    var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    val backgroundBrush = Brush.verticalGradient(
-        colors = listOf(
-            MaterialTheme.colorScheme.background,
-            MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
-            MaterialTheme.colorScheme.background)
-    )
+    val backgroundBrush = if(isSystemInDarkTheme()){
+        Brush.verticalGradient(
+            colors = listOf(DarkNavy , CardBackground.copy(alpha = 0.8f) , DarkNavy)
+        )
+    } else{
+        Brush.verticalGradient(
+            colors = listOf(
+                Color(0xFFFFFFFF),
+                Color(0xFFF5F5F5),
+                Color(0xFFFFFFFF)
+                )
+        )
+    }
 
     Column(
         modifier = Modifier
@@ -88,15 +98,15 @@ fun SignInScreen(navController: NavController?) {
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(bottom = 40.dp)
         ) {
-            com.example.movie_discovery.NeonText(
+            NeonText(
                 text = "Movie",
-                neonColor = MaterialTheme.colorScheme.primary
+                neonColor = Color.Cyan.copy(alpha = 0.9f)
+            )
+            NeonText(
+                text = "Discovery",
+                neonColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
             )
 
-            com.example.movie_discovery.NeonText(
-                text = "Discovery",
-                neonColor = MaterialTheme.colorScheme.secondary
-            )
         }
         Card(
             shape = RoundedCornerShape(16.dp),
@@ -116,12 +126,14 @@ fun SignInScreen(navController: NavController?) {
                     modifier = Modifier.padding(bottom = 20.dp)
                 )
                 OutlinedTextField(
-                    value = email,
-                    onValueChange = { email = it },
-                    label = { Text("Email", color = TextSecondary) },
+                    value = username,
+                    onValueChange = { username = it },
+                    label = { Text(
+                        "Username",
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)) },
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
                         focusedTextColor = MaterialTheme.colorScheme.onSurface,
                         unfocusedTextColor = MaterialTheme.colorScheme.onSurface
                     ),
@@ -132,13 +144,15 @@ fun SignInScreen(navController: NavController?) {
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
-                    label = { Text("Password", color = TextSecondary) },
+                    label = { Text(
+                        "Password",
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)) },
                     visualTransformation = PasswordVisualTransformation(),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                         focusedTextColor = MaterialTheme.colorScheme.onSurface,
-
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface
                         ),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -174,7 +188,7 @@ modifier = Modifier.size(50.dp)
                     Icon(
                         imageVector = SimpleIcons.Google,
                         contentDescription = "Google Sign In",
-                        tint = androidx.compose.ui.graphics.Color.White,
+                        tint = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.size(24.dp)
                     )
             }
@@ -192,9 +206,25 @@ modifier = Modifier.size(50.dp)
                 color = MaterialTheme.colorScheme.primary,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.clickable { navController?.navigate("sign_up_screen") }
+                modifier = Modifier.clickable { navController?.navigate("signup") }
             )
         }
         Spacer(modifier = Modifier.height(30.dp))
         }
     }
+
+@Preview(showBackground = true, name = "Light Mode")
+@Composable
+fun PreviewSignInScreenLight() {
+    MoviesTheme(darkTheme = false) {
+        SignInScreen(navController = null)
+    }
+}
+
+@Preview(showBackground = true, name = "Dark Mode", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun PreviewSignInScreenDark() {
+    MoviesTheme(darkTheme = true) {
+        SignInScreen(navController = null)
+    }
+}
