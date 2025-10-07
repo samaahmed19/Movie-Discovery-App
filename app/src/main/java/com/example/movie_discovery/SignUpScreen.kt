@@ -1,7 +1,9 @@
 package com.example.movie_discovery
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,6 +26,8 @@ import com.example.movie_discovery.ui.theme.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
+import com.example.movie_discovery.NeonText
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,13 +36,23 @@ fun SignUpScreen(navController: NavController?) {
 
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
+    var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
 
-    val backgroundBrush = Brush.verticalGradient(
-        colors = listOf(DarkNavy, CardBackground.copy(alpha = 0.8f), DarkNavy)
-    )
+    val backgroundBrush = if(isSystemInDarkTheme()){
+        Brush.verticalGradient(
+            colors = listOf(DarkNavy , CardBackground.copy(alpha = 0.8f) , DarkNavy)
+        )
+    } else{
+        Brush.verticalGradient(
+            colors = listOf(
+                Color(0xFFFFFFFF),
+                Color(0xFFF5F5F5),
+                Color(0xFFFFFFFF)
+            )
+        )
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -53,11 +67,11 @@ fun SignUpScreen(navController: NavController?) {
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(bottom = 40.dp)
         ) {
-            com.example.movie_discovery.NeonText(
+            NeonText(
                 text = "Movie",
-                neonColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.9f)
+                neonColor = Color.Cyan.copy(alpha = 0.9f)
             )
-            com.example.movie_discovery.NeonText(
+            NeonText(
                 text = "Discovery",
                 neonColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
             )
@@ -109,9 +123,9 @@ fun SignUpScreen(navController: NavController?) {
                     )
                 }
                 OutlinedTextField(
-                    value = email,
-                    onValueChange = { email = it },
-                    label = { Text("Email", color = TextSecondary) },
+                    value = username,
+                    onValueChange = { username = it },
+                    label = { Text("Username", color = TextSecondary) },
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
                         unfocusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(0.5f),
@@ -189,7 +203,7 @@ fun SignUpScreen(navController: NavController?) {
                     Icon(
                         imageVector = SimpleIcons.Google,
                         contentDescription = "Google Sign Up",
-                        tint = Color.Unspecified,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(24.dp)
                     )
                 }
@@ -208,9 +222,25 @@ fun SignUpScreen(navController: NavController?) {
                 color = MaterialTheme.colorScheme.primary,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.clickable { navController?.navigate("sign_in_screen") }
+                modifier = Modifier.clickable { navController?.navigate("signIn") }
             )
         }
         Spacer(modifier = Modifier.height(30.dp))
+    }
+}
+
+@Preview(showBackground = true, name = "Light Mode")
+@Composable
+fun PreviewSignUpScreenLight() {
+    MoviesTheme(darkTheme = false) {
+        SignUpScreen(navController = null)
+    }
+}
+
+@Preview(showBackground = true, name = "Dark Mode", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun PreviewSignUpScreenDark() {
+    MoviesTheme(darkTheme = true) {
+        SignUpScreen(navController = null)
     }
 }
