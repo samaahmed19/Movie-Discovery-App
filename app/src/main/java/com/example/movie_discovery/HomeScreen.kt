@@ -71,6 +71,26 @@ fun SearchBar() {
         enabled = false
     )
 }
+@Composable
+fun FeaturedMoviesSlider() {
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        items(5) {
+            Box(
+                modifier = Modifier
+                    .width(280.dp)
+                    .height(160.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color.Gray.copy(alpha = 0.3f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("FEATURED", color = Color.White)
+            }
+        }
+    }
+}
+
 
 @Composable
 fun MovieTabs() {
