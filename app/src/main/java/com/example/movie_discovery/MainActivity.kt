@@ -33,11 +33,25 @@ fun MyApp() {
         composable("splash") {
             SplashScreen(
                 onTimeout = {
-                    navController.navigate("home") {
+                    navController.navigate("signup") {
                         popUpTo("splash") { inclusive = true }
                     }
                 }
             )
+        }
+
+        // ---------------------------
+        // Sign Up Screen
+        // ---------------------------
+        composable("signup") {
+            SignUpScreen(navController = navController)
+        }
+
+        // ---------------------------
+        // Sign In Screen
+        // ---------------------------
+        composable("signin") {
+            SignInScreen(navController = navController)
         }
 
         // ---------------------------
