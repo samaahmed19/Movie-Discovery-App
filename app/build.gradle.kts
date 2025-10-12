@@ -6,12 +6,12 @@ plugins {
 
 android {
     namespace = "com.example.movie_discovery"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.movie_discovery"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 36 
         versionCode = 1
         versionName = "1.0"
     }
@@ -30,6 +30,7 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
     kotlinOptions {
         jvmTarget = "11"
     }
@@ -51,6 +52,7 @@ dependencies {
     implementation("androidx.compose.ui:ui:1.7.4")
     implementation("androidx.compose.material:material:1.7.4")
     implementation("androidx.compose.ui:ui-tooling-preview:1.7.4")
+    implementation(libs.material3)
     debugImplementation("androidx.compose.ui:ui-tooling:1.7.4")
 
     testImplementation("junit:junit:4.13.2")
