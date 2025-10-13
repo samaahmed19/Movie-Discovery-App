@@ -1,24 +1,36 @@
+import java.util.Properties
+
+// ---------------------- Load API Key ----------------------
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(localPropertiesFile.reader())
+}
+val API_KEY: String? = localProperties.getProperty("API_KEY")
+
+// ---------------------- Plugins ----------------------
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 }
 
+// ---------------------- Android Config ----------------------
 android {
     namespace = "com.example.movie_discovery"
-    compileSdk = 36
+    compileSdk = 36   // ✅ Updated to fix AAR metadata issue
 
     defaultConfig {
         applicationId = "com.example.movie_discovery"
         minSdk = 24
-        targetSdk = 36
+        targetSdk = 36   // ✅ Match compileSdk
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField("String", "TMDB_API_KEY", "\"2745135cf88bf117b5ace2b3fbabf113\"")
-
+        // ✅ Load API key from local.properties
+        buildConfigField("String", "TMDB_API_KEY", "\"$API_KEY\"")
     }
 
     buildTypes {
@@ -30,40 +42,48 @@ android {
             )
         }
     }
+
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        // ✅ Use Java 17 for compatibility with new Compose libraries
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
+
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
+
     buildFeatures {
         compose = true
+        buildConfig = true   // ✅ Enables BuildConfig usage
     }
+
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.3"
     }
 }
 
+// ---------------------- Dependencies ----------------------
 dependencies {
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-    implementation("androidx.compose.material:material-icons-extended")
+    // ✅ Retrofit for API calls
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("br.com.devsrsouza.compose.icons:simple-icons:1.1.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
+    // ✅ Compose core + Material3
     implementation(platform("androidx.compose:compose-bom:2023.08.00"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.material3:material3")
-    implementation("io.coil-kt:coil-compose:2.4.0")
+    implementation("androidx.compose.material:material-icons-extended")
+    implementation("androidx.compose.foundation:foundation")
     implementation("androidx.navigation:navigation-compose:2.7.7")
+    implementation("io.coil-kt:coil-compose:2.4.0")
+
+    // ✅ AndroidX Core
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.ui)
-    implementation(libs.androidx.ui.graphics)
-    implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material3)
-    implementation(libs.androidx.compose.foundation)
+
+    // ✅ Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -84,7 +84,7 @@ fun MyApp() {
         ) { backStackEntry ->
             val movieTitle = backStackEntry.arguments?.getString("movieTitle")
             val movie = getSampleMovies().find { it.title == movieTitle }
-            MovieDetailsScreen(movie = movie ?: getSampleMovies()[0])
+            MovieDetailsScreen(movieId = movie?.id?.toInt() ?: 1)
         }
     }
 }
