@@ -3,75 +3,48 @@ package com.example.movie_discovery
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
+
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavType
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import com.example.movie_discovery.ui.theme.Movie_DiscoveryTheme
+
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MyApp()
+            Movie_DiscoveryTheme {
+                Scaffold { innerPadding ->
+                    Greeting(
+                        name = "Movie Discovery",
+                        modifier = Modifier
+                            .padding(innerPadding)
+                            .fillMaxSize()
+                    )
+                }
+            }
         }
     }
 }
 
 @Composable
-fun MyApp() {
-    val navController = rememberNavController()
+fun Greeting(name: String, modifier: Modifier = Modifier) {
+    Text(
+        text = "Hello $name!",
+        modifier = modifier
+    )
+}
 
-    NavHost(
-        navController = navController,
-        startDestination = "splash"
-    ) {
-        // Splash Screen
-        composable("splash") {
-            SplashScreen(
-                onTimeout = {
-                    navController.navigate("signIn") {
-                        popUpTo("splash") { inclusive = true }
-                    }
-                }
-            )
-        }
-
-        // Sign In Screen
-        composable("signIn") {
-            SignInScreen(navController = navController)
-        }
-
-        // Sign Up Screen
-        composable("signUpScreen") {
-            SignUpScreen(navController = navController)
-        }
-
-        // Home Screen
-        composable("home") {
-            HomeScreen(
-                onMovieClick = { movieId ->
-                    navController.navigate("details/$movieId")
-                },
-                onSearchClick = {
-                    navController.navigate("search")
-                }
-            )
-        }
-
-        // Search Screen
-        composable("search") {
-            SearchScreen()
-        }
-
-        // Movie Details Screen (uses movieId instead of movieTitle)
-        composable(
-            route = "details/{movieId}",
-            arguments = listOf(navArgument("movieId") { type = NavType.IntType })
-        ) { backStackEntry ->
-            val movieId = backStackEntry.arguments?.getInt("movieId")
-            MovieDetailsScreen(movieId = movieId)
-        }
+@Preview(showBackground = true)
+@Composable
+fun GreetingPreview() {
+    Movie_DiscoveryTheme {
+        Greeting("Android")
     }
 }
