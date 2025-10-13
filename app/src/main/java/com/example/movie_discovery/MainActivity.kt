@@ -27,9 +27,7 @@ fun MyApp() {
         navController = navController,
         startDestination = "splash"
     ) {
-        // ---------------------------
         // Splash Screen
-        // ---------------------------
         composable("splash") {
             SplashScreen(
                 onTimeout = {
@@ -40,27 +38,21 @@ fun MyApp() {
             )
         }
 
-        // ---------------------------
         // Sign In Screen
-        // ---------------------------
         composable("signIn") {
             SignInScreen(navController = navController)
         }
 
-        // ---------------------------
         // Sign Up Screen
-        // ---------------------------
         composable("signUpScreen") {
             SignUpScreen(navController = navController)
         }
 
-        // ---------------------------
         // Home Screen
-        // ---------------------------
         composable("home") {
             HomeScreen(
-                onMovieClick = { movieTitle ->
-                    navController.navigate("details/$movieTitle")
+                onMovieClick = { movieId ->
+                    navController.navigate("details/$movieId")
                 },
                 onSearchClick = {
                     navController.navigate("search")
@@ -68,23 +60,18 @@ fun MyApp() {
             )
         }
 
-        // ---------------------------
         // Search Screen
-        // ---------------------------
         composable("search") {
             SearchScreen()
         }
 
-        // ---------------------------
-        // Movie Details Screen
-        // ---------------------------
+        // Movie Details Screen (uses movieId instead of movieTitle)
         composable(
-            route = "details/{movieTitle}",
-            arguments = listOf(navArgument("movieTitle") { type = NavType.StringType })
+            route = "details/{movieId}",
+            arguments = listOf(navArgument("movieId") { type = NavType.IntType })
         ) { backStackEntry ->
-            val movieTitle = backStackEntry.arguments?.getString("movieTitle")
-            val movie = getSampleMovies().find { it.title == movieTitle }
-            MovieDetailsScreen(movieId = movie?.id?.toInt() ?: 1)
+            val movieId = backStackEntry.arguments?.getInt("movieId")
+            MovieDetailsScreen(movieId = movieId)
         }
     }
 }
