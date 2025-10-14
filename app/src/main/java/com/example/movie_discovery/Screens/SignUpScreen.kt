@@ -8,6 +8,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -25,7 +28,9 @@ import androidx.navigation.NavController
 import com.example.movie_discovery.ui.theme.*
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.geometry.Offset
-
+import androidx.compose.ui.text.input.VisualTransformation
+import com.example.movie_discovery.data.AuthState
+import com.example.movie_discovery.data.AuthViewModel
 
 @Composable
 fun Neontext(
@@ -73,17 +78,16 @@ fun SignUpScreen(navController: NavController? = null) {
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
 
+    var passwordVisible by remember { mutableStateOf(false) }
+    var confirmPasswordVisible by remember { mutableStateOf(false) }
+
     val backgroundBrush = if (isSystemInDarkTheme()) {
         Brush.verticalGradient(
             colors = listOf(DarkNavy, CardBackground.copy(alpha = 0.8f), DarkNavy)
         )
     } else {
         Brush.verticalGradient(
-            colors = listOf(
-                Color.White,
-                Color(0xFFF5F5F5),
-                Color.White
-            )
+            colors = listOf(Color.White, Color(0xFFF5F5F5), Color.White)
         )
     }
 
@@ -113,6 +117,7 @@ fun SignUpScreen(navController: NavController? = null) {
                 fontStyle = FontStyle.Italic
             )
         }
+
         Card(
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(
@@ -174,41 +179,61 @@ fun SignUpScreen(navController: NavController? = null) {
                         focusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black,
                         unfocusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black
                     ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp)
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
                 )
 
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
                     label = { Text("Password", color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.7f)) },
-                    visualTransformation = PasswordVisualTransformation(),
+                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        val image = if (passwordVisible)
+                            Icons.Default.Visibility
+                        else
+                            Icons.Default.VisibilityOff
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                            Icon(
+                                imageVector = image,
+                                contentDescription = if (passwordVisible) "Hide password" else "Show password",
+                                tint = if (isSystemInDarkTheme()) TextSecondary else Color.Gray
+                            )
+                        }
+                    },
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = AccentRed,
                         unfocusedBorderColor = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.3f),
                         focusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black,
                         unfocusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black
                     ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp)
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
                 )
 
                 OutlinedTextField(
                     value = confirmPassword,
                     onValueChange = { confirmPassword = it },
                     label = { Text("Confirm Password", color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.7f)) },
-                    visualTransformation = PasswordVisualTransformation(),
+                    visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        val image = if (confirmPasswordVisible)
+                            Icons.Default.Visibility
+                        else
+                            Icons.Default.VisibilityOff
+                        IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
+                            Icon(
+                                imageVector = image,
+                                contentDescription = if (confirmPasswordVisible) "Hide password" else "Show password",
+                                tint = if (isSystemInDarkTheme()) TextSecondary else Color.Gray
+                            )
+                        }
+                    },
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = AccentRed,
                         unfocusedBorderColor = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.3f),
                         focusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black,
                         unfocusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black
                     ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp)
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
                 )
 
                 Button(
@@ -219,10 +244,7 @@ fun SignUpScreen(navController: NavController? = null) {
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = AccentRed),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(70.dp)
-                        .padding(top = 16.dp, bottom = 8.dp)
+                    modifier = Modifier.fillMaxWidth().height(70.dp).padding(top = 16.dp, bottom = 8.dp)
                 ) {
                     Text(
                         "Sign Up",
@@ -233,6 +255,7 @@ fun SignUpScreen(navController: NavController? = null) {
                 }
             }
         }
+
         Spacer(modifier = Modifier.height(20.dp))
 
         Row(

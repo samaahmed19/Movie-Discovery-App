@@ -1,6 +1,7 @@
 package com.example.movie_discovery.Screens
 
 import android.content.res.Configuration
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -8,6 +9,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -25,6 +29,11 @@ import androidx.navigation.NavController
 import com.example.movie_discovery.ui.theme.*
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.movie_discovery.data.AuthState
+import com.example.movie_discovery.data.AuthViewModel
 
 
 @Composable
@@ -64,10 +73,18 @@ fun NeonText(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignInScreen(navController: NavController? = null) {
+fun SignInScreen(
+    navController: NavController? = null,
+    authViewModel: AuthViewModel = viewModel()
+) {
     val scrollState = rememberScrollState()
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var isEmailError by remember { mutableStateOf(false) }
+    var isPasswordError by remember { mutableStateOf(false) }
+    var passwordVisible by remember { mutableStateOf(false) }
+    val authState by authViewModel.authState.collectAsState()
+    val context = LocalContext.current
 
     val backgroundBrush = if (isSystemInDarkTheme()) {
         Brush.verticalGradient(
@@ -75,11 +92,7 @@ fun SignInScreen(navController: NavController? = null) {
         )
     } else {
         Brush.verticalGradient(
-            colors = listOf(
-                Color.White,
-                Color(0xFFF5F5F5),
-                Color.White
-            )
+            colors = listOf(Color.White, Color(0xFFF5F5F5), Color.White)
         )
     }
 
@@ -93,7 +106,6 @@ fun SignInScreen(navController: NavController? = null) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.height(40.dp))
-
 
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -110,9 +122,12 @@ fun SignInScreen(navController: NavController? = null) {
                 fontStyle = FontStyle.Italic
             )
         }
+
         Card(
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = if (isSystemInDarkTheme()) CardBackground else Color(0xFFF5F5F5)),
+            colors = CardDefaults.cardColors(
+                containerColor = if (isSystemInDarkTheme()) CardBackground else Color(0xFFF5F5F5)
+            ),
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -127,13 +142,24 @@ fun SignInScreen(navController: NavController? = null) {
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(bottom = 20.dp)
                 )
+
                 OutlinedTextField(
                     value = email,
                     onValueChange = { email = it },
-                    label = { Text("Email", color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.7f)) },
+                    label = {
+                        Text(
+                            "Email",
+                            color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(
+                                alpha = 0.7f
+                            )
+                        )
+                    },
+                    isError = isEmailError,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = AccentRed,
-                        unfocusedBorderColor = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.3f),
+                        unfocusedBorderColor = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(
+                            alpha = 0.3f
+                        ),
                         focusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black,
                         unfocusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black
                     ),
@@ -141,14 +167,39 @@ fun SignInScreen(navController: NavController? = null) {
                         .fillMaxWidth()
                         .padding(vertical = 8.dp)
                 )
+
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
-                    label = { Text("Password", color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.7f)) },
-                    visualTransformation = PasswordVisualTransformation(),
+                    label = {
+                        Text(
+                            "Password",
+                            color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(
+                                alpha = 0.7f
+                            )
+                        )
+                    },
+                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        val image = if (passwordVisible)
+                            Icons.Default.Visibility
+                        else
+                            Icons.Default.VisibilityOff
+
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                            Icon(
+                                imageVector = image,
+                                contentDescription = if (passwordVisible) "Hide password" else "Show password",
+                                tint = if (isSystemInDarkTheme()) TextSecondary else Color.Gray
+                            )
+                        }
+                    },
+                    isError = isPasswordError,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = AccentRed,
-                        unfocusedBorderColor = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.3f),
+                        unfocusedBorderColor = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(
+                            alpha = 0.3f
+                        ),
                         focusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black,
                         unfocusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black
                     ),
@@ -156,10 +207,17 @@ fun SignInScreen(navController: NavController? = null) {
                         .fillMaxWidth()
                         .padding(vertical = 8.dp)
                 )
+
                 Button(
                     onClick = {
-                        navController?.navigate("home") {
-                            popUpTo(navController.graph.id) { inclusive = true }
+                        isEmailError = email.isBlank()
+                        isPasswordError = password.isBlank()
+
+                        if (!isEmailError && !isPasswordError) {
+                            authViewModel.signIn(email, password)
+                        } else {
+                            Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT)
+                                .show()
                         }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = AccentRed),
@@ -178,6 +236,7 @@ fun SignInScreen(navController: NavController? = null) {
                 }
             }
         }
+
         Spacer(modifier = Modifier.height(20.dp))
 
         Row(
@@ -197,7 +256,24 @@ fun SignInScreen(navController: NavController? = null) {
                 modifier = Modifier.clickable { navController?.navigate("signUpScreen") }
             )
         }
+
         Spacer(modifier = Modifier.height(30.dp))
+
+
+        when (val state = authState) {
+            is AuthState.Success -> {
+                Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
+                navController?.navigate("home_screen")
+                authViewModel.resetAuthState()
+            }
+
+            is AuthState.Error -> {
+                Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
+                authViewModel.resetAuthState()
+            }
+
+            else -> {}
+        }
     }
 }
 
