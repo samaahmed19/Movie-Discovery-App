@@ -54,14 +54,14 @@ The application fetches movie data from The Movie Database (TMDB) API and provid
 ---
 ## Team Tasks Distribution
 
-| Member | Name                              | Phase                | Responsibilities |
-|--------|-----------------------------------|----------------------|------------------|
-| 1      | Mouhab Mamdouh Zakaria            | Project Setup        | - Create Android project & configure Gradle.<br>- Setup package structure (data, domain, presentation).<br>- Configure Navigation component. |
-| 2      | Sama Ahmed Mohamed Abdelkareem    | UI (Home Screen)     | - Build Home screen UI with Jetpack Compose.<br>- Show trending & popular movies.<br>- Connect with ViewModel & handle states. |
-| 3      | Mirna Mahmoud Mohamed Mahmoud     | UI (Movie Details)   | - Build Movie Details screen (poster, overview, rating).<br>- Add “Add to Favorites” button.<br>- API integration for movie details. |
-| 4      | Abdelrahman Ahmed ElSayed ElQazaz | UI (Search & Filter) | - Implement Search screen (text input + results).<br>- Add filtering by genre/rating.<br>- Integrate with API for search. |
-| 5      | Lina Ashraf Sediq Hamzawy         | Local Storage        | - Setup Room / DataStore.<br>- Implement Favorites screen.<br>- Save & retrieve favorites.<br>- Add offline cache support. |
-| 6      | Mariam Magdy Soliman Youssef      | Testing & Docs       | - Write Unit & UI tests.<br>- Maintain README & documentation.<br>- Prepare final presentation.<br>- Polish UI/UX. |
+| Member | Name                              | Responsibilities |
+|--------|-----------------------------------|------------------|
+| 1      | Sama Ahmed Mohamed Abdelkareem    |  - Maintain README & documentation.<br> - Create Android project & configure Gradle.<br>- Setup package structure (data, domain, presentation).<br>- Configure Navigation component.- Build Home screen UI with Jetpack Compose.<br>- Show trending & popular movies.<br>- Connect with ViewModel & handle states.<br>Splash screen UI with Jetpack Compose.<br>- API integration for Home screen. |
+| 2      | Mouhab Mamdouh Zakaria            | - Implement Search screen (text input + results).<br> - Implement Categories screen.<br> - Implement Sign in, sign up screens.<br> -Create Light , Night mode Theme<br>- API integration for screens|
+| 3      | Mirna Mahmoud Mohamed Mahmoud     | - Build Home screen UI with Jetpack Compose.<br>- Add “Add to Favorites” button.<br>- API integration for Homem profile .<br> Build Profile screen UI with Jetpack Compose.<br>- Connect with ViewModel & handle states. |
+| 4      | Abdelrahman Ahmed ElSayed ElQazaz | - Configure Navigation component. - Implement Search screen (text input + results).<br>- Add filtering by genre/rating.<br>- Integrate with API for search. - Implement Categories screen.<br>- Connect with ViewModel & handle states.|
+| 5      | Lina Ashraf Sediq Hamzawy         | - Build Movie Details screen (poster, overview, rating).<br>- API integration for movie details.<br>- Connect with ViewModel & handle states.  |
+| 6      | Mariam Magdy Soliman Youssef      |- Build Movie Details screen (poster, overview, rating).<br>- API integration for movie details.<br>- Connect with ViewModel & handle states. |
 ---
 ## License
 This project is licensed under the MIT License.
