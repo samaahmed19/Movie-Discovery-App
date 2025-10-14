@@ -1,6 +1,5 @@
 package com.example.movie_discovery.Screens
 
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.animation.AnimatedVisibility
 import com.example.movie_discovery.ui.theme.MoviesTheme
@@ -28,7 +27,6 @@ import coil.compose.AsyncImage
 import com.example.movie_discovery.ui.theme.AccentRed
 import com.example.movie_discovery.data.MovieDetailsResponse
 import com.example.movie_discovery.Viewmodels.HomeViewModel
-import com.example.movie_discovery.data.MovieResponse
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 
@@ -88,13 +86,6 @@ fun HomeScreen(
                     )
                 }
 
-                IconButton(onClick = { }) {
-                    Icon(
-                        imageVector = Icons.Default.Settings,
-                        contentDescription = "Settings",
-                        tint = MaterialTheme.colorScheme.onBackground
-                    )
-                }
             }
         }
 
@@ -171,18 +162,14 @@ fun FeaturedMoviesSlider(movies: List<MovieDetailsResponse>) {
 // Tabs Section
 // -------------------------------
 @Composable
-fun MovieTabs(
-    selectedTab: Int,
-    onTabSelected: (Int) -> Unit
-){
-val tabs = listOf("Popular", "Top Rated", "Upcoming")
-    var selectedTab by remember { mutableStateOf(0) }
+fun MovieTabs(selectedTab: Int, onTabSelected: (Int) -> Unit) {
+    val tabs = listOf("Popular", "Top Rated", "Upcoming")
 
     ScrollableTabRow(selectedTabIndex = selectedTab) {
         tabs.forEachIndexed { index, title ->
             Tab(
                 selected = selectedTab == index,
-                onClick = { selectedTab = index },
+                onClick = { onTabSelected(index) },
                 text = { Text(title) }
             )
         }
