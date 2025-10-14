@@ -5,8 +5,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -17,69 +18,69 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import compose.icons.SimpleIcons
-import compose.icons.simpleicons.Google
 import com.example.movie_discovery.ui.theme.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import com.example.movie_discovery.NeonText
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.geometry.Offset
+
 
 @Composable
-fun NeonText (
-text: String,
-neonColor: Color,
-modifier: Modifier = Modifier
-){
-Box(modifier = Modifier){
-Text(
-    text = text,
-fontSize =32.sp,
-    fontWeight = FontWeight.Bold,
-    color = Color.Transparent,
-    style = LocalTextStyle.current.copy(
-        shadow = Shadow(
-            color = neonColor.copy(alpha = 0.5f),
-            offset = androidx.compose.ui.geometry.Offset(0f, 0f),
-            blurRadius = 15f
+fun NeonText(
+    text: String,
+    neonColor: Color,
+    modifier: Modifier = Modifier,
+    fontStyle: FontStyle = FontStyle.Normal
+) {
+    val baseStyle = LocalTextStyle.current.copy(
+        fontSize = 32.sp,
+        fontWeight = FontWeight.Bold,
+        fontStyle = fontStyle
+    )
+
+    Box(modifier = modifier) {
+        Text(
+            text = text,
+            color = Color.Transparent,
+            style = baseStyle.copy(
+                shadow = Shadow(
+                    color = neonColor.copy(alpha = 0.5f),
+                    offset = Offset(0f, 0f),
+                    blurRadius = 15f
+                )
+            ),
+            textAlign = TextAlign.Center
         )
-    ),
-textAlign = TextAlign.Center
-)
-Text(
-    text =text,
-    fontSize =32.sp,
-fontWeight = FontWeight.Bold,
-    color = MaterialTheme.colorScheme.onBackground,
-textAlign = TextAlign.Center
-)
-
+        Text(
+            text = text,
+            color = Color.White,
+            style = baseStyle,
+            textAlign = TextAlign.Center
+        )
+    }
 }
 
-}
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignInScreen(navController: NavController?) {
-
+fun SignInScreen(navController: NavController? = null) {
     val scrollState = rememberScrollState()
-
-    var username by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    val backgroundBrush = if(isSystemInDarkTheme()){
+    val backgroundBrush = if (isSystemInDarkTheme()) {
         Brush.verticalGradient(
-            colors = listOf(DarkNavy , CardBackground.copy(alpha = 0.8f) , DarkNavy)
+            colors = listOf(DarkNavy, CardBackground.copy(alpha = 0.8f), DarkNavy)
         )
-    } else{
+    } else {
         Brush.verticalGradient(
             colors = listOf(
-                Color(0xFFFFFFFF),
+                Color.White,
                 Color(0xFFF5F5F5),
-                Color(0xFFFFFFFF)
-                )
+                Color.White
+            )
         )
     }
 
@@ -94,23 +95,25 @@ fun SignInScreen(navController: NavController?) {
     ) {
         Spacer(modifier = Modifier.height(40.dp))
 
+
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(bottom = 40.dp)
         ) {
             NeonText(
                 text = "Movie",
-                neonColor = Color.Cyan.copy(alpha = 0.9f)
+                neonColor = Color.Cyan.copy(alpha = 0.9f),
+                fontStyle = FontStyle.Italic
             )
             NeonText(
                 text = "Discovery",
-                neonColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
+                neonColor = AccentRed.copy(alpha = 0.8f),
+                fontStyle = FontStyle.Italic
             )
-
         }
         Card(
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            colors = CardDefaults.cardColors(containerColor = if (isSystemInDarkTheme()) CardBackground else Color(0xFFF5F5F5)),
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -120,22 +123,20 @@ fun SignInScreen(navController: NavController?) {
             ) {
                 Text(
                     text = "Sign In",
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = if (isSystemInDarkTheme()) TextPrimary else Color.Black,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(bottom = 20.dp)
                 )
                 OutlinedTextField(
-                    value = username,
-                    onValueChange = { username = it },
-                    label = { Text(
-                        "Username",
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)) },
+                    value = email,
+                    onValueChange = { email = it },
+                    label = { Text("Email", color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.7f)) },
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
-                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface
+                        focusedBorderColor = AccentRed,
+                        unfocusedBorderColor = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.3f),
+                        focusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black,
+                        unfocusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -144,74 +145,62 @@ fun SignInScreen(navController: NavController?) {
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
-                    label = { Text(
-                        "Password",
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)) },
+                    label = { Text("Password", color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.7f)) },
                     visualTransformation = PasswordVisualTransformation(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface
-                        ),
+                        focusedBorderColor = AccentRed,
+                        unfocusedBorderColor = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.3f),
+                        focusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black,
+                        unfocusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black
+                    ),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 8.dp)
                 )
                 Button(
                     onClick = {
-
+                        navController?.navigate("home") {
+                            popUpTo(navController.graph.id) { inclusive = true }
+                        }
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                    colors = ButtonDefaults.buttonColors(containerColor = AccentRed),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(70.dp)
                         .padding(top = 16.dp, bottom = 8.dp)
                 ) {
-                    Text("Sign In", color = MaterialTheme.colorScheme.onPrimary, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                }
-                Spacer(modifier = Modifier.height(24.dp))
-            Button(
-                onClick ={
-                    navController?.navigate("home"){
-                        popUpTo(navController.graph.id){
-                            inclusive = true
-                        }
-                    }
-                },
-colors = ButtonDefaults.buttonColors(contentColor = MaterialTheme.colorScheme.onSurface),
-shape = CircleShape,
-                contentPadding = PaddingValues(12.dp),
-modifier = Modifier.size(50.dp)
-                ) {
-                    Icon(
-                        imageVector = SimpleIcons.Google,
-                        contentDescription = "Google Sign In",
-                        tint = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.size(24.dp)
+                    Text(
+                        "Sign In",
+                        color = TextPrimary,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
                     )
+                }
             }
-            }
-            }
+        }
         Spacer(modifier = Modifier.height(20.dp))
 
         Row(
             horizontalArrangement = Arrangement.Center,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("New user? ", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f), fontSize = 16.sp)
+            Text(
+                "New user? ",
+                color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.7f),
+                fontSize = 16.sp
+            )
             Text(
                 text = "SIGN UP",
-                color = MaterialTheme.colorScheme.primary,
+                color = AccentRed,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.clickable { navController?.navigate("signup") }
+                modifier = Modifier.clickable { navController?.navigate("signUpScreen") }
             )
         }
         Spacer(modifier = Modifier.height(30.dp))
-        }
     }
+}
 
 @Preview(showBackground = true, name = "Light Mode")
 @Composable

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="300dp"
+    android:viewportWidth="200"
+    android:viewportHeight="300">
+
+    <!-- Background rectangle -->
+    <path
+        android:fillColor="#DDDDDD"
+        android:pathData="M0,0h200v300h-200z" />
+
+    <!-- Simple cross shape -->
+    <path
+        android:strokeColor="#888888"
+        android:strokeWidth="5"
+        android:pathData="M40,150 L160,150 M100,80 L100,220" />
+</vector>
+

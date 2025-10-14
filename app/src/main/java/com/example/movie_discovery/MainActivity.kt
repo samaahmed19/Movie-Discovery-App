@@ -64,11 +64,7 @@ fun MyApp() {
                 },
                 onSearchClick = {
                     navController.navigate("search")
-                },
-                onProfileClick = {
-                    navController.navigate("profile")
                 }
-
             )
         }
 
@@ -78,12 +74,7 @@ fun MyApp() {
         composable("search") {
             SearchScreen()
         }
-        // ---------------------------
-        // profile Screen
-        // ---------------------------
-        composable("profile") {
-            ProfileScreen()
-        }
+
         // ---------------------------
         // Movie Details Screen
         // ---------------------------
