@@ -1,4 +1,4 @@
-package com.example.movie_discovery
+package com.example.movie_discovery.Screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

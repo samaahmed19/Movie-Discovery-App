@@ -1,3 +1,5 @@
+package com.example.movie_discovery.com.example.movie_discovery.data
+
 data class TMDBMovieDetail(
     val id: Int,
     val title: String,

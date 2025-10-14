@@ -1,7 +1,8 @@
-package com.example.movie_discovery
+package com.example.movie_discovery.Screens
 
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Person
+
 import androidx.compose.animation.AnimatedVisibility
 import com.example.movie_discovery.ui.theme.MoviesTheme
 import androidx.compose.foundation.background
@@ -41,10 +42,8 @@ data class Movie(
 // Home Screen
 // -------------------------------
 @Composable
-fun HomeScreen(
-    onMovieClick: (Int) -> Unit,  // Changed from (String) -> Unit to (Int) -> Unit
-    onSearchClick: () -> Unit
-) {
+fun HomeScreen(onMovieClick: (String) -> Unit,
+               onSearchClick: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -53,9 +52,6 @@ fun HomeScreen(
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
 
-        // -------------------------------
-        // Header with app title and icons
-        // -------------------------------
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -70,7 +66,9 @@ fun HomeScreen(
                 fontWeight = FontWeight.Bold
             )
 
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
                 IconButton(onClick = { /* TODO: Navigate to Profile Screen */ }) {
                     Icon(
                         imageVector = Icons.Default.Person,
@@ -79,7 +77,7 @@ fun HomeScreen(
                     )
                 }
 
-                IconButton(onClick = { /* TODO: Navigate to Settings */ }) {
+                IconButton(onClick = { }) {
                     Icon(
                         imageVector = Icons.Default.Settings,
                         contentDescription = "Settings",
@@ -89,11 +87,15 @@ fun HomeScreen(
             }
         }
 
-        // Search bar, featured slider, tabs, and movie list
+
         SearchBar(onSearchClick = onSearchClick)
+
         FeaturedMoviesSlider()
+
         MovieTabs()
-        MoviesList(movies = getSampleMovies(), onMovieClick = onMovieClick)
+
+        MoviesList(  movies = getSampleMovies(),
+            onMovieClick = onMovieClick)
     }
 }
 
@@ -116,7 +118,7 @@ fun SearchBar(onSearchClick: () -> Unit) {
 }
 
 // -------------------------------
-// Featured Movies Slider
+// Slider Section
 // -------------------------------
 @Composable
 fun FeaturedMoviesSlider() {
@@ -128,7 +130,9 @@ fun FeaturedMoviesSlider() {
         "https://image.tmdb.org/t/p/w500/zpYf5JXfxybYyTfXYyZ9KJ8MGe1.jpg"
     )
 
-    LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
         items(featuredImages) { image ->
             AsyncImage(
                 model = image,
@@ -166,13 +170,14 @@ fun MovieTabs() {
 // Movies List
 // -------------------------------
 @Composable
-fun MoviesList(
-    movies: List<Movie>,
-    onMovieClick: (Int) -> Unit
-) {
-    LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+fun MoviesList(movies: List<Movie>,
+               onMovieClick: (String) -> Unit) {
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
         items(movies) { movie ->
             AnimatedMovieCard(movie = movie, onMovieClick = onMovieClick)
+
         }
     }
 }
@@ -181,12 +186,13 @@ fun MoviesList(
 // Animated Movie Card
 // -------------------------------
 @Composable
-fun AnimatedMovieCard(movie: Movie, onMovieClick: (Int) -> Unit) {
+fun AnimatedMovieCard(movie: Movie, onMovieClick: (String) -> Unit) {
     var visible by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { visible = true }
 
     AnimatedVisibility(visible = visible) {
-        MovieCard(movie = movie, onMovieClick = onMovieClick)
+        MovieCard(  movie = movie,
+            onMovieClick = onMovieClick )
     }
 }
 
@@ -197,7 +203,7 @@ fun AnimatedMovieCard(movie: Movie, onMovieClick: (Int) -> Unit) {
 fun MovieCard(
     movie: Movie,
     modifier: Modifier = Modifier,
-    onMovieClick: (Int) -> Unit = {}
+    onMovieClick: (String) -> Unit = {}
 ) {
     var isFavorite by remember { mutableStateOf(false) }
 
@@ -205,7 +211,7 @@ fun MovieCard(
         modifier = modifier
             .width(160.dp)
             .height(260.dp)
-            .clickable { onMovieClick(movie.id) }, // send movieId instead of title
+            .clickable { onMovieClick(movie.title) },
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(6.dp),
         colors = CardDefaults.cardColors(
@@ -281,12 +287,42 @@ fun MovieCard(
 // -------------------------------
 fun getSampleMovies(): List<Movie> {
     return listOf(
-        Movie(1, "Pulp Fiction", 4.8, "https://image.tmdb.org/t/p/w500/d5iIlFn5s0ImszYzBPb8JPIfbXD.jpg"),
-        Movie(2, "The Lord of the Rings", 4.9, "https://image.tmdb.org/t/p/w500/6oom5QYQ2yQTMJIbnvbkBL9cHo6.jpg"),
-        Movie(3, "The Shawshank Redemption", 4.9, "https://image.tmdb.org/t/p/w500/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg"),
-        Movie(4, "The Dark Knight", 4.8, "https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg"),
-        Movie(5, "Inception", 4.7, "https://image.tmdb.org/t/p/w500/edv5CZvWj09upOsy2Y6IwDhK8bt.jpg"),
-        Movie(6, "Interstellar", 4.8, "https://image.tmdb.org/t/p/w500/rAiYTfKGqDCRIIqo664sY9XZIvQ.jpg")
+        Movie(
+            id = 1,
+            title = "Pulp Fiction",
+            rating = 4.8,
+            posterUrl = "https://image.tmdb.org/t/p/w500/d5iIlFn5s0ImszYzBPb8JPIfbXD.jpg"
+        ),
+        Movie(
+            id = 2,
+            title = "The Lord of the Rings",
+            rating = 4.9,
+            posterUrl = "https://image.tmdb.org/t/p/w500/6oom5QYQ2yQTMJIbnvbkBL9cHo6.jpg"
+        ),
+        Movie(
+            id = 3,
+            title = "The Shawshank Redemption",
+            rating = 4.9,
+            posterUrl = "https://image.tmdb.org/t/p/w500/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg"
+        ),
+        Movie(
+            id = 4,
+            title = "The Dark Knight",
+            rating = 4.8,
+            posterUrl = "https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg"
+        ),
+        Movie(
+            id = 5,
+            title = "Inception",
+            rating = 4.7,
+            posterUrl = "https://image.tmdb.org/t/p/w500/edv5CZvWj09upOsy2Y6IwDhK8bt.jpg"
+        ),
+        Movie(
+            id = 6,
+            title = "Interstellar",
+            rating = 4.8,
+            posterUrl = "https://image.tmdb.org/t/p/w500/rAiYTfKGqDCRIIqo664sY9XZIvQ.jpg"
+        )
     )
 }
 
@@ -297,7 +333,8 @@ fun getSampleMovies(): List<Movie> {
 @Composable
 fun HomeScreenLightPreview() {
     MoviesTheme(darkTheme = false) {
-        HomeScreen(onMovieClick = {}, onSearchClick = {})
+        HomeScreen(onMovieClick = {},
+            onSearchClick = {})
     }
 }
 
@@ -305,6 +342,7 @@ fun HomeScreenLightPreview() {
 @Composable
 fun HomeScreenDarkPreview() {
     MoviesTheme(darkTheme = true) {
-        HomeScreen(onMovieClick = {}, onSearchClick = {})
+        HomeScreen(onMovieClick = {},
+            onSearchClick = {})
     }
 }

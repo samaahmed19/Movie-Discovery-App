@@ -1,4 +1,4 @@
-package com.example.movie_discovery
+package com.example.movie_discovery.Screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
@@ -8,6 +8,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import com.example.movie_discovery.R
 import kotlinx.coroutines.delay
 
 @Composable
@@ -24,7 +25,7 @@ fun SplashScreen(onTimeout: () -> Unit) {
         )
 
         LaunchedEffect(Unit) {
-            delay(2500L)
+            delay(2000L)
             onTimeout()
 
     }}}
