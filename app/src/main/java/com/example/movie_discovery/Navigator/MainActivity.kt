@@ -11,12 +11,10 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.movie_discovery.Screens.HomeScreen
 import com.example.movie_discovery.Screens.MovieDetailsScreen
-import com.example.movie_discovery.Screens.ProfileScreen
 import com.example.movie_discovery.Screens.SearchScreen
 import com.example.movie_discovery.Screens.SignInScreen
 import com.example.movie_discovery.Screens.SignUpScreen
 import com.example.movie_discovery.Screens.SplashScreen
-import com.example.movie_discovery.Screens.getSampleMovies
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -80,19 +78,18 @@ fun MyApp() {
         // Search Screen
         // ---------------------------
         composable("search") {
-            SearchScreen()
+            SearchScreen(navController = navController)
         }
 
         // ---------------------------
         // Movie Details Screen
         // ---------------------------
         composable(
-            route = "details/{movieTitle}",
-            arguments = listOf(navArgument("movieTitle") { type = NavType.StringType })
+            route = "details/{movieId}",
+            arguments = listOf(navArgument("movieId") { type = NavType.IntType })
         ) { backStackEntry ->
-            val movieTitle = backStackEntry.arguments?.getString("movieTitle")
-            val movie = getSampleMovies().find { it.title == movieTitle }
-            MovieDetailsScreen(movie = movie ?: getSampleMovies()[0])
+            val movieId = backStackEntry.arguments?.getInt("movieId")
+            MovieDetailsScreen(movieId = movieId)
         }
     }
 }
