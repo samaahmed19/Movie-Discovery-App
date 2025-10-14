@@ -22,11 +22,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.movie_discovery.ui.theme.AccentRed
-import com.example.movie_discovery.com.example.movie_discovery.Viewmodels.MovieDetailViewModel
+import com.example.movie_discovery.Viewmodels.MovieDetailViewModel
 
 @Composable
 fun MovieDetailsScreen(
-    movieId: Int?, // ✅ receives movie ID only
+    movieId: Int?, //  receives movie ID only
     viewModel: MovieDetailViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
     var isFavorite by remember { mutableStateOf(false) }

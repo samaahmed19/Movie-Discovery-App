@@ -1,4 +1,4 @@
-package com.example.movie_discovery
+package com.example.movie_discovery.Screens
 
 import android.content.res.Configuration
 import androidx.compose.foundation.background
