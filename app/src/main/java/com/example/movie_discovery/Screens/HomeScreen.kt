@@ -47,6 +47,7 @@ fun HomeScreen(
     val popularMovies by viewModel.popularMovies.collectAsState()
     val trendingMovies by viewModel.trendingMovies.collectAsState()
     val upcomingMovies by viewModel.upcomingMovies.collectAsState()
+    val topRatedMovies by viewModel.topRatedMovies.collectAsState()
     var selectedTab by remember { mutableStateOf(0) }
 
     // fetch when screen appears
@@ -114,7 +115,7 @@ fun HomeScreen(
                 onMovieClick = onMovieClick
             )
             1 -> MoviesList(
-                movies = popularMovies, // Placeholder for Top Rated
+                movies = topRatedMovies,
                 onMovieClick = onMovieClick
             )
             2 -> MoviesList(
