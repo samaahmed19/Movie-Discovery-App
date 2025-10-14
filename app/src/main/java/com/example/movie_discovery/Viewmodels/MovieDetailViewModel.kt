@@ -1,9 +1,9 @@
-package com.example.movie_discovery.viewmodel
+package com.example.movie_discovery.com.example.movie_discovery.Viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.movie_discovery.MovieDetailsResponse
-import com.example.movie_discovery.RetrofitInstance
+import com.example.movie_discovery.com.example.movie_discovery.Networking.RetrofitInstance
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,7 +27,3 @@ class MovieDetailViewModel : ViewModel() {
         }
     }
 }
-
-
-
-

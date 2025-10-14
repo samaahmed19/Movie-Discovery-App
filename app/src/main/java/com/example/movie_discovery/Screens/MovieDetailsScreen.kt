@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.movie_discovery.ui.theme.AccentRed
-import com.example.movie_discovery.viewmodel.MovieDetailViewModel
+import com.example.movie_discovery.com.example.movie_discovery.Viewmodels.MovieDetailViewModel
 
 @Composable
 fun MovieDetailsScreen(

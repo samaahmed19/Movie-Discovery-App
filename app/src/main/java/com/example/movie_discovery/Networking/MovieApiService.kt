@@ -1,8 +1,6 @@
-package com.example.movie_discovery
+package com.example.movie_discovery.com.example.movie_discovery.Networking
 
-import retrofit2.http.GET
-import retrofit2.http.Path
-import retrofit2.http.Query
+import com.example.movie_discovery.MovieDetailsResponse
 
 interface MovieApiService {
 
@@ -13,8 +11,3 @@ interface MovieApiService {
         @Query("api_key") apiKey: String
     ): MovieDetailsResponse
 }
-
-
-
-
-
