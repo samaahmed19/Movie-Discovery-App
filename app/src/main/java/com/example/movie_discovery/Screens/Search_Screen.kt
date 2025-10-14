@@ -1,5 +1,6 @@
 package com.example.movie_discovery.Screens
 
+import android.widget.MediaController
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -18,13 +19,30 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
+import com.example.movie_discovery.Viewmodels.SearchViewModel
 import com.example.movie_discovery.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchScreen() {
+fun SearchScreen(
+    navController: NavHostController,
+    viewModel: SearchViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+) {
     var query by remember { mutableStateOf("") }
+    val searchResults by viewModel.searchResults.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+
+    LaunchedEffect(query) {
+        kotlinx.coroutines.delay(500)
+        if(query.isNotEmpty()){
+            viewModel.searchMovies(query)
+        } else{
+            viewModel.clearSearchResults()
+        }
+    }
+
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
@@ -67,14 +85,40 @@ fun SearchScreen() {
                 modifier = Modifier.padding(vertical = 12.dp)
             )
 
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(3),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.fillMaxSize()
-            ) {
-                items(sampleCategories) { category ->
-                    CategoryCard(category)
+            if (query.isEmpty()) {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(3),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    items(sampleCategories) { category ->
+                        CategoryCard(category)
+                    }
+                }
+            } else {
+                if (isLoading) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                } else {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(3),
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        /* items(searchResults) { movie ->
+                            MovieCard(movie){
+                                navController.navigate("movie_detail_screen/${movie.id}")
+                            }
+                        } */
+                    }
                 }
             }
         }
@@ -111,21 +155,5 @@ fun CategoryCard(category: Category) {
             fontWeight = FontWeight.Bold,
             modifier = Modifier.align(Alignment.Center)
         )
-    }
-}
-
-@Preview(showBackground = true, name = "Light Mode")
-@Composable
-fun PreviewSearchScreenDark() {
-    MoviesTheme(darkTheme = false) {
-        SearchScreen()
-    }
-}
-
-@Preview(showBackground = true, name = "Dark Mode")
-@Composable
-fun PreviewSearchScreenLight() {
-    MoviesTheme(darkTheme = true) {
-        SearchScreen()
     }
 }
