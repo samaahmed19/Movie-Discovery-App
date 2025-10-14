@@ -1,4 +1,4 @@
-package com.example.movie_discovery
+package com.example.movie_discovery.Screens
 
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Person
@@ -27,7 +27,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.movie_discovery.ui.theme.AccentRed
-import com.example.movie_discovery.ui.theme.MoviesTheme
 
 // -------------------------------
 // Data Model

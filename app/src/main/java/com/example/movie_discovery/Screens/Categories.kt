@@ -1,4 +1,4 @@
-package com.example.movie_discovery
+package com.example.movie_discovery.Screens
 
 data class Category(
     val name: String,

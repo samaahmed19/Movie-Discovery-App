@@ -1,4 +1,4 @@
-package com.example.movie_discovery
+package com.example.movie_discovery.Navigator
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -9,6 +9,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.movie_discovery.Screens.HomeScreen
+import com.example.movie_discovery.Screens.MovieDetailsScreen
+import com.example.movie_discovery.Screens.ProfileScreen
+import com.example.movie_discovery.Screens.SearchScreen
+import com.example.movie_discovery.Screens.SignInScreen
+import com.example.movie_discovery.Screens.SignUpScreen
+import com.example.movie_discovery.Screens.SplashScreen
+import com.example.movie_discovery.Screens.getSampleMovies
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
