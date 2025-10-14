@@ -4,6 +4,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -11,28 +16,35 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.movie_discovery.Screens.HomeScreen
 import com.example.movie_discovery.Screens.MovieDetailsScreen
+import com.example.movie_discovery.Screens.Profile
 import com.example.movie_discovery.Screens.SearchScreen
 import com.example.movie_discovery.Screens.SignInScreen
 import com.example.movie_discovery.Screens.SignUpScreen
 import com.example.movie_discovery.Screens.SplashScreen
-
+import com.example.movie_discovery.Viewmodels.ThemeViewModel
+import com.example.movie_discovery.ui.theme.MoviesTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MyApp()
+            MoviesTheme {
+                MyApp( )
+            }
         }
     }
 }
 
 @Composable
 fun MyApp() {
+    val themeViewModel: ThemeViewModel = viewModel()
+    var isDarkMode by remember { mutableStateOf(false) }
     val navController = rememberNavController()
 
-    NavHost(
-        navController = navController,
-        startDestination = "splash"
-    ) {
+    MoviesTheme(darkTheme = isDarkMode) {
+        NavHost(
+            navController = navController,
+            startDestination = "splash"
+        ) {
         // ---------------------------
         // Splash Screen
         // ---------------------------
@@ -91,5 +103,13 @@ fun MyApp() {
             val movieId = backStackEntry.arguments?.getInt("movieId")
             MovieDetailsScreen(movieId = movieId)
         }
+
+            composable("profile") {
+                Profile(
+                    isDarkMode = isDarkMode,
+                    onDarkModeToggle = {themeViewModel.toggleDarkMode()  }
+                )
+            }
     }
+}
 }
