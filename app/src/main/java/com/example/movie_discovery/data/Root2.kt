@@ -1,4 +1,4 @@
-package com.example.movie_discovery.com.example.movie_discovery.data
+package com.example.movie_discovery.data
 
 data class Root2(
     val userId: Long,
