@@ -2,7 +2,6 @@ package com.example.movie_discovery.Screens
 
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Person
-
 import androidx.compose.animation.AnimatedVisibility
 import com.example.movie_discovery.ui.theme.MoviesTheme
 import androidx.compose.foundation.background
@@ -27,16 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.movie_discovery.ui.theme.AccentRed
-
-// -------------------------------
-// Data Model
-// -------------------------------
-data class Movie(
-    val id: Int,
-    val title: String,
-    val rating: Double,
-    val posterUrl: String
-)
+import com.example.movie_discovery.data.MovieDetailsResponse
 
 // -------------------------------
 // Home Screen

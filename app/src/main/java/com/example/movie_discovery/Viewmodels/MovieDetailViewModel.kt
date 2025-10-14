@@ -1,9 +1,9 @@
-package com.example.movie_discovery.com.example.movie_discovery.Viewmodels
+package com.example.movie_discovery.Viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.movie_discovery.MovieDetailsResponse
-import com.example.movie_discovery.com.example.movie_discovery.Networking.RetrofitInstance
+import com.example.movie_discovery.data.MovieDetailsResponse
+import com.example.movie_discovery.Networking.RetrofitInstance
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,12 +17,25 @@ class MovieDetailViewModel : ViewModel() {
     private val _movieDetails = MutableStateFlow<MovieDetailsResponse?>(null)
     val movieDetails: StateFlow<MovieDetailsResponse?> = _movieDetails.asStateFlow()
 
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
+    private val _error = MutableStateFlow<String?>(null)
+    val error: StateFlow<String?> = _error.asStateFlow()
+
     fun getMovieDetails(movieId: Int) {
         viewModelScope.launch {
+            _isLoading.value = true
+            _error.value = null
+
             try {
-                _movieDetails.value = apiService.getMovieDetails(movieId, apiKey)
+                val response = apiService.getMovieDetails(movieId, apiKey)
+                _movieDetails.value = response
             } catch (e: Exception) {
                 e.printStackTrace()
+                _error.value = e.message ?: "Unknown error occurred"
+            } finally {
+                _isLoading.value = false
             }
         }
     }

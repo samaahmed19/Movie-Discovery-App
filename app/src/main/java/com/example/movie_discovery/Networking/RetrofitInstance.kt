@@ -1,6 +1,7 @@
-package com.example.movie_discovery.com.example.movie_discovery.Networking
-
-import com.example.movie_discovery.com.example.movie_discovery.Networking.MovieApiService
+package com.example.movie_discovery.Networking
+import com.example.movie_discovery.Networking.MovieApiService
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitInstance {
     private const val BASE_URL = "https://api.themoviedb.org/3/"
