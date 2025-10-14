@@ -19,13 +19,19 @@ class HomeViewModel : ViewModel() {
     private val _trendingMovies = MutableStateFlow<List<MovieDetailsResponse>>(emptyList())
     val trendingMovies: StateFlow<List<MovieDetailsResponse>> = _trendingMovies.asStateFlow()
 
+    private val _upcomingMovies = MutableStateFlow<List<MovieDetailsResponse>>(emptyList())
+    val upcomingMovies: StateFlow<List<MovieDetailsResponse>> = _upcomingMovies.asStateFlow()
+
     fun loadMovies() {
         viewModelScope.launch {
             try {
                 val popular = apiService.getPopularMovies(apiKey).results
                 val trending = apiService.getTrendingMovies(apiKey).results
+                val upcoming = apiService.getUpcomingMovies(apiKey).results
+
                 _popularMovies.value = popular
                 _trendingMovies.value = trending
+                _upcomingMovies.value = upcoming
             } catch (e: Exception) {
                 e.printStackTrace()
             }

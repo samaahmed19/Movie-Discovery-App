@@ -37,7 +37,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 // Home Screen
 // -------------------------------
 @Composable
-
 fun HomeScreen(
     onMovieClick: (Int) -> Unit,
     onSearchClick: () -> Unit,
@@ -47,6 +46,8 @@ fun HomeScreen(
     val viewModel: HomeViewModel = viewModel()
     val popularMovies by viewModel.popularMovies.collectAsState()
     val trendingMovies by viewModel.trendingMovies.collectAsState()
+    val upcomingMovies by viewModel.upcomingMovies.collectAsState()
+    var selectedTab by remember { mutableStateOf(0) }
 
     // fetch when screen appears
     LaunchedEffect(Unit) {
@@ -102,12 +103,25 @@ fun HomeScreen(
         FeaturedMoviesSlider(movies = trendingMovies)
 
 
-        MovieTabs()
-
-        MoviesList(
-            movies = popularMovies,
-            onMovieClick = onMovieClick
+        MovieTabs(
+            selectedTab = selectedTab,
+            onTabSelected = { selectedTab = it }
         )
+
+        when (selectedTab) {
+            0 -> MoviesList(
+                movies = popularMovies,
+                onMovieClick = onMovieClick
+            )
+            1 -> MoviesList(
+                movies = popularMovies, // Placeholder for Top Rated
+                onMovieClick = onMovieClick
+            )
+            2 -> MoviesList(
+                movies = upcomingMovies,
+                onMovieClick = onMovieClick
+            )
+        }
 
 
     }
@@ -156,8 +170,11 @@ fun FeaturedMoviesSlider(movies: List<MovieDetailsResponse>) {
 // Tabs Section
 // -------------------------------
 @Composable
-fun MovieTabs() {
-    val tabs = listOf("Popular", "Top Rated", "Upcoming")
+fun MovieTabs(
+    selectedTab: Int,
+    onTabSelected: (Int) -> Unit
+){
+val tabs = listOf("Popular", "Top Rated", "Upcoming")
     var selectedTab by remember { mutableStateOf(0) }
 
     ScrollableTabRow(selectedTabIndex = selectedTab) {
