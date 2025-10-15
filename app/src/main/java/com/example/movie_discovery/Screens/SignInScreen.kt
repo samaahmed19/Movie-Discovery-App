@@ -253,7 +253,7 @@ fun SignInScreen(
                 color = AccentRed,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.clickable { navController?.navigate("signUpScreen") }
+                modifier = Modifier.clickable { navController?.navigate("signup") }
             )
         }
 
@@ -263,7 +263,7 @@ fun SignInScreen(
         when (val state = authState) {
             is AuthState.Success -> {
                 Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
-                navController?.navigate("home_screen")
+                navController?.navigate("home")
                 authViewModel.resetAuthState()
             }
 
