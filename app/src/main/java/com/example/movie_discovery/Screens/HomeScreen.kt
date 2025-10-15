@@ -1,6 +1,5 @@
 package com.example.movie_discovery.Screens
 
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.animation.AnimatedVisibility
 import com.example.movie_discovery.ui.theme.MoviesTheme
@@ -28,7 +27,6 @@ import coil.compose.AsyncImage
 import com.example.movie_discovery.ui.theme.AccentRed
 import com.example.movie_discovery.data.MovieDetailsResponse
 import com.example.movie_discovery.Viewmodels.HomeViewModel
-import com.example.movie_discovery.data.MovieResponse
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 
@@ -37,7 +35,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 // Home Screen
 // -------------------------------
 @Composable
-
 fun HomeScreen(
     onMovieClick: (Int) -> Unit,
     onSearchClick: () -> Unit,
@@ -47,6 +44,9 @@ fun HomeScreen(
     val viewModel: HomeViewModel = viewModel()
     val popularMovies by viewModel.popularMovies.collectAsState()
     val trendingMovies by viewModel.trendingMovies.collectAsState()
+    val upcomingMovies by viewModel.upcomingMovies.collectAsState()
+    val topRatedMovies by viewModel.topRatedMovies.collectAsState()
+    var selectedTab by remember { mutableStateOf(0) }
 
     // fetch when screen appears
     LaunchedEffect(Unit) {
@@ -86,13 +86,6 @@ fun HomeScreen(
                     )
                 }
 
-                IconButton(onClick = { }) {
-                    Icon(
-                        imageVector = Icons.Default.Settings,
-                        contentDescription = "Settings",
-                        tint = MaterialTheme.colorScheme.onBackground
-                    )
-                }
             }
         }
 
@@ -102,12 +95,25 @@ fun HomeScreen(
         FeaturedMoviesSlider(movies = trendingMovies)
 
 
-        MovieTabs()
-
-        MoviesList(
-            movies = popularMovies,
-            onMovieClick = onMovieClick
+        MovieTabs(
+            selectedTab = selectedTab,
+            onTabSelected = { selectedTab = it }
         )
+
+        when (selectedTab) {
+            0 -> MoviesList(
+                movies = popularMovies,
+                onMovieClick = onMovieClick
+            )
+            1 -> MoviesList(
+                movies = topRatedMovies,
+                onMovieClick = onMovieClick
+            )
+            2 -> MoviesList(
+                movies = upcomingMovies,
+                onMovieClick = onMovieClick
+            )
+        }
 
 
     }
@@ -156,15 +162,14 @@ fun FeaturedMoviesSlider(movies: List<MovieDetailsResponse>) {
 // Tabs Section
 // -------------------------------
 @Composable
-fun MovieTabs() {
+fun MovieTabs(selectedTab: Int, onTabSelected: (Int) -> Unit) {
     val tabs = listOf("Popular", "Top Rated", "Upcoming")
-    var selectedTab by remember { mutableStateOf(0) }
 
     ScrollableTabRow(selectedTabIndex = selectedTab) {
         tabs.forEachIndexed { index, title ->
             Tab(
                 selected = selectedTab == index,
-                onClick = { selectedTab = index },
+                onClick = { onTabSelected(index) },
                 text = { Text(title) }
             )
         }

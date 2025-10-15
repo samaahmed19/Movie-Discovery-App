@@ -18,11 +18,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.movie_discovery.ui.theme.AccentRed
 import com.example.movie_discovery.Viewmodels.MovieDetailViewModel
+import com.example.movie_discovery.ui.theme.MoviesTheme
 
 @Composable
 fun MovieDetailsScreen(
@@ -82,7 +84,8 @@ fun MovieDetailsScreen(
                     Icon(
                         imageVector = Icons.Filled.Favorite,
                         contentDescription = "Favorite",
-                        tint = if (isFavorite) AccentRed else Color.LightGray
+                        tint = if (isFavorite) AccentRed else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
+
                     )
                 }
             }
@@ -94,7 +97,7 @@ fun MovieDetailsScreen(
                 text = movieDetail?.title ?: "No title available",
                 style = MaterialTheme.typography.headlineSmall.copy(
                     fontWeight = FontWeight.Bold,
-                    color = AccentRed
+                    color = MaterialTheme.colorScheme.primary
                 ),
                 textAlign = TextAlign.Center
             )
@@ -115,12 +118,12 @@ fun MovieDetailsScreen(
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = "Rating: ${movieDetail?.vote_average ?: "N/A"}",
-                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.Gray)
+                    style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f))
                 )
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
                     text = "Release: ${movieDetail?.release_date ?: "Unknown"}",
-                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.Gray)
+                    style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f))
                 )
             }
 
@@ -130,7 +133,7 @@ fun MovieDetailsScreen(
             Text(
                 text = movieDetail?.overview ?: "No description available",
                 style = MaterialTheme.typography.bodyMedium.copy(
-                    color = Color.DarkGray,
+                    color = MaterialTheme.colorScheme.onBackground,
                     lineHeight = 22.sp
                 ),
                 textAlign = TextAlign.Center,
@@ -155,16 +158,33 @@ fun MovieDetailsScreen(
                         tint = Color.White
                     )
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text(text = "Watch Now", color = Color.White)
+                    Text(text = "Watch Now", color = MaterialTheme.colorScheme.onPrimary)
                 }
 
                 OutlinedButton(
                     onClick = { /* TODO: Share movie */ },
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text(text = "Share")
+                    Text(text = "Share", color = MaterialTheme.colorScheme.onSurface)
                 }
             }
         }
     }
 }
+
+@Preview(showBackground = true, name = "Light Mode")
+@Composable
+fun MovieDetailsScreenLightPreview() {
+    MoviesTheme(darkTheme = false) {
+        MovieDetailsScreen(movieId = 1)
+    }
+}
+
+@Preview(showBackground = true, name = "Dark Mode")
+@Composable
+fun MovieDetailsScreenDarkPreview() {
+    MoviesTheme(darkTheme = true) {
+        MovieDetailsScreen(movieId = 1)
+    }
+}
+

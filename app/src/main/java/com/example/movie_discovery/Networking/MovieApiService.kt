@@ -22,10 +22,26 @@ interface MovieApiService {
         @Query("api_key") apiKey: String
     ): MovieResponse
 
-    // ✅Get movie details by ID
+    // Get movie details by ID
     @GET("movie/{movie_id}")
     suspend fun getMovieDetails(
         @Path("movie_id") movieId: Int,
         @Query("api_key") apiKey: String
     ): MovieDetailsResponse
+
+    // Get Upcoming movies
+    @GET("movie/upcoming")
+    suspend fun getUpcomingMovies(
+        @Query("api_key") apiKey: String,
+        @Query("language") language: String = "en-US",
+        @Query("page") page: Int = 1
+    ): MovieResponse
+
+    // Get top rated movies
+    @GET("movie/top_rated")
+    suspend fun getTopRatedMovies(
+        @Query("api_key") apiKey: String,
+        @Query("language") language: String = "en-US",
+        @Query("page") page: Int = 1
+    ): MovieResponse
 }
