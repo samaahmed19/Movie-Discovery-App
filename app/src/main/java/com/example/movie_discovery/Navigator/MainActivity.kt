@@ -4,10 +4,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -37,7 +33,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MyApp() {
     val themeViewModel: ThemeViewModel = viewModel()
-    var isDarkMode by remember { mutableStateOf(false) }
+    val isDarkMode = themeViewModel.isDarkMode
     val navController = rememberNavController()
 
     MoviesTheme(darkTheme = isDarkMode) {
