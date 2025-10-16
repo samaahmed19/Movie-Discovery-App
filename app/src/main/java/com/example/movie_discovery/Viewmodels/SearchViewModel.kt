@@ -36,8 +36,8 @@ class SearchViewModel : ViewModel() {
             try {
                 _isLoading.value = true
                 _error.value = null
-                /* val response = apiService.searchMovies(apiKey , query)
-                _searchResults.value = response.results */
+                val response = apiService.searchMovies(apiKey , query)
+                _searchResults.value = response.results
             } catch (e: Exception){
                 _error.value = e.message
                 _searchResults.value = emptyList()
@@ -52,8 +52,8 @@ class SearchViewModel : ViewModel() {
             try {
                 _isLoading.value = true
                 _error.value = null
-                /* val response = apiService.discoverByGenre(apiKey, genreId)
-                _moviesByGenre.value = response.results */
+                val response = apiService.discoverByGenre(apiKey, genreId)
+                _moviesByGenre.value = response.results
             } catch (e: Exception) {
                 _error.value = e.message
                 _moviesByGenre.value = emptyList()
