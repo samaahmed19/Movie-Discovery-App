@@ -1,5 +1,6 @@
 package com.example.movie_discovery.Networking
 
+import com.example.movie_discovery.data.CategoryMoviesResponse
 import com.example.movie_discovery.data.MovieDetailsResponse
 import com.example.movie_discovery.data.MovieResponse
 import com.example.movie_discovery.data.MovieSearchResponse

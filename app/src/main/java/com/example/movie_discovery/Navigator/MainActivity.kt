@@ -71,18 +71,21 @@ fun MyApp() {
         // ---------------------------
         // Home Screen
         // ---------------------------
-        composable("home") {
-            HomeScreen(
-                onMovieClick = { movieTitle ->
-                    navController.navigate("details/$movieTitle")
-                },
-                onSearchClick = {
-                    navController.navigate("search")
-                }
-            )
-        }
+            composable("home") {
+                HomeScreen(
+                    onMovieClick = { movieId ->
+                        navController.navigate("details/$movieId")
+                    },
+                    onSearchClick = {
+                        navController.navigate("search")
+                    },
+                    onProfileClick = {
+                        navController.navigate("profile")
+                    }
+                )
+            }
 
-        // ---------------------------
+            // ---------------------------
         // Search Screen
         // ---------------------------
         composable("search") {
