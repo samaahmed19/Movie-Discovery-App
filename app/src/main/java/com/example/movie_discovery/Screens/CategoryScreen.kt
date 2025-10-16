@@ -81,7 +81,7 @@ fun CategoryScreen(
                         ) {
                             items(featuredMovies) { movie ->
                                 FeaturedCategoryCard(movie = movie) {
-                                    navController.navigate("movie_detail_screen/${movie.id}")
+                                    navController.navigate("details/${movie.id}")
                                 }
                             }
                         }
@@ -110,7 +110,7 @@ fun CategoryScreen(
                         for (movie in rowItems) {
                             Box(modifier = Modifier.weight(1f)) {
                                 com.example.movie_discovery.Screens.MovieCardR(movie = movie) {
-                                    navController.navigate("movie_detail_screen/${movie.id}")
+                                    navController.navigate("details/${movie.id}")
                                 }
                             }
                         }
