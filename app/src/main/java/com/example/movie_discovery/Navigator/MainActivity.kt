@@ -20,6 +20,9 @@ import com.example.movie_discovery.Screens.SignUpScreen
 import com.example.movie_discovery.Screens.SplashScreen
 import com.example.movie_discovery.Viewmodels.ThemeViewModel
 import com.example.movie_discovery.ui.theme.MoviesTheme
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,7 +81,7 @@ fun MyApp() {
                     navController.navigate("details/$movieTitle")
                 },
                 onSearchClick = {
-                    navController.navigate("search")
+                    navController.navigate("search_screen")
                 }
             )
         }
@@ -97,7 +100,8 @@ fun MyApp() {
                 )
             ) { backStackEntry ->
                 val genreId = backStackEntry.arguments?.getInt("genreId") ?: 0
-                val genreName = backStackEntry.arguments?.getString("genreName") ?: ""
+                val genreNameEncoded = backStackEntry.arguments?.getString("genreName") ?: ""
+                val genreName = URLDecoder.decode(genreNameEncoded, StandardCharsets.UTF_8.toString())
                 CategoryScreen(
                     genreId = genreId,
                     genreName = genreName,
