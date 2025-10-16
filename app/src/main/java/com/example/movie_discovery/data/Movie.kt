@@ -1,8 +1,9 @@
 package com.example.movie_discovery.data
 
+
 import com.google.gson.annotations.SerializedName
 
-data class MovieDetailsResponse(
+data class Movie(
     val id: Int = 0,
     val title: String = "",
     val overview: String = "",
@@ -10,10 +11,5 @@ data class MovieDetailsResponse(
     @SerializedName("backdrop_path") val backdropPath: String? = null,
     @SerializedName("release_date") val releaseDate: String = "",
     @SerializedName("vote_average") val voteAverage: Double = 0.0,
-    @SerializedName("genres") val genres: List<Genre> = emptyList()
-)
-
-data class Genre(
-    val id: Int,
-    val name: String
+    @SerializedName("genre_ids") val genreIds: List<Int> = emptyList()
 )

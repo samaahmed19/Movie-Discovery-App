@@ -1,9 +1,8 @@
 package com.example.movie_discovery.Networking
 
-import com.example.movie_discovery.Screens.CategoryMoviesResponse
-import com.example.movie_discovery.Screens.MovieDetailsResponse
-import com.example.movie_discovery.Screens.MovieResponse
-import com.example.movie_discovery.Screens.MovieSearchResponse
+import com.example.movie_discovery.data.MovieDetailsResponse
+import com.example.movie_discovery.data.MovieResponse
+import com.example.movie_discovery.data.MovieSearchResponse
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -24,7 +23,7 @@ interface MovieApiService {
         @Query("api_key") apiKey: String
     ): MovieResponse
 
-    // ✅Get movie details by ID
+    // Get movie details by ID
     @GET("movie/{movie_id}")
     suspend fun getMovieDetails(
         @Path("movie_id") movieId: Int,

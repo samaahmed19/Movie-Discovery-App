@@ -66,7 +66,7 @@ fun MovieDetailsScreen(
                     .height(400.dp)
             ) {
                 AsyncImage(
-                    model = "https://image.tmdb.org/t/p/w500${movieDetail?.poster_path}",
+                    model = "https://image.tmdb.org/t/p/w500${movieDetail?.posterPath}",
                     contentDescription = movieDetail?.title ?: "Movie Poster",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
@@ -117,12 +117,12 @@ fun MovieDetailsScreen(
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
-                    text = "Rating: ${movieDetail?.vote_average ?: "N/A"}",
+                    text = "Rating: ${movieDetail?.voteAverage ?: "N/A"}",
                     style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f))
                 )
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
-                    text = "Release: ${movieDetail?.release_date ?: "Unknown"}",
+                    text = "Release: ${movieDetail?.releaseDate ?: "Unknown"}",
                     style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f))
                 )
             }

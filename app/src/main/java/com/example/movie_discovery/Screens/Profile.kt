@@ -9,6 +9,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -58,22 +59,15 @@ fun Profile(
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold
                     )
-                )
-            }
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = if (isDarkMode) "Light Mode" else "Dark Mode",
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
-                    color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.padding(end = 8.dp)
                 )
-
+                Spacer(modifier = Modifier.width(128.dp))
                 DarkModeSwitch(
                     checked = isDarkMode,
                     onCheckedChange = onDarkModeToggle
                 )
             }
+
         }
 
         Divider(
@@ -93,59 +87,75 @@ fun Profile(
         )
 
         LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
             items(movieLists) { list ->
-                ProfileListItem(
-                    text = list.name,
-                    count = list.movies.size
-                )
+                MovieList(list)
+            }
+        }
+
+    }
+}
+
+@Composable
+fun MovieList(MList: MovieList) {
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = MList.name,
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            ),
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+        if (MList.movies.isEmpty()) {
+            Text(
+                text = "No movies yet",
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                ),
+                modifier = Modifier.padding(start = 8.dp)
+            )
+        } else {
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(MList.movies) { movie ->
+                    MovieCard(movie)
+                }
             }
         }
     }
 }
 
 @Composable
-fun ProfileListItem(text: String, count: Int = 0) {
-
+fun MovieCard(movieName: String) {
     Card(
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        shape = MaterialTheme.shapes.medium,
         modifier = Modifier
-            .fillMaxWidth()
-            .clickable { /* navigate */ }
+            .width(120.dp)
+            .height(180.dp)
+            .clickable { /* navigate to movie details */ },
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
         ) {
             Text(
-                text = text,
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontWeight = FontWeight.Medium,
+                text = movieName,
+                style = MaterialTheme.typography.bodyMedium.copy(
                     color = MaterialTheme.colorScheme.onSurface
                 )
             )
-
-            Surface(
-                shape = MaterialTheme.shapes.small
-            ) {
-                Text(
-                    text = count.toString(),
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
         }
     }
-
 }
+
 
 @Composable
 fun DarkModeSwitch(

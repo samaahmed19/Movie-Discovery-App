@@ -146,7 +146,7 @@ fun FeaturedMoviesSlider(movies: List<MovieDetailsResponse>) {
     LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         items(movies) { movie ->
             AsyncImage(
-                model = "https://image.tmdb.org/t/p/w500${movie.poster_path}",
+                model = "https://image.tmdb.org/t/p/w500${movie.posterPath}",
                 contentDescription = movie.title,
                 modifier = Modifier
                     .width(280.dp)
@@ -244,7 +244,7 @@ fun MovieCard(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) { AsyncImage(
-                model = "https://image.tmdb.org/t/p/w500${movie.poster_path}",
+                model = "https://image.tmdb.org/t/p/w500${movie.posterPath}",
                 contentDescription = movie.title,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -280,7 +280,7 @@ fun MovieCard(
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "${movie.vote_average ?: 0.0}",
+                            text = "${movie.voteAverage?: 0.0}",
                             style = MaterialTheme.typography.bodySmall,
                             color = Color.Gray
                         )
