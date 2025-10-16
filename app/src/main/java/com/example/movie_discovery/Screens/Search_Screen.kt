@@ -72,7 +72,7 @@ fun SearchScreen(
                     .padding(16.dp),
                 singleLine = true
             )
-
+            /* start of category */
 
             if (query.isEmpty()) {
 
