@@ -106,9 +106,13 @@ fun SearchScreen(
                     modifier = Modifier.fillMaxSize()
                 ) {
                     items(sampleCategories) { category ->
-
-                        val encodedName = URLEncoder.encode(category.name, StandardCharsets.UTF_8.toString())
-                        navController.navigate("category_screen/${category.id}/$encodedName")
+                        CategoryCard(
+                            category = category,
+                            onClick = {
+                                val encodedName = URLEncoder.encode(category.name, StandardCharsets.UTF_8.toString())
+                                navController.navigate("category_screen/${category.id}/$encodedName")
+                            }
+                        )
                     }
                 }
             }
@@ -128,7 +132,7 @@ fun SearchScreen(
                 ) {
                     items(searchResults) { movie ->
                         MovieCardR(movie) {
-                            navController.navigate("movie_detail_screen/${movie.id}")
+                            navController.navigate("details/${movie.id}")
                         }
                     }
                 }

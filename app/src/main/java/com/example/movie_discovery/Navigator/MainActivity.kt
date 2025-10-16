@@ -91,7 +91,7 @@ fun MyApp() {
                         navController.navigate("details/$movieId")
                     },
                     onSearchClick = {
-                        navController.navigate("search")
+                        navController.navigate("search_screen")
                     },
                     onProfileClick = {
                         navController.navigate("profile")
@@ -105,22 +105,24 @@ fun MyApp() {
         composable("search_screen") {
             SearchScreen(navController = navController)
         }
-            composable(
-                route = "category_screen/{genreId}/{genreName}",
-                arguments = listOf(
-                    navArgument("genreId") { type = NavType.IntType },
-                    navArgument("genreName") { type = NavType.StringType }
-                )
-            ) { backStackEntry ->
-                val genreId = backStackEntry.arguments?.getInt("genreId") ?: 0
-                val genreNameEncoded = backStackEntry.arguments?.getString("genreName") ?: ""
-                val genreName = URLDecoder.decode(genreNameEncoded, StandardCharsets.UTF_8.toString())
-                CategoryScreen(
-                    genreId = genreId,
-                    genreName = genreName,
-                    navController = navController
-                )
-            }
+
+        composable(
+            route = "category_screen/{genreId}/{genreName}",
+            arguments = listOf(
+                navArgument("genreId") { type = NavType.IntType },
+                navArgument("genreName") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val genreId = backStackEntry.arguments?.getInt("genreId") ?: 0
+            val genreNameEncoded = backStackEntry.arguments?.getString("genreName") ?: ""
+            val genreName = URLDecoder.decode(genreNameEncoded, StandardCharsets.UTF_8.toString())
+            CategoryScreen(
+                genreId = genreId,
+                genreName = genreName,
+                navController = navController
+            )
+        }
+
         // ---------------------------
         // Movie Details Screen
         // ---------------------------
