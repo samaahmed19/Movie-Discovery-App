@@ -74,13 +74,13 @@ fun SignUpScreen(navController: NavController? = null) {
     val scrollState = rememberScrollState()
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
-    var username by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
 
     var passwordVisible by remember { mutableStateOf(false) }
     var confirmPasswordVisible by remember { mutableStateOf(false) }
-
+    var isEmailError by remember { mutableStateOf(false) }
     val backgroundBrush = if (isSystemInDarkTheme()) {
         Brush.verticalGradient(
             colors = listOf(DarkNavy, CardBackground.copy(alpha = 0.8f), DarkNavy)
@@ -170,9 +170,10 @@ fun SignUpScreen(navController: NavController? = null) {
                 }
 
                 OutlinedTextField(
-                    value = username,
-                    onValueChange = { username = it },
-                    label = { Text("Username", color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.7f)) },
+                    value = email,
+                    onValueChange = { email = it; isEmailError = false },
+                    label = { Text("Email", color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.7f)) },
+                    isError = isEmailError,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = AccentRed,
                         unfocusedBorderColor = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.3f),
@@ -181,6 +182,7 @@ fun SignUpScreen(navController: NavController? = null) {
                     ),
                     modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
                 )
+
 
                 OutlinedTextField(
                     value = password,

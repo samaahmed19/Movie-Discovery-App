@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.movie_discovery.Screens.CategoryScreen
 import com.example.movie_discovery.Screens.HomeScreen
 import com.example.movie_discovery.Screens.MovieDetailsScreen
 import com.example.movie_discovery.Screens.Profile
@@ -85,10 +86,24 @@ fun MyApp() {
         // ---------------------------
         // Search Screen
         // ---------------------------
-        composable("search") {
+        composable("search_screen") {
             SearchScreen(navController = navController)
         }
-
+            composable(
+                route = "category_screen/{genreId}/{genreName}",
+                arguments = listOf(
+                    navArgument("genreId") { type = NavType.IntType },
+                    navArgument("genreName") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val genreId = backStackEntry.arguments?.getInt("genreId") ?: 0
+                val genreName = backStackEntry.arguments?.getString("genreName") ?: ""
+                CategoryScreen(
+                    genreId = genreId,
+                    genreName = genreName,
+                    navController = navController
+                )
+            }
         // ---------------------------
         // Movie Details Screen
         // ---------------------------
@@ -106,6 +121,7 @@ fun MyApp() {
                     onDarkModeToggle = {themeViewModel.toggleDarkMode()  }
                 )
             }
+
     }
 }
 }
