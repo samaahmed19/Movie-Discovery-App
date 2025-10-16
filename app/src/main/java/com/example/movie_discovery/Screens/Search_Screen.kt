@@ -111,9 +111,9 @@ fun SearchScreen(
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         items(searchResults) { movie ->
-                            /*MovieCard(movie) {
+                            MovieCardR(movie) {
                                 navController.navigate("movie_detail_screen/${movie.id}")
-                            }*/
+                            }
                         }
                     }
                 }
