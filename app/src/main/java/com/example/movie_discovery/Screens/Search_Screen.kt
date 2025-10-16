@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.movie_discovery.Viewmodels.SearchViewModel
+import com.example.movie_discovery.data.sampleCategories
 import com.example.movie_discovery.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -122,7 +123,7 @@ fun SearchScreen(
     }
 }
 @Composable
-fun CategoryCard(category: com.example.movie_discovery.Screens.Category, onClick: () -> Unit) {
+fun CategoryCard(category: com.example.movie_discovery.data.Category, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .aspectRatio(1f) // Makes the card square
