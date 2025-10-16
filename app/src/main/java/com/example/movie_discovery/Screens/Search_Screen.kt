@@ -20,17 +20,21 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.example.movie_discovery.Viewmodels.SearchViewModel
+import com.example.movie_discovery.data.Category
 import com.example.movie_discovery.data.sampleCategories
 import com.example.movie_discovery.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(
-    navController: NavHostController,
-    viewModel: SearchViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+    navController: NavController,
+    viewModel: SearchViewModel = viewModel()
 ) {
     var query by remember { mutableStateOf("") }
     val searchResults by viewModel.searchResults.collectAsState()
@@ -38,7 +42,7 @@ fun SearchScreen(
 
     LaunchedEffect(query) {
         kotlinx.coroutines.delay(500)
-        if (query.isNotEmpty()) {
+        if (query.isNotBlank()) {
             viewModel.searchMovies(query)
         } else {
             viewModel.clearSearchResults()
@@ -46,21 +50,19 @@ fun SearchScreen(
     }
 
     Scaffold(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background),
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            TopAppBar(title = { Text("Search & Explore") })
-        }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize()
-        ) {
-
             OutlinedTextField(
                 value = query,
                 onValueChange = { query = it },
-                placeholder = { Text("Search for a movie...") },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                placeholder = { Text("Search movie") },
+                leadingIcon = {
+                    Icon(Icons.Default.Search, contentDescription = null, tint = TextSecondary)
+                },
+
                 trailingIcon = {
                     if (query.isNotEmpty()) {
                         IconButton(onClick = { query = "" }) {
@@ -70,25 +72,36 @@ fun SearchScreen(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
+                    .statusBarsPadding()
                     .padding(16.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
+                ),
                 singleLine = true
             )
-            /* start of category */
+        }
+    ) { paddingValues ->
 
-            if (query.isEmpty()) {
-
+        if (query.isBlank()) {
+            Column(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .padding(horizontal = 16.dp)
+                    .imePadding()
+            ) {
                 Text(
-                    text = "Explore Categories",
+                    text = "Explore More",
+                    color = MaterialTheme.colorScheme.onBackground,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(horizontal = 16.dp)
+                    modifier = Modifier.padding(vertical = 12.dp)
                 )
-                Spacer(modifier = Modifier.height(16.dp))
                 LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    contentPadding = PaddingValues(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    columns = GridCells.Fixed(3),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.fillMaxSize()
                 ) {
                     items(sampleCategories) { category ->
 
@@ -97,24 +110,24 @@ fun SearchScreen(
                         }
                     }
                 }
+            }
+        } else {
+
+            if (isLoading) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
             } else {
-
-                if (isLoading) {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
-                    }
-                } else {
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(3),
-                        contentPadding = PaddingValues(16.dp),
-
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        items(searchResults) { movie ->
-                            MovieCardR(movie) {
-                                navController.navigate("movie_detail_screen/${movie.id}")
-                            }
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(3),
+                    modifier = Modifier.padding(paddingValues),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(searchResults) { movie ->
+                        MovieCardR(movie) {
+                            navController.navigate("movie_detail_screen/${movie.id}")
                         }
                     }
                 }
@@ -122,33 +135,44 @@ fun SearchScreen(
         }
     }
 }
+
 @Composable
-fun CategoryCard(category: com.example.movie_discovery.data.Category, onClick: () -> Unit) {
-    Card(
+fun CategoryCard(
+    category: Category,
+
+    onClick: () -> Unit
+) {
+    Box(
         modifier = Modifier
-            .aspectRatio(1f) // Makes the card square
-            .clickable(onClick = onClick),
-        shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp)
+            .aspectRatio(1f)
+            .clip(RoundedCornerShape(8.dp))
+
+            .clickable { onClick() }
     ) {
-        Box {
-            coil.compose.AsyncImage(
-                model = category.imageUrl,
-                contentDescription = category.name,
-                contentScale = androidx.compose.ui.layout.ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.4f))
-            )
-            Text(
-                text = category.name,
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                modifier = Modifier.align(Alignment.Center)
-            )
-        }
+        AsyncImage(
+            model = category.imageUrl,
+            contentDescription = category.name,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)
+        )
+        Box(
+            modifier = Modifier.matchParentSize().background(MaterialTheme.colorScheme.surface.copy(alpha = 0.5f))
+        )
+        Text(
+            text = category.name,
+            color = MaterialTheme.colorScheme.onSurface,
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.align(Alignment.Center)
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Search Screen Preview")
+@Composable
+fun PreviewSearchScreen() {
+    MoviesTheme(darkTheme = false) {
+        val navController = rememberNavController()
+        SearchScreen(navController = navController)
     }
 }
