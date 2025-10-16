@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.movie_discovery.Screens.CategoryScreen
 import com.example.movie_discovery.Screens.HomeScreen
 import com.example.movie_discovery.Screens.MovieDetailsScreen
 import com.example.movie_discovery.Screens.Profile
@@ -19,6 +20,9 @@ import com.example.movie_discovery.Screens.SignUpScreen
 import com.example.movie_discovery.Screens.SplashScreen
 import com.example.movie_discovery.Viewmodels.ThemeViewModel
 import com.example.movie_discovery.ui.theme.MoviesTheme
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,6 +75,16 @@ fun MyApp() {
         // ---------------------------
         // Home Screen
         // ---------------------------
+        composable("home") {
+            HomeScreen(
+                onMovieClick = { movieTitle ->
+                    navController.navigate("details/$movieTitle")
+                },
+                onSearchClick = {
+                    navController.navigate("search_screen")
+                }
+            )
+        }
             composable("home") {
                 HomeScreen(
                     onMovieClick = { movieId ->
@@ -88,10 +102,25 @@ fun MyApp() {
             // ---------------------------
         // Search Screen
         // ---------------------------
-        composable("search") {
+        composable("search_screen") {
             SearchScreen(navController = navController)
         }
-
+            composable(
+                route = "category_screen/{genreId}/{genreName}",
+                arguments = listOf(
+                    navArgument("genreId") { type = NavType.IntType },
+                    navArgument("genreName") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val genreId = backStackEntry.arguments?.getInt("genreId") ?: 0
+                val genreNameEncoded = backStackEntry.arguments?.getString("genreName") ?: ""
+                val genreName = URLDecoder.decode(genreNameEncoded, StandardCharsets.UTF_8.toString())
+                CategoryScreen(
+                    genreId = genreId,
+                    genreName = genreName,
+                    navController = navController
+                )
+            }
         // ---------------------------
         // Movie Details Screen
         // ---------------------------
@@ -109,6 +138,7 @@ fun MyApp() {
                     onDarkModeToggle = {themeViewModel.toggleDarkMode()  }
                 )
             }
+
     }
 }
 }

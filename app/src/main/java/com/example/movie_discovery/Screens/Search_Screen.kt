@@ -29,6 +29,8 @@ import com.example.movie_discovery.Viewmodels.SearchViewModel
 import com.example.movie_discovery.data.Category
 import com.example.movie_discovery.data.sampleCategories
 import com.example.movie_discovery.ui.theme.*
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -105,9 +107,8 @@ fun SearchScreen(
                 ) {
                     items(sampleCategories) { category ->
 
-                        CategoryCard(category) {
-                            navController.navigate("category_screen/${category.id}/${category.name}")
-                        }
+                        val encodedName = URLEncoder.encode(category.name, StandardCharsets.UTF_8.toString())
+                        navController.navigate("category_screen/${category.id}/$encodedName")
                     }
                 }
             }
