@@ -48,7 +48,6 @@ fun NeonText(
         fontWeight = FontWeight.Bold,
         fontStyle = fontStyle
     )
-
     Box(modifier = modifier) {
         Text(
             text = text,
@@ -131,7 +130,7 @@ fun SignInScreen(
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-            Column(
+               Column(
                 modifier = Modifier.padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
