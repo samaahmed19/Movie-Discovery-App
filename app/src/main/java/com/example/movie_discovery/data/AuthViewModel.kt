@@ -14,13 +14,13 @@ class AuthViewModel : ViewModel() {
     private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
     val authState: StateFlow<AuthState> = _authState
 
-    fun signUp(firstName: String, lastName: String, email: String, password: String) {
+    fun signUp(firstName: String, lastName: String,email: String, password: String) {
         _authState.value = AuthState.Loading
-
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val userId = auth.currentUser?.uid ?: return@addOnCompleteListener
+                    val firestore = FirebaseFirestore.getInstance()
 
                     val userData = hashMapOf(
                         "firstName" to firstName,
@@ -32,16 +32,15 @@ class AuthViewModel : ViewModel() {
                         "isDarkMode" to false
                     )
 
-                    firestore.collection("users")
-                        .document(userId)
+                    firestore.collection("users").document(userId)
                         .set(userData)
+
                         .addOnSuccessListener {
                             _authState.value = AuthState.Success("Account created successfully!")
                         }
                         .addOnFailureListener { e ->
                             _authState.value = AuthState.Error(e.message ?: "Error saving data")
                         }
-
                 } else {
                     _authState.value =
                         AuthState.Error(task.exception?.message ?: "Something went wrong")
