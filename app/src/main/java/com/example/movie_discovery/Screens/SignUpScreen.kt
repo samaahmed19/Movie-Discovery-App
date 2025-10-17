@@ -2,7 +2,6 @@ package com.example.movie_discovery.Screens
 
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import com.example.movie_discovery.Screens.NeonText
 import android.content.res.Configuration
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -32,7 +31,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.example.movie_discovery.data.AuthState
 import com.example.movie_discovery.data.AuthViewModel
 import com.example.movie_discovery.ui.theme.*
@@ -58,28 +56,51 @@ fun SignUpScreen(
 
     val authState by authViewModel.authState.collectAsState()
     val context = LocalContext.current
+
     val backgroundBrush = if (isSystemInDarkTheme()) {
-        Brush.verticalGradient(colors = listOf(DarkNavy, CardBackground.copy(alpha = 0.8f), DarkNavy))
+        Brush.verticalGradient(
+            colors = listOf(
+                DarkNavy,
+                CardBackground.copy(alpha = 0.8f),
+                DarkNavy
+            )
+        )
     } else {
         Brush.verticalGradient(colors = listOf(Color.White, Color(0xFFF5F5F5), Color.White))
     }
 
     Column(
-        modifier = Modifier.fillMaxSize().background(backgroundBrush).padding(horizontal = 24.dp)
-            .verticalScroll(scrollState).imePadding(),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(backgroundBrush)
+            .padding(horizontal = 24.dp)
+            .verticalScroll(scrollState)
+            .imePadding(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.height(40.dp))
+
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(bottom = 40.dp)
         ) {
-            NeonText(text = "Movie", neonColor = Color.Cyan.copy(alpha = 0.9f), fontStyle = FontStyle.Italic)
-            NeonText(text = "Discovery", neonColor = AccentRed.copy(alpha = 0.8f), fontStyle = FontStyle.Italic)
+            NeonText(
+                text = "Movie",
+                neonColor = Color.Cyan.copy(alpha = 0.9f),
+                fontStyle = FontStyle.Italic
+            )
+            NeonText(
+                text = "Discovery",
+                neonColor = AccentRed.copy(alpha = 0.8f),
+                fontStyle = FontStyle.Italic
+            )
         }
+
         Card(
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = if (isSystemInDarkTheme()) CardBackground else Color(0xFFF5F5F5)),
+            colors = CardDefaults.cardColors(
+                containerColor = if (isSystemInDarkTheme()) CardBackground else Color(0xFFF5F5F5)
+            ),
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -87,11 +108,14 @@ fun SignUpScreen(
                 modifier = Modifier.padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(text = "Sign Up",color = if (isSystemInDarkTheme()) TextPrimary else Color.Black,
+                Text(
+                    text = "Sign Up",
+                    color = if (isSystemInDarkTheme()) TextPrimary else Color.Black,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(bottom = 20.dp)
                 )
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -99,12 +123,21 @@ fun SignUpScreen(
                     OutlinedTextField(
                         value = firstName,
                         onValueChange = { firstName = it; isFirstNameError = false },
-                        label = { Text("First Name", color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.7f)) },
+                        label = {
+                            Text(
+                                "First Name",
+                                color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(
+                                    alpha = 0.7f
+                                )
+                            )
+                        },
                         modifier = Modifier.weight(1f),
                         isError = isFirstNameError,
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = AccentRed,
-                            unfocusedBorderColor = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.3f),
+                            unfocusedBorderColor = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(
+                                alpha = 0.3f
+                            ),
                             focusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black,
                             unfocusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black
                         )
@@ -112,34 +145,63 @@ fun SignUpScreen(
                     OutlinedTextField(
                         value = lastName,
                         onValueChange = { lastName = it; isLastNameError = false },
-                        label = { Text("Last Name", color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.7f)) },
+                        label = {
+                            Text(
+                                "Last Name",
+                                color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(
+                                    alpha = 0.7f
+                                )
+                            )
+                        },
                         modifier = Modifier.weight(1f),
                         isError = isLastNameError,
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = AccentRed,
-                            unfocusedBorderColor = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.3f),
+                            unfocusedBorderColor = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(
+                                alpha = 0.3f
+                            ),
                             focusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black,
                             unfocusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black
                         )
                     )
                 }
+
                 OutlinedTextField(
                     value = email,
                     onValueChange = { email = it; isEmailError = false },
-                    label = { Text("Email", color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.7f)) },
+                    label = {
+                        Text(
+                            "Email",
+                            color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(
+                                alpha = 0.7f
+                            )
+                        )
+                    },
                     isError = isEmailError,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = AccentRed,
-                        unfocusedBorderColor = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.3f),
+                        unfocusedBorderColor = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(
+                            alpha = 0.3f
+                        ),
                         focusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black,
                         unfocusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black
                     ),
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
                 )
+
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
-                    label = { Text("Password", color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.7f)) },
+                    label = {
+                        Text(
+                            "Password",
+                            color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(
+                                alpha = 0.7f
+                            )
+                        )
+                    },
                     visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
                         val image = if (passwordVisible)
@@ -156,17 +218,28 @@ fun SignUpScreen(
                     },
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = AccentRed,
-                        unfocusedBorderColor = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.3f),
+                        unfocusedBorderColor = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(
+                            alpha = 0.3f
+                        ),
                         focusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black,
                         unfocusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black
                     ),
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
                 )
 
                 OutlinedTextField(
                     value = confirmPassword,
                     onValueChange = { confirmPassword = it },
-                    label = { Text("Confirm Password", color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.7f)) },
+                    label = {
+                        Text(
+                            "Confirm Password",
+                            color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(
+                                alpha = 0.7f
+                            )
+                        )
+                    },
                     visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
                         val image = if (confirmPasswordVisible)
@@ -183,49 +256,81 @@ fun SignUpScreen(
                     },
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = AccentRed,
-                        unfocusedBorderColor = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.3f),
+                        unfocusedBorderColor = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(
+                            alpha = 0.3f
+                        ),
                         focusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black,
                         unfocusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black
                     ),
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
                 )
+
+
                 Button(
                     onClick = {
                         isFirstNameError = firstName.isBlank()
                         isLastNameError = lastName.isBlank()
                         isEmailError = email.isBlank()
                         isPasswordError = password.isBlank()
-                        val hasError = isFirstNameError || isLastNameError || isEmailError || isPasswordError
+
+                        val hasError =
+                            isFirstNameError || isLastNameError || isEmailError || isPasswordError
+
                         if (!hasError) {
                             if (password == confirmPassword) {
-                                authViewModel.signUp(email, password)
+
+                                authViewModel.signUp(firstName, lastName, email, password)
                             } else {
-                                Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    context,
+                                    "Passwords do not match",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                         } else {
-                            Toast.makeText(context, "Please fill all required fields", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                context,
+                                "Please fill all required fields",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = AccentRed),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth().height(70.dp).padding(top = 16.dp, bottom = 8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(70.dp)
+                        .padding(top = 16.dp, bottom = 8.dp),
                     enabled = authState != AuthState.Loading
                 ) {
                     if (authState == AuthState.Loading) {
-                        CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White)
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            color = Color.White
+                        )
                     } else {
-                        Text("Sign Up", color = TextPrimary, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                        Text(
+                            "Sign Up",
+                            color = TextPrimary,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
+
             }
         }
+
         Spacer(modifier = Modifier.height(20.dp))
-        Row(
-            horizontalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Already have an account? ",  color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.7f),
-                fontSize = 16.sp)
+
+        Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
+            Text(
+                "Already have an account? ",
+                color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.7f),
+                fontSize = 16.sp
+            )
             Text(
                 text = "SIGN IN",
                 color = AccentRed,
@@ -234,8 +339,10 @@ fun SignUpScreen(
                 modifier = Modifier.clickable { navController.navigate("signIn") }
             )
         }
+
         Spacer(modifier = Modifier.height(30.dp))
     }
+
     LaunchedEffect(authState) {
         when (val state = authState) {
             is AuthState.Success -> {
@@ -245,12 +352,13 @@ fun SignUpScreen(
                 }
                 authViewModel.resetAuthState()
             }
+
             is AuthState.Error -> {
                 Toast.makeText(context, state.message, Toast.LENGTH_LONG).show()
                 authViewModel.resetAuthState()
             }
+
             else -> Unit
         }
     }
 }
-
