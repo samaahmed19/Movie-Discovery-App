@@ -126,41 +126,32 @@ fun SignUpScreen(
                         label = {
                             Text(
                                 "First Name",
-                                color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(
-                                    alpha = 0.7f
-                                )
-
-                            )
-                            OutlinedTextField(
-                                value = lastName,
-                                onValueChange = { lastName = it; isLastNameError = false },
-                                label = {
-                                    Text(
-                                        "Last Name",
-                                        color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(
-                                            alpha = 0.7f
-                                        )
-                                    )
-                                },
-                                modifier = Modifier.weight(1f),
-                                isError = isLastNameError,
-                                colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = AccentRed,
-                                    unfocusedBorderColor = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(
-                                        alpha = 0.3f
-                                    ),
-                                    focusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black,
-                                    unfocusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black
-                                )
+                                color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.7f)
                             )
                         },
                         modifier = Modifier.weight(1f),
                         isError = isFirstNameError,
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = AccentRed,
-                            unfocusedBorderColor = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(
-                                alpha = 0.3f
-                            ),
+                            unfocusedBorderColor = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.3f),
+                            focusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black,
+                            unfocusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black
+                        )
+                    )
+                    OutlinedTextField(
+                        value = lastName,
+                        onValueChange = { lastName = it; isLastNameError = false },
+                        label = {
+                            Text(
+                                "Last Name",
+                                color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.7f)
+                            )
+                        },
+                        modifier = Modifier.weight(1f),
+                        isError = isLastNameError,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = AccentRed,
+                            unfocusedBorderColor = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.3f),
                             focusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black,
                             unfocusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black
                         )
