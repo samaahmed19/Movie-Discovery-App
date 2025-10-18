@@ -1,12 +1,15 @@
 package com.example.movie_discovery.Viewmodels
 
 import androidx.lifecycle.ViewModel
+import com.example.movie_discovery.Networking.RetrofitInstance
+import com.example.movie_discovery.data.MovieDetailsResponse
 import com.example.movie_discovery.data.UserData
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.runBlocking
 
 class UserViewModel : ViewModel() {
 
@@ -69,6 +72,18 @@ class UserViewModel : ViewModel() {
             transaction.update(docRef, fieldName, updatedList.distinct())
         }.addOnSuccessListener {
             loadUserData()
+        }
+    }
+
+
+    fun getMovieDetailsFromTMDB(movieId: Int): MovieDetailsResponse? {
+        return try {
+            runBlocking {
+                RetrofitInstance.api.getMovieDetails(movieId, "2745135cf88bf117b5ace2b3fbabf113")
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
     }
 }

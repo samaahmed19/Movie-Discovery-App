@@ -6,15 +6,23 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.example.movie_discovery.Viewmodels.UserViewModel
+import com.example.movie_discovery.data.MovieDetailsResponse
 
 @Composable
 fun Profile(
@@ -22,12 +30,29 @@ fun Profile(
     isDarkMode: Boolean,
     onDarkModeToggle: (Boolean) -> Unit
 ) {
-    val userData by userViewModel.userData.collectAsState()
-
     LaunchedEffect(Unit) {
         userViewModel.loadUserData()
     }
 
+    val userData by userViewModel.userData.collectAsState()
+
+    val favouriteMovies by produceState(initialValue = emptyList<MovieDetailsResponse>(), userData) {
+        value = userData?.favourites?.mapNotNull {
+            userViewModel.getMovieDetailsFromTMDB(it.toInt())
+        } ?: emptyList()
+    }
+
+    val watchlistMovies by produceState(initialValue = emptyList<MovieDetailsResponse>(), userData) {
+        value = userData?.watchlist?.mapNotNull {
+            userViewModel.getMovieDetailsFromTMDB(it.toInt())
+        } ?: emptyList()
+    }
+
+    val watchedMovies by produceState(initialValue = emptyList<MovieDetailsResponse>(), userData) {
+        value = userData?.watched?.mapNotNull {
+            userViewModel.getMovieDetailsFromTMDB(it.toInt())
+        } ?: emptyList()
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -35,7 +60,7 @@ fun Profile(
             .padding(16.dp)
     ) {
         userData?.let { user ->
-            // Username + Dark Mode row
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -57,11 +82,11 @@ fun Profile(
 
             Spacer(Modifier.height(24.dp))
 
-            MovieListSection(title = "Favourites", movies = user.favourites)
+            MovieListSection("Favourites", favouriteMovies, userViewModel)
             Spacer(Modifier.height(16.dp))
-            MovieListSection(title = "Watchlist", movies = user.watchlist)
+            MovieListSection("Watchlist", watchlistMovies, userViewModel)
             Spacer(Modifier.height(16.dp))
-            MovieListSection(title = "Watched", movies = user.watched)
+            MovieListSection("Watched", watchedMovies, userViewModel)
         } ?: Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -72,7 +97,11 @@ fun Profile(
 }
 
 @Composable
-fun MovieListSection(title: String, movies: List<String>) {
+fun MovieListSection(
+    title: String,
+    movies: List<MovieDetailsResponse>,
+    userViewModel: UserViewModel
+) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = title,
@@ -94,7 +123,10 @@ fun MovieListSection(title: String, movies: List<String>) {
         } else {
             LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 items(movies) { movie ->
-                    MovieCard(movieName = movie)
+                    MovieCard(
+                        movie = movie,
+                        userViewModel = userViewModel,
+                    )
                 }
             }
         }
@@ -102,27 +134,94 @@ fun MovieListSection(title: String, movies: List<String>) {
 }
 
 @Composable
-fun MovieCard(movieName: String) {
+fun MovieCard(
+    movie: MovieDetailsResponse,
+    userViewModel: UserViewModel,
+    modifier: Modifier = Modifier
+) {
+    var isFavorite by remember { mutableStateOf(false) }
+
+    val userData by userViewModel.userData.collectAsState()
+
+    LaunchedEffect(userData) {
+        val movieIdStr = movie.id.toString()
+        isFavorite = userData?.favourites?.contains(movieIdStr) == true
+    }
+
     Card(
-        modifier = Modifier
-            .width(120.dp)
-            .height(180.dp)
-            .clickable { /* TODO: navigate to details */ },
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
+        modifier = modifier
+            .width(160.dp)
+            .height(260.dp),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(6.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = movieName,
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    color = MaterialTheme.colorScheme.onSurface
+        Box {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                AsyncImage(
+                    model = "https://image.tmdb.org/t/p/w500${movie.posterPath}",
+                    contentDescription = movie.title,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(190.dp)
+                        .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)),
+                    contentScale = ContentScale.Crop
                 )
-            )
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp, vertical = 6.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = movie.title,
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Star,
+                            contentDescription = "Rating",
+                            tint = Color(0xFFFFD700),
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "${movie.voteAverage ?: 0.0}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.Gray
+                        )
+                    }
+                }
+            }
+
+
+            IconButton(
+                onClick = {
+                    val movieIdStr = movie.id.toString()
+                    if (isFavorite) userViewModel.removeFromFavourites(movieIdStr)
+                    else userViewModel.addToFavourites(movieIdStr)
+                    isFavorite = !isFavorite
+                },
+                modifier = Modifier.align(Alignment.TopEnd).padding(8.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Favorite,
+                    contentDescription = "Favorite",
+                    tint = if (isFavorite) Color.Red else Color.LightGray
+                )
+            }
         }
     }
 }
@@ -160,8 +259,3 @@ fun DarkModeSwitch(
         }
     }
 }
-
-
-
-
-
