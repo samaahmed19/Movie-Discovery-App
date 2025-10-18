@@ -21,9 +21,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.movie_discovery.ui.theme.AccentRed
 import com.example.movie_discovery.Viewmodels.MovieDetailViewModel
+import com.example.movie_discovery.Viewmodels.UserViewModel
 import com.example.movie_discovery.ui.theme.MoviesTheme
 
 @Composable
@@ -31,10 +33,26 @@ fun MovieDetailsScreen(
     movieId: Int?, //  receives movie ID only
     viewModel: MovieDetailViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
-    var isFavorite by remember { mutableStateOf(false) }
-
     // Observe movie detail from ViewModel
     val movieDetail by viewModel.movieDetails.collectAsState()
+
+
+    var isFavorite by remember { mutableStateOf(false) }
+    var isWatchlist by remember { mutableStateOf(false) }
+    var isWatched by remember { mutableStateOf(false) }
+    val userViewModel: UserViewModel = viewModel()
+
+
+    LaunchedEffect(movieId, userViewModel.userData.collectAsState().value) {
+        val userData = userViewModel.userData.value
+        val movieIdStr = movieId?.toString()
+        isFavorite = movieIdStr in (userData?.favourites ?: emptyList())
+        isWatchlist = movieIdStr in (userData?.watchlist ?: emptyList())
+        isWatched = movieIdStr in (userData?.watched ?: emptyList())
+    }
+
+
+
 
     // Fetch movie details when ID changes
     LaunchedEffect(movieId) {
@@ -73,19 +91,68 @@ fun MovieDetailsScreen(
                         .fillMaxSize()
                         .clip(RoundedCornerShape(20.dp))
                 )
-
+                // Favorite button
                 IconButton(
-                    onClick = { isFavorite = !isFavorite },
+                    onClick = {
+                        if (movieId != null) {
+                            if (isFavorite) userViewModel.removeFromFavourites(movieId.toString())
+                            else userViewModel.addToFavourites(movieId.toString())
+                            isFavorite = !isFavorite
+                        }
+                    },
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .padding(12.dp)
-                        .size(36.dp)
+                        .size(44.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Favorite,
                         contentDescription = "Favorite",
-                        tint = if (isFavorite) AccentRed else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
+                        tint = if (isFavorite) Color.Red else Color.LightGray.copy(alpha = 0.6f)
+                    )
+                }
 
+                // Watchlist button
+                IconButton(
+                    onClick = {
+                        movieId?.let {
+                            if (isWatchlist) userViewModel.removeFromWatchlist(it.toString())
+                            else userViewModel.addToWatchlist(it.toString())
+                            isWatchlist = !isWatchlist
+                        }
+                    },
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(12.dp)
+                        .size(44.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.PlayArrow,
+                        contentDescription = "Watchlist",
+                        tint = if (isWatchlist) Color(0xFF00C853)
+                        else Color.LightGray.copy(alpha = 0.6f)
+                    )
+                }
+
+                // Watched button
+                IconButton(
+                    onClick = {
+                        movieId?.let {
+                            if (isWatched) userViewModel.unmarkFromWatched(it.toString())
+                            else userViewModel.markAsWatched(it.toString())
+                            isWatched = !isWatched
+                        }
+                    },
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(12.dp)
+                        .size(44.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Star,
+                        contentDescription = "Watched",
+                        tint = if (isWatched) Color(0xFFFFD700)
+                        else Color.LightGray.copy(alpha = 0.6f)
                     )
                 }
             }

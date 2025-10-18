@@ -136,8 +136,9 @@ fun MyApp() {
 
             composable("profile") {
                 Profile(
-                    isDarkMode = isDarkMode,
-                    onDarkModeToggle = {themeViewModel.toggleDarkMode()  }
+                    userViewModel = viewModel(),
+                    isDarkMode = themeViewModel.isDarkMode,
+                    onDarkModeToggle = { themeViewModel.toggleDarkMode() }
                 )
             }
 
