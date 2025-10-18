@@ -1,110 +1,81 @@
 package com.example.movie_discovery.Screens
 
-
-import androidx.compose.animation.animateColor
-import androidx.compose.animation.core.animateDp
-import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.movie_discovery.ui.theme.MoviesTheme
-
-data class MovieList(val name: String, val movies: List<String> = emptyList())
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.movie_discovery.Viewmodels.UserViewModel
 
 @Composable
 fun Profile(
-    isDarkMode: Boolean = false,
-    onDarkModeToggle: (Boolean) -> Unit = {}
-)  {
+    userViewModel: UserViewModel = viewModel(),
+    isDarkMode: Boolean,
+    onDarkModeToggle: (Boolean) -> Unit
+) {
+    val userData by userViewModel.userData.collectAsState()
+
+    LaunchedEffect(Unit) {
+        userViewModel.loadUserData()
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .padding(16.dp)
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = "Profile",
-                    tint = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.size(40.dp)
-                )
-
-                Spacer(modifier = Modifier.width(12.dp))
-
+        userData?.let { user ->
+            // Username + Dark Mode row
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
                 Text(
-                    text = "Username",
+                    text = "Welcome, ${user.firstName.ifEmpty { "Guest" }}",
                     style = MaterialTheme.typography.headlineSmall.copy(
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
                     )
-
                 )
-                Spacer(modifier = Modifier.width(128.dp))
+
                 DarkModeSwitch(
                     checked = isDarkMode,
                     onCheckedChange = onDarkModeToggle
                 )
             }
 
-        }
+            Spacer(Modifier.height(24.dp))
 
-        Divider(
-            color = MaterialTheme.colorScheme.outlineVariant,
-            thickness = 1.dp,
-            modifier = Modifier.padding(vertical = 12.dp)
-        )
-
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        // replace with real data
-        val movieLists = listOf(
-            MovieList("Watched", listOf("Movie1", "Movie2", "Movie3")),
-            MovieList("Watchlist", emptyList()),
-            MovieList("Favourites", listOf("Movie4"))
-        )
-
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(24.dp),
-            modifier = Modifier.fillMaxWidth()
+            MovieListSection(title = "Favourites", movies = user.favourites)
+            Spacer(Modifier.height(16.dp))
+            MovieListSection(title = "Watchlist", movies = user.watchlist)
+            Spacer(Modifier.height(16.dp))
+            MovieListSection(title = "Watched", movies = user.watched)
+        } ?: Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
         ) {
-            items(movieLists) { list ->
-                MovieList(list)
-            }
+            Text("Loading user data...")
         }
-
     }
 }
 
 @Composable
-fun MovieList(MList: MovieList) {
-    Column(
-        modifier = Modifier.fillMaxWidth()
-    ) {
+fun MovieListSection(title: String, movies: List<String>) {
+    Column(modifier = Modifier.fillMaxWidth()) {
         Text(
-            text = MList.name,
+            text = title,
             style = MaterialTheme.typography.titleMedium.copy(
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
@@ -112,7 +83,7 @@ fun MovieList(MList: MovieList) {
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
-        if (MList.movies.isEmpty()) {
+        if (movies.isEmpty()) {
             Text(
                 text = "No movies yet",
                 style = MaterialTheme.typography.bodyMedium.copy(
@@ -121,11 +92,9 @@ fun MovieList(MList: MovieList) {
                 modifier = Modifier.padding(start = 8.dp)
             )
         } else {
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(MList.movies) { movie ->
-                    MovieCard(movie)
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                items(movies) { movie ->
+                    MovieCard(movieName = movie)
                 }
             }
         }
@@ -138,9 +107,11 @@ fun MovieCard(movieName: String) {
         modifier = Modifier
             .width(120.dp)
             .height(180.dp)
-            .clickable { /* navigate to movie details */ },
+            .clickable { /* TODO: navigate to details */ },
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
     ) {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -156,27 +127,15 @@ fun MovieCard(movieName: String) {
     }
 }
 
-
 @Composable
 fun DarkModeSwitch(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
-    val transition = updateTransition(targetState = checked, label = "DarkModeTransition")
-
-    val thumbOffset by transition.animateDp(label = "ThumbOffset") { state ->
-        if (state) 28.dp else 0.dp
-    }
-
-    val trackColor by transition.animateColor(label = "TrackColor") { state ->
-        if (state) MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
-        else MaterialTheme.colorScheme.surfaceVariant
-    }
-    val thumbColor by transition.animateColor(label = "ThumbColor") { state ->
-        if (state) MaterialTheme.colorScheme.primary
-        else MaterialTheme.colorScheme.onSurfaceVariant
-    }
-
+    val trackColor = if (checked) MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+    else MaterialTheme.colorScheme.surfaceVariant
+    val thumbColor = if (checked) MaterialTheme.colorScheme.primary
+    else MaterialTheme.colorScheme.onSurfaceVariant
     val icon = if (checked) "🌙" else "☀️"
 
     Box(
@@ -186,37 +145,19 @@ fun DarkModeSwitch(
             .clip(RoundedCornerShape(50))
             .background(trackColor)
             .clickable { onCheckedChange(!checked) }
-            .padding(horizontal = 4.dp, vertical = 3.dp)
+            .padding(horizontal = 4.dp, vertical = 3.dp),
+        contentAlignment = Alignment.CenterStart
     ) {
         Box(
             modifier = Modifier
-                .offset(x = thumbOffset)
+                .offset(x = if (checked) 28.dp else 0.dp)
                 .size(24.dp)
                 .clip(RoundedCornerShape(50))
                 .background(thumbColor),
             contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = icon,
-                style = MaterialTheme.typography.bodyMedium
-            )
+            Text(text = icon, style = MaterialTheme.typography.bodyMedium)
         }
-    }
-}
-
-@Preview(showBackground = true, name = "Light Mode")
-@Composable
-fun ProfileLightPreview() {
-    MoviesTheme(darkTheme = false) {
-        Profile()
-    }
-}
-
-@Preview(showBackground = true, name = "Dark Mode")
-@Composable
-fun ProfileDarkPreview() {
-    MoviesTheme(darkTheme = true) {
-        Profile()
     }
 }
 

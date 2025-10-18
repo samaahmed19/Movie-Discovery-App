@@ -1,0 +1,75 @@
+package com.example.movie_discovery.Viewmodels
+
+import androidx.lifecycle.ViewModel
+import com.example.movie_discovery.data.UserData
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
+import com.google.firebase.firestore.firestore
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+
+class UserViewModel : ViewModel() {
+
+    private val auth = Firebase.auth
+    private val firestore = Firebase.firestore
+
+    private val _userData = MutableStateFlow<UserData?>(null)
+    val userData: StateFlow<UserData?> = _userData
+
+    fun loadUserData() {
+        val user = auth.currentUser ?: return
+
+        val userDocRef = firestore.collection("users").document(user.uid)
+
+        userDocRef.get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val userData = UserData(
+                        userId = document.getString("userId") ?: user.uid,
+                        firstName = document.getString("firstName") ?: "Guest",
+                        email = document.getString("email") ?: user.email.orEmpty(),
+                        favourites = document.get("favourites") as? List<String> ?: emptyList(),
+                        watchlist = document.get("watchlist") as? List<String> ?: emptyList(),
+                        watched = document.get("watched") as? List<String> ?: emptyList()
+                    )
+                    _userData.value = userData
+                } else {
+                    val newUser = UserData(
+                        userId = user.uid,
+                        firstName = user.displayName ?: "Guest",
+                        email = user.email ?: ""
+                    )
+                    firestore.collection("users").document(user.uid).set(newUser)
+                    _userData.value = newUser
+                }
+            }
+            .addOnFailureListener {
+                _userData.value = UserData(
+                    firstName = "Error",
+                    email = "Error loading data"
+                )
+            }
+    }
+
+    fun addToFavourites(movieId: String) = updateUserListField("favourites", movieId, true)
+    fun removeFromFavourites(movieId: String) = updateUserListField("favourites", movieId, false)
+    fun addToWatchlist(movieId: String) = updateUserListField("watchlist", movieId, true)
+    fun removeFromWatchlist(movieId: String) = updateUserListField("watchlist", movieId, false)
+    fun markAsWatched(movieId: String) = updateUserListField("watched", movieId, true)
+    fun unmarkFromWatched(movieId: String) = updateUserListField("watched", movieId, false)
+
+    private fun updateUserListField(fieldName: String, movieId: String, add: Boolean) {
+        val user = auth.currentUser ?: return
+        val docRef = firestore.collection("users").document(user.uid)
+
+        firestore.runTransaction { transaction ->
+            val snapshot = transaction.get(docRef)
+            val currentList = snapshot.get(fieldName) as? List<String> ?: emptyList()
+            val updatedList = if (add) currentList + movieId else currentList - movieId
+            transaction.update(docRef, fieldName, updatedList.distinct())
+        }.addOnSuccessListener {
+            loadUserData()
+        }
+    }
+}
+
