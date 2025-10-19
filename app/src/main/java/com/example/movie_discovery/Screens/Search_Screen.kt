@@ -26,6 +26,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.example.movie_discovery.Viewmodels.SearchViewModel
+import com.example.movie_discovery.Viewmodels.UserViewModel
 import com.example.movie_discovery.data.Category
 import com.example.movie_discovery.data.sampleCategories
 import com.example.movie_discovery.ui.theme.*
@@ -41,6 +42,8 @@ fun SearchScreen(
     var query by remember { mutableStateOf("") }
     val searchResults by viewModel.searchResults.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+    val userViewModel: UserViewModel = viewModel()
+
 
     LaunchedEffect(query) {
         kotlinx.coroutines.delay(500)
@@ -131,9 +134,10 @@ fun SearchScreen(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(searchResults) { movie ->
-                        MovieCardR(movie) {
+                        MovieCardR(movie = movie, userViewModel = userViewModel) {
                             navController.navigate("details/${movie.id}")
                         }
+
                     }
                 }
             }
