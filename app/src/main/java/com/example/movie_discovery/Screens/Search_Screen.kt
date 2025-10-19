@@ -10,12 +10,16 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,13 +41,17 @@ import java.nio.charset.StandardCharsets
 @Composable
 fun SearchScreen(
     navController: NavController,
-    viewModel: SearchViewModel = viewModel()
+    viewModel: SearchViewModel = viewModel(),
+    userViewModel: UserViewModel = viewModel()
 ) {
     var query by remember { mutableStateOf("") }
     val searchResults by viewModel.searchResults.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
-    val userViewModel: UserViewModel = viewModel()
+    val userData by userViewModel.userData.collectAsState()
 
+    LaunchedEffect(Unit) {
+        userViewModel.loadUserData()
+    }
 
     LaunchedEffect(query) {
         kotlinx.coroutines.delay(500)
@@ -77,11 +85,15 @@ fun SearchScreen(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .statusBarsPadding()
-                    .padding(16.dp),
+                    .padding(horizontal = 16.dp)
+                    .padding(top = 40.dp)
+                    .clip(RoundedCornerShape(50.dp)),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                    focusedBorderColor = Color.Transparent,
+                    unfocusedBorderColor = Color.Transparent,
+                    cursorColor = MaterialTheme.colorScheme.primary
                 ),
                 singleLine = true
             )
@@ -93,10 +105,9 @@ fun SearchScreen(
                 modifier = Modifier
                     .padding(paddingValues)
                     .padding(horizontal = 16.dp)
-                    .imePadding()
             ) {
                 Text(
-                    text = "Explore More",
+                    text = "Explore Categories",
                     color = MaterialTheme.colorScheme.onBackground,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
@@ -104,8 +115,8 @@ fun SearchScreen(
                 )
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(3),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(14.dp),
+                    horizontalArrangement = Arrangement.spacedBy(14.dp),
                     modifier = Modifier.fillMaxSize()
                 ) {
                     items(sampleCategories) { category ->
@@ -134,10 +145,41 @@ fun SearchScreen(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(searchResults) { movie ->
-                        MovieCardR(movie = movie, userViewModel = userViewModel) {
-                            navController.navigate("details/${movie.id}")
-                        }
+                        val isFavorite = movie.id.toString() in (userData?.favourites ?: emptyList())
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(12.dp))
+                                .clickable{ navController.navigate("details/${movie.id}") }
+                        ) {
+                            AsyncImage(
+                                model = "https://image.tmdb.org/t/p/w500${movie.posterPath}",
+                                contentDescription = movie.title,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(210.dp)
+                                    .clip(RoundedCornerShape(12.dp))
+                            )
 
+                            IconButton(
+                                onClick = {
+                                    if(isFavorite)
+                                        userViewModel.removeFromFavourites(movie.id.toString())
+                                    else
+                                        userViewModel.addToFavourites(movie.id.toString())
+                                },
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .padding(8.dp)
+                                    .size(24.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Favorite,
+                                    contentDescription = "Favorite",
+                                    tint = if(isFavorite) Color.Red else Color.LightGray
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -146,34 +188,44 @@ fun SearchScreen(
 }
 
 @Composable
-fun CategoryCard(
-    category: Category,
+fun CategoryCard(category: Category, onClick: () -> Unit) {
 
-    onClick: () -> Unit
-) {
-    Box(
+    Card(
         modifier = Modifier
             .aspectRatio(1f)
-            .clip(RoundedCornerShape(8.dp))
-
             .clickable { onClick() }
+            .shadow(10.dp , RoundedCornerShape(16.dp)),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(6.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
     ) {
-        AsyncImage(
-            model = category.imageUrl,
-            contentDescription = category.name,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)
-        )
-        Box(
-            modifier = Modifier.matchParentSize().background(MaterialTheme.colorScheme.surface.copy(alpha = 0.5f))
-        )
-        Text(
-            text = category.name,
-            color = MaterialTheme.colorScheme.onSurface,
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.align(Alignment.Center)
-        )
+        Box{
+            AsyncImage(
+                model = category.imageUrl,
+                contentDescription = category.name,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .background(Color.Black.copy(alpha = 0.5f))
+                    .padding(vertical = 6.dp)
+            ) {
+                Text(
+                    text = category.name,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
+
+        }
     }
 }
 
