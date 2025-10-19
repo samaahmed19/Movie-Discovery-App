@@ -76,7 +76,6 @@ fun CategoryScreen(
                 modifier = Modifier.padding(paddingValues),
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                // ---------------- TOP MOVIES SECTION ----------------
                 item {
                     val featuredMovies = movies.take(10)
                     if (featuredMovies.isNotEmpty()) {
@@ -104,7 +103,6 @@ fun CategoryScreen(
                     }
                 }
 
-                // ---------------- ALL MOVIES SECTION ----------------
                 item {
                     if (movies.isNotEmpty()) {
                         Text(
