@@ -24,32 +24,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
-import com.example.movie_discovery.ui.theme.AccentRed
 import com.example.movie_discovery.Viewmodels.MovieDetailViewModel
 import com.example.movie_discovery.Viewmodels.UserViewModel
+import com.example.movie_discovery.ui.theme.AccentRed
 import com.example.movie_discovery.ui.theme.MoviesTheme
 
 @Composable
 fun MovieDetailsScreen(
     movieId: Int?,
-    viewModel: MovieDetailViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+    viewModel: MovieDetailViewModel = viewModel()
 ) {
     val movieDetail by viewModel.movieDetails.collectAsState()
     val userViewModel: UserViewModel = viewModel()
     val userData by userViewModel.userData.collectAsState()
-
-    var isFavorite by remember { mutableStateOf(false) }
-    var isWatchlist by remember { mutableStateOf(false) }
-    var isWatched by remember { mutableStateOf(false) }
-
-
-    LaunchedEffect(movieId, userData) {
-        val movieIdStr = movieId?.toString()
-        isFavorite = movieIdStr in (userData?.favourites ?: emptyList())
-        isWatchlist = movieIdStr in (userData?.watchlist ?: emptyList())
-        isWatched = movieIdStr in (userData?.watched ?: emptyList())
-    }
-
 
     LaunchedEffect(movieId) {
         movieId?.let { viewModel.getMovieDetails(it) }
@@ -63,6 +50,13 @@ fun MovieDetailsScreen(
             CircularProgressIndicator(color = AccentRed)
         }
     } else {
+        val movieIdStr = movieDetail!!.id.toString()
+        val isFavorite = movieIdStr in (userData?.favourites ?: emptyList())
+
+        val favColor by animateColorAsState(
+            targetValue = if (isFavorite) Color.Red else Color.LightGray.copy(alpha = 0.6f)
+        )
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -71,7 +65,6 @@ fun MovieDetailsScreen(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -86,22 +79,15 @@ fun MovieDetailsScreen(
                         .clip(RoundedCornerShape(20.dp))
                 )
 
-                // Favorite
-                val favColor by animateColorAsState(
-                    targetValue = if (isFavorite) Color.Red else Color.LightGray.copy(alpha = 0.6f)
-                )
                 IconButton(
                     onClick = {
-                        movieId?.let {
-                            if (isFavorite) userViewModel.removeFromFavourites(it.toString())
-                            else userViewModel.addToFavourites(it.toString())
-                            isFavorite = !isFavorite
-                        }
+                        if (isFavorite) userViewModel.removeFromFavourites(movieIdStr)
+                        else userViewModel.addToFavourites(movieIdStr)
                     },
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .padding(12.dp)
-                        .size(44.dp)
+                        .padding(10.dp)
+                        .size(32.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Favorite,
@@ -109,60 +95,9 @@ fun MovieDetailsScreen(
                         tint = favColor
                     )
                 }
-
-                // Watchlist
-                val watchColor by animateColorAsState(
-                    targetValue = if (isWatchlist) Color(0xFF00C853)
-                    else Color.LightGray.copy(alpha = 0.6f)
-                )
-                IconButton(
-                    onClick = {
-                        movieId?.let {
-                            if (isWatchlist) userViewModel.removeFromWatchlist(it.toString())
-                            else userViewModel.addToWatchlist(it.toString())
-                            isWatchlist = !isWatchlist
-                        }
-                    },
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .padding(12.dp)
-                        .size(44.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.PlayArrow,
-                        contentDescription = "Watchlist",
-                        tint = watchColor
-                    )
-                }
-
-                //  Watched
-                val watchedColor by animateColorAsState(
-                    targetValue = if (isWatched) Color(0xFFFFD700)
-                    else Color.LightGray.copy(alpha = 0.6f)
-                )
-                IconButton(
-                    onClick = {
-                        movieId?.let {
-                            if (isWatched) userViewModel.unmarkFromWatched(it.toString())
-                            else userViewModel.markAsWatched(it.toString())
-                            isWatched = !isWatched
-                        }
-                    },
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(12.dp)
-                        .size(44.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Star,
-                        contentDescription = "Watched",
-                        tint = watchedColor
-                    )
-                }
             }
 
             Spacer(modifier = Modifier.height(20.dp))
-
 
             Text(
                 text = movieDetail?.title ?: "No title available",
@@ -174,7 +109,6 @@ fun MovieDetailsScreen(
             )
 
             Spacer(modifier = Modifier.height(8.dp))
-
 
             Row(
                 horizontalArrangement = Arrangement.Center,
@@ -216,13 +150,12 @@ fun MovieDetailsScreen(
 
             Spacer(modifier = Modifier.height(30.dp))
 
-
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 Button(
-                    onClick = { /* TODO: Navigate to player */ },
+                    onClick = { },
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = AccentRed)
                 ) {
@@ -236,7 +169,7 @@ fun MovieDetailsScreen(
                 }
 
                 OutlinedButton(
-                    onClick = {},
+                    onClick = { },
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(text = "Share", color = MaterialTheme.colorScheme.onSurface)
@@ -248,7 +181,7 @@ fun MovieDetailsScreen(
 
 @Preview(showBackground = true, name = "Light Mode")
 @Composable
-fun MovieDetailsScreenLightPreview() {
+fun MovieDetailsLightPreview() {
     MoviesTheme(darkTheme = false) {
         MovieDetailsScreen(movieId = 1)
     }
@@ -256,7 +189,7 @@ fun MovieDetailsScreenLightPreview() {
 
 @Preview(showBackground = true, name = "Dark Mode")
 @Composable
-fun MovieDetailsScreenDarkPreview() {
+fun MovieDetailsDarkPreview() {
     MoviesTheme(darkTheme = true) {
         MovieDetailsScreen(movieId = 1)
     }
