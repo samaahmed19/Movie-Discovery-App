@@ -27,9 +27,8 @@ import coil.compose.AsyncImage
 import com.example.movie_discovery.ui.theme.AccentRed
 import com.example.movie_discovery.data.MovieDetailsResponse
 import com.example.movie_discovery.Viewmodels.HomeViewModel
+import com.example.movie_discovery.Viewmodels.UserViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-
-
 
 // -------------------------------
 // Home Screen
@@ -40,15 +39,20 @@ fun HomeScreen(
     onSearchClick: () -> Unit,
     onProfileClick: () -> Unit = {}
 ) {
-    // ViewModel + state
+    // ViewModels
     val viewModel: HomeViewModel = viewModel()
+    val userViewModel: UserViewModel = viewModel()
+
+    // State
     val popularMovies by viewModel.popularMovies.collectAsState()
     val trendingMovies by viewModel.trendingMovies.collectAsState()
     val upcomingMovies by viewModel.upcomingMovies.collectAsState()
     val topRatedMovies by viewModel.topRatedMovies.collectAsState()
+    val userData by userViewModel.userData.collectAsState()
+
     var selectedTab by remember { mutableStateOf(0) }
 
-    // fetch when screen appears
+    // Fetch when screen appears
     LaunchedEffect(Unit) {
         viewModel.loadMovies()
     }
@@ -60,7 +64,6 @@ fun HomeScreen(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
-
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -74,48 +77,29 @@ fun HomeScreen(
                 color = AccentRed,
                 fontWeight = FontWeight.Bold
             )
-
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                IconButton(onClick =  { onProfileClick() } ) {
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                IconButton(onClick = { onProfileClick() }) {
                     Icon(
                         imageVector = Icons.Default.Person,
                         contentDescription = "Profile",
                         tint = MaterialTheme.colorScheme.onBackground
                     )
                 }
-
             }
         }
 
-
         SearchBar(onSearchClick = onSearchClick)
-
         FeaturedMoviesSlider(movies = trendingMovies)
-
-
         MovieTabs(
             selectedTab = selectedTab,
             onTabSelected = { selectedTab = it }
         )
 
         when (selectedTab) {
-            0 -> MoviesList(
-                movies = popularMovies,
-                onMovieClick = onMovieClick
-            )
-            1 -> MoviesList(
-                movies = topRatedMovies,
-                onMovieClick = onMovieClick
-            )
-            2 -> MoviesList(
-                movies = upcomingMovies,
-                onMovieClick = onMovieClick
-            )
+            0 -> MoviesList(movies = popularMovies, onMovieClick = onMovieClick, userViewModel = userViewModel, userData = userData)
+            1 -> MoviesList(movies = topRatedMovies, onMovieClick = onMovieClick, userViewModel = userViewModel, userData = userData)
+            2 -> MoviesList(movies = upcomingMovies, onMovieClick = onMovieClick, userViewModel = userViewModel, userData = userData)
         }
-
-
     }
 }
 
@@ -140,7 +124,6 @@ fun SearchBar(onSearchClick: () -> Unit) {
 // -------------------------------
 // Slider Section
 // -------------------------------
-
 @Composable
 fun FeaturedMoviesSlider(movies: List<MovieDetailsResponse>) {
     LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -164,7 +147,6 @@ fun FeaturedMoviesSlider(movies: List<MovieDetailsResponse>) {
 @Composable
 fun MovieTabs(selectedTab: Int, onTabSelected: (Int) -> Unit) {
     val tabs = listOf("Popular", "Top Rated", "Upcoming")
-
     ScrollableTabRow(selectedTabIndex = selectedTab) {
         tabs.forEachIndexed { index, title ->
             Tab(
@@ -181,20 +163,15 @@ fun MovieTabs(selectedTab: Int, onTabSelected: (Int) -> Unit) {
 // -------------------------------
 @Composable
 fun MoviesList(
-    movies: List<com.example.movie_discovery.data.MovieDetailsResponse>,
-    onMovieClick: (Int) -> Unit
+    movies: List<MovieDetailsResponse>,
+    onMovieClick: (Int) -> Unit,
+    userViewModel: UserViewModel,
+    userData: com.example.movie_discovery.data.UserData?
 ) {
-
-
-    LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
+    LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
         items(movies) { movie ->
-            AnimatedMovieCard(movie = movie, onMovieClick = onMovieClick)
-
-
-
-    }
+            AnimatedMovieCard(movie = movie, onMovieClick = onMovieClick, userViewModel = userViewModel, userData = userData)
+        }
     }
 }
 
@@ -203,16 +180,15 @@ fun MoviesList(
 // -------------------------------
 @Composable
 fun AnimatedMovieCard(
-    movie: com.example.movie_discovery.data.MovieDetailsResponse,
-    onMovieClick: (Int) -> Unit
+    movie: MovieDetailsResponse,
+    onMovieClick: (Int) -> Unit,
+    userViewModel: UserViewModel,
+    userData: com.example.movie_discovery.data.UserData?
 ) {
-
     var visible by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { visible = true }
-
     AnimatedVisibility(visible = visible) {
-        MovieCard(  movie = movie,
-            onMovieClick = onMovieClick )
+        MovieCard(movie = movie, onMovieClick = onMovieClick, userViewModel = userViewModel, userData = userData)
     }
 }
 
@@ -221,12 +197,13 @@ fun AnimatedMovieCard(
 // -------------------------------
 @Composable
 fun MovieCard(
-    movie: com.example.movie_discovery.data.MovieDetailsResponse,
+    movie: MovieDetailsResponse,
     modifier: Modifier = Modifier,
-    onMovieClick: (Int) -> Unit = {}
+    onMovieClick: (Int) -> Unit = {},
+    userViewModel: UserViewModel,
+    userData: com.example.movie_discovery.data.UserData?
 ) {
-
-    var isFavorite by remember { mutableStateOf(false) }
+    val isFavorite = movie.id.toString() in (userData?.favourites ?: emptyList())
 
     Card(
         modifier = modifier
@@ -235,17 +212,16 @@ fun MovieCard(
             .clickable { onMovieClick(movie.id) },
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(6.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        )
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Box {
             Column(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
-            ) { AsyncImage(
-                model = "https://image.tmdb.org/t/p/w500${movie.posterPath}",
-                contentDescription = movie.title,
+            ) {
+                AsyncImage(
+                    model = "https://image.tmdb.org/t/p/w500${movie.posterPath}",
+                    contentDescription = movie.title,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(190.dp)
@@ -265,9 +241,7 @@ fun MovieCard(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
-
                     Spacer(modifier = Modifier.height(4.dp))
-
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center
@@ -280,7 +254,7 @@ fun MovieCard(
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "${movie.voteAverage?: 0.0}",
+                            text = "${movie.voteAverage ?: 0.0}",
                             style = MaterialTheme.typography.bodySmall,
                             color = Color.Gray
                         )
@@ -288,17 +262,25 @@ fun MovieCard(
                 }
             }
 
-            Icon(
-                imageVector = Icons.Filled.Favorite,
-                contentDescription = "Favorite",
-                tint = if (isFavorite) Color.Red else Color.LightGray,
+            //  Favorite Icon
+            IconButton(
+                onClick = {
+                    if (isFavorite)
+                        userViewModel.removeFromFavourites(movie.id.toString())
+                    else
+                        userViewModel.addToFavourites(movie.id.toString())
+                },
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .padding(10.dp)
                     .size(24.dp)
-                    .clickable { isFavorite = !isFavorite }
-
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Favorite,
+                    contentDescription = "Favorite",
+                    tint = if (isFavorite) Color.Red else Color.LightGray
                 )
+            }
         }
     }
 }
@@ -310,9 +292,7 @@ fun MovieCard(
 @Composable
 fun HomeScreenLightPreview() {
     MoviesTheme(darkTheme = false) {
-        HomeScreen(onMovieClick = {},
-            onSearchClick = {},
-            onProfileClick = {})
+        HomeScreen(onMovieClick = {}, onSearchClick = {}, onProfileClick = {})
     }
 }
 
@@ -320,8 +300,7 @@ fun HomeScreenLightPreview() {
 @Composable
 fun HomeScreenDarkPreview() {
     MoviesTheme(darkTheme = true) {
-        HomeScreen(onMovieClick = {},
-            onSearchClick = {},
-            onProfileClick = {})
+        HomeScreen(onMovieClick = {}, onSearchClick = {}, onProfileClick = {})
     }
 }
+
