@@ -60,6 +60,18 @@ class UserViewModel : ViewModel() {
     fun unmarkFromWatched(movieId: String) = updateUserListField("watched", movieId, false)
 
     private fun updateUserListField(fieldName: String, movieId: String, add: Boolean) {
+        _userData.value = _userData.value?.copy(
+            favourites = if (fieldName == "favourites")
+                if (add) _userData.value!!.favourites + movieId else _userData.value!!.favourites - movieId
+            else _userData.value!!.favourites,
+            watchlist = if (fieldName == "watchlist")
+                if (add) _userData.value!!.watchlist + movieId else _userData.value!!.watchlist - movieId
+            else _userData.value!!.watchlist,
+            watched = if (fieldName == "watched")
+                if (add) _userData.value!!.watched + movieId else _userData.value!!.watched - movieId
+            else _userData.value!!.watched
+        )
+
         val user = auth.currentUser ?: return
         val docRef = firestore.collection("users").document(user.uid)
 
