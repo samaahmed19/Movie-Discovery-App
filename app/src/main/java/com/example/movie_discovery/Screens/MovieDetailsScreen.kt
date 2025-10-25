@@ -34,7 +34,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun MovieDetailsScreen(
     movieId: Int?,
-    viewModel: MovieDetailViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+    viewModel: MovieDetailViewModel = viewModel()
+
 ) {
     val movieDetail by viewModel.movieDetails.collectAsState()
     val userViewModel: UserViewModel = viewModel()
@@ -43,7 +44,7 @@ fun MovieDetailsScreen(
     var isWatchlist by remember { mutableStateOf(false) }
     var isWatched by remember { mutableStateOf(false) }
 
-    var favoriteScale by remember { mutableStateOf(1f) }
+    var favoriteScale by remember { mutableFloatStateOf(1f) }
     val coroutineScope = rememberCoroutineScope()
 
     val scrollState = rememberScrollState()
