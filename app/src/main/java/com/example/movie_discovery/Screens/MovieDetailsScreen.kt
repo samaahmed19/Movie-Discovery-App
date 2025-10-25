@@ -34,7 +34,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun MovieDetailsScreen(
     movieId: Int?,
-    viewModel: MovieDetailViewModel = viewModel()
+    viewModel: MovieDetailViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 
 ) {
     val movieDetail by viewModel.movieDetails.collectAsState()
