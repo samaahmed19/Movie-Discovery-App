@@ -44,7 +44,7 @@ android {
 
 dependencies {
     testImplementation("org.robolectric:robolectric:4.12.2")
-    implementation(libs.androidx.junit.ktx)
+
     testImplementation("app.cash.turbine:turbine:1.0.0")
     testImplementation("io.mockk:mockk:1.13.10")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
