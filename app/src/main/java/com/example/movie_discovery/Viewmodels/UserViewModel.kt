@@ -18,6 +18,11 @@ class UserViewModel : ViewModel() {
     private val _userData = MutableStateFlow<UserData?>(null)
     val userData: StateFlow<UserData?> = _userData
 
+    init {
+        loadUserData()
+    }
+
+
     fun loadUserData() {
         val user = auth.currentUser ?: return
         val userDocRef = firestore.collection("users").document(user.uid)
@@ -65,18 +70,30 @@ class UserViewModel : ViewModel() {
     fun unmarkFromWatched(movieId: String) = updateUserListField("watched", movieId, false)
 
     private fun updateUserListField(fieldName: String, movieId: String, add: Boolean) {
+        val currentData = _userData.value ?: return
+        val updatedData = when (fieldName) {
+            "favourites" -> currentData.copy(
+                favourites = if (add) currentData.favourites + movieId else currentData.favourites - movieId
+            )
+            "watchlist" -> currentData.copy(
+                watchlist = if (add) currentData.watchlist + movieId else currentData.watchlist - movieId
+            )
+            "watched" -> currentData.copy(
+                watched = if (add) currentData.watched + movieId else currentData.watched - movieId
+            )
+            else -> currentData
+        }
+        _userData.value = updatedData
         val user = auth.currentUser ?: return
         val docRef = firestore.collection("users").document(user.uid)
-
         firestore.runTransaction { transaction ->
             val snapshot = transaction.get(docRef)
             val currentList = snapshot.get(fieldName) as? List<String> ?: emptyList()
             val updatedList = if (add) currentList + movieId else currentList - movieId
             transaction.update(docRef, fieldName, updatedList.distinct())
-        }.addOnSuccessListener {
-            loadUserData()
         }
     }
+
 
     fun getMovieDetailsFromTMDB(movieId: Int): MovieDetailsResponse? {
         return try {
