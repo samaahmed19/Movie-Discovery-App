@@ -25,6 +25,7 @@ import coil.compose.AsyncImage
 import com.example.movie_discovery.Viewmodels.UserViewModel
 import com.example.movie_discovery.data.MovieDetailsResponse
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.navigation.NavController
 import com.example.movie_discovery.Viewmodels.ThemeViewModel
 
@@ -73,8 +74,15 @@ fun Profile(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                IconButton(onClick = { navController.popBackStack() }) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
                 Text(
-                    text = "Welcome, ${user.firstName?.ifEmpty { "Guest" } ?: "Guest"}",
+                    text = "Hello, ${user.firstName?.ifEmpty { "Guest" } ?: "Guest"}",
                     style = MaterialTheme.typography.headlineSmall.copy(
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
