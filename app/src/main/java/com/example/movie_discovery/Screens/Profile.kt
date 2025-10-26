@@ -99,6 +99,8 @@ fun Profile(
         ) {
             Text("Loading user data...")
         }
+
+        Spacer(Modifier.height(12.dp))
         Button(
             onClick = {
                 userViewModel.logout {
@@ -111,6 +113,22 @@ fun Profile(
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
         ) {
             Text("Log Out", color = Color.White)
+        }
+        Spacer(Modifier.height(12.dp))
+        Button(
+            onClick = {
+                userViewModel.deleteAccount { success ->
+                    if (success) {
+                        navController.navigate("signin") {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+        ) {
+            Text("Delete Account", color = Color.White)
         }
     }
 }

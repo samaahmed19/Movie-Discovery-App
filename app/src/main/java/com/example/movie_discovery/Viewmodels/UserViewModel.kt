@@ -97,5 +97,26 @@ class UserViewModel : ViewModel() {
         _userData.value = null
         onComplete?.invoke()
     }
+
+    fun deleteAccount(onComplete: ((Boolean) -> Unit)? = null) {
+        val user = auth.currentUser
+        if (user != null) {
+            val userDoc = firestore.collection("users").document(user.uid)
+            userDoc.delete().addOnSuccessListener {
+                user.delete()
+                    .addOnSuccessListener {
+                        _userData.value = null
+                        onComplete?.invoke(true)
+                    }
+                    .addOnFailureListener {
+                        onComplete?.invoke(false)
+                    }
+            }.addOnFailureListener {
+                onComplete?.invoke(false)
+            }
+        } else {
+            onComplete?.invoke(false)
+        }
+    }
 }
 
