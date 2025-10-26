@@ -3,7 +3,9 @@ package com.example.movie_discovery.Navigator
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -37,8 +39,15 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MyApp() {
     val themeViewModel: ThemeViewModel = viewModel()
-    val isDarkMode = themeViewModel.isDarkMode
     val navController = rememberNavController()
+
+    val systemDark = isSystemInDarkTheme()
+
+    LaunchedEffect(Unit) {
+        themeViewModel.loadDarkMode(defaultDarkMode = systemDark)
+    }
+
+    val isDarkMode = themeViewModel.isDarkMode
 
     MoviesTheme(darkTheme = isDarkMode) {
         NavHost(
@@ -138,8 +147,7 @@ fun MyApp() {
                 Profile(
                     navController = navController,
                     userViewModel = viewModel(),
-                    isDarkMode = themeViewModel.isDarkMode,
-                    onDarkModeToggle = { themeViewModel.toggleDarkMode() }
+                    themeViewModel = themeViewModel
                 )
             }
 

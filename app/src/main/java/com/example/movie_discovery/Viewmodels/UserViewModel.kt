@@ -12,15 +12,16 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.runBlocking
 
 class UserViewModel : ViewModel() {
-
     private val auth = Firebase.auth
     private val firestore = Firebase.firestore
 
     private val _userData = MutableStateFlow<UserData?>(null)
     val userData: StateFlow<UserData?> = _userData
+
     fun loadUserData() {
         val user = auth.currentUser ?: return
         val userDocRef = firestore.collection("users").document(user.uid)
+
         userDocRef.addSnapshotListener { document, error ->
             if (error != null) {
                 _userData.value = UserData(
@@ -29,30 +30,34 @@ class UserViewModel : ViewModel() {
                 )
                 return@addSnapshotListener
             }
-
             if (document != null && document.exists()) {
                 val userData = UserData(
                     userId = document.getString("userId") ?: user.uid,
                     firstName = document.getString("firstName") ?: "Guest",
                     email = document.getString("email") ?: user.email.orEmpty(),
-                    favourites = (document.get("favourites") as? List<*>)?.filterIsInstance<String>() ?: emptyList(),
-                    watchlist = (document.get("watchlist") as? List<*>)?.filterIsInstance<String>() ?: emptyList(),
-                    watched = (document.get("watched") as? List<*>)?.filterIsInstance<String>() ?: emptyList()
+                    favourites = (document.get("favourites") as? List<*>)?.filterIsInstance<String>()
+                        ?: emptyList(),
+                    watchlist = (document.get("watchlist") as? List<*>)?.filterIsInstance<String>()
+                        ?: emptyList(),
+                    watched = (document.get("watched") as? List<*>)?.filterIsInstance<String>()
+                        ?: emptyList(),
+                    isDarkMode = document.getBoolean("isDarkMode") ?: false
                 )
                 _userData.value = userData
             } else {
                 val newUser = UserData(
                     userId = user.uid,
                     firstName = user.displayName ?: "Guest",
-                    email = user.email ?: ""
+                    email = user.email ?: "",
+                    isDarkMode = false
                 )
                 firestore.collection("users").document(user.uid).set(newUser)
                 _userData.value = newUser
             }
         }
-    }
 
-    fun addToFavourites(movieId: String) = updateUserListField("favourites", movieId, true)
+    }
+            fun addToFavourites(movieId: String) = updateUserListField("favourites", movieId, true)
     fun removeFromFavourites(movieId: String) = updateUserListField("favourites", movieId, false)
     fun addToWatchlist(movieId: String) = updateUserListField("watchlist", movieId, true)
     fun removeFromWatchlist(movieId: String) = updateUserListField("watchlist", movieId, false)
@@ -60,18 +65,6 @@ class UserViewModel : ViewModel() {
     fun unmarkFromWatched(movieId: String) = updateUserListField("watched", movieId, false)
 
     private fun updateUserListField(fieldName: String, movieId: String, add: Boolean) {
-        _userData.value = _userData.value?.copy(
-            favourites = if (fieldName == "favourites")
-                if (add) _userData.value!!.favourites + movieId else _userData.value!!.favourites - movieId
-            else _userData.value!!.favourites,
-            watchlist = if (fieldName == "watchlist")
-                if (add) _userData.value!!.watchlist + movieId else _userData.value!!.watchlist - movieId
-            else _userData.value!!.watchlist,
-            watched = if (fieldName == "watched")
-                if (add) _userData.value!!.watched + movieId else _userData.value!!.watched - movieId
-            else _userData.value!!.watched
-        )
-
         val user = auth.currentUser ?: return
         val docRef = firestore.collection("users").document(user.uid)
 
@@ -81,12 +74,17 @@ class UserViewModel : ViewModel() {
             val updatedList = if (add) currentList + movieId else currentList - movieId
             transaction.update(docRef, fieldName, updatedList.distinct())
         }.addOnSuccessListener {
+            loadUserData()
         }
     }
+
     fun getMovieDetailsFromTMDB(movieId: Int): MovieDetailsResponse? {
         return try {
             runBlocking {
-                RetrofitInstance.api.getMovieDetails(movieId, "2745135cf88bf117b5ace2b3fbabf113")
+                RetrofitInstance.api.getMovieDetails(
+                    movieId,
+                    "2745135cf88bf117b5ace2b3fbabf113"
+                )
             }
         } catch (e: Exception) {
             e.printStackTrace()

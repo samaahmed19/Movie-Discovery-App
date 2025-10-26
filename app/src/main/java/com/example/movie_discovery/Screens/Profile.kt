@@ -26,14 +26,15 @@ import com.example.movie_discovery.Viewmodels.UserViewModel
 import com.example.movie_discovery.data.MovieDetailsResponse
 import androidx.compose.foundation.rememberScrollState
 import androidx.navigation.NavController
+import com.example.movie_discovery.Viewmodels.ThemeViewModel
+
 
 
 @Composable
 fun Profile(
     navController: NavController,
     userViewModel: UserViewModel = viewModel(),
-    isDarkMode: Boolean,
-    onDarkModeToggle: (Boolean) -> Unit
+    themeViewModel: ThemeViewModel = viewModel()
 ) {
     LaunchedEffect(Unit) {
         userViewModel.loadUserData()
@@ -62,7 +63,7 @@ fun Profile(
     }
     Column(
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxSize()
             .verticalScroll(scrollState)
             .background(MaterialTheme.colorScheme.background)
             .padding(16.dp)
@@ -70,7 +71,7 @@ fun Profile(
         userData?.let { user ->
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxSize(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -83,8 +84,7 @@ fun Profile(
                 )
 
                 DarkModeSwitch(
-                    checked = isDarkMode,
-                    onCheckedChange = onDarkModeToggle
+                    themeViewModel = themeViewModel
                 )
             }
 
@@ -242,14 +242,17 @@ fun ProfileMovieCard(
 
 @Composable
 fun DarkModeSwitch(
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
+    themeViewModel: ThemeViewModel = viewModel()
 ) {
-    val trackColor = if (checked) MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+    val isDarkMode = themeViewModel.isDarkMode
+
+    val trackColor = if (isDarkMode) MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
     else MaterialTheme.colorScheme.surfaceVariant
-    val thumbColor = if (checked) MaterialTheme.colorScheme.primary
+
+    val thumbColor = if (isDarkMode) MaterialTheme.colorScheme.primary
     else MaterialTheme.colorScheme.onSurfaceVariant
-    val icon = if (checked) "🌙" else "☀️"
+
+    val icon = if (isDarkMode) "🌙" else "☀️"
 
     Box(
         modifier = Modifier
@@ -257,13 +260,13 @@ fun DarkModeSwitch(
             .height(30.dp)
             .clip(RoundedCornerShape(50))
             .background(trackColor)
-            .clickable { onCheckedChange(!checked) }
+            .clickable { themeViewModel.toggleDarkMode() }
             .padding(horizontal = 4.dp, vertical = 3.dp),
         contentAlignment = Alignment.CenterStart
     ) {
         Box(
             modifier = Modifier
-                .offset(x = if (checked) 28.dp else 0.dp)
+                .offset(x = if (isDarkMode) 28.dp else 0.dp)
                 .size(24.dp)
                 .clip(RoundedCornerShape(50))
                 .background(thumbColor),
