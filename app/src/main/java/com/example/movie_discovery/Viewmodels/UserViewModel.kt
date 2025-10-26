@@ -18,40 +18,38 @@ class UserViewModel : ViewModel() {
 
     private val _userData = MutableStateFlow<UserData?>(null)
     val userData: StateFlow<UserData?> = _userData
-
     fun loadUserData() {
         val user = auth.currentUser ?: return
-
         val userDocRef = firestore.collection("users").document(user.uid)
-
-        userDocRef.get()
-            .addOnSuccessListener { document ->
-                if (document.exists()) {
-                    val userData = UserData(
-                        userId = document.getString("userId") ?: user.uid,
-                        firstName = document.getString("firstName") ?: "Guest",
-                        email = document.getString("email") ?: user.email.orEmpty(),
-                        favourites = document.get("favourites") as? List<String> ?: emptyList(),
-                        watchlist = document.get("watchlist") as? List<String> ?: emptyList(),
-                        watched = document.get("watched") as? List<String> ?: emptyList()
-                    )
-                    _userData.value = userData
-                } else {
-                    val newUser = UserData(
-                        userId = user.uid,
-                        firstName = user.displayName ?: "Guest",
-                        email = user.email ?: ""
-                    )
-                    firestore.collection("users").document(user.uid).set(newUser)
-                    _userData.value = newUser
-                }
-            }
-            .addOnFailureListener {
+        userDocRef.addSnapshotListener { document, error ->
+            if (error != null) {
                 _userData.value = UserData(
                     firstName = "Error",
                     email = "Error loading data"
                 )
+                return@addSnapshotListener
             }
+
+            if (document != null && document.exists()) {
+                val userData = UserData(
+                    userId = document.getString("userId") ?: user.uid,
+                    firstName = document.getString("firstName") ?: "Guest",
+                    email = document.getString("email") ?: user.email.orEmpty(),
+                    favourites = (document.get("favourites") as? List<*>)?.filterIsInstance<String>() ?: emptyList(),
+                    watchlist = (document.get("watchlist") as? List<*>)?.filterIsInstance<String>() ?: emptyList(),
+                    watched = (document.get("watched") as? List<*>)?.filterIsInstance<String>() ?: emptyList()
+                )
+                _userData.value = userData
+            } else {
+                val newUser = UserData(
+                    userId = user.uid,
+                    firstName = user.displayName ?: "Guest",
+                    email = user.email ?: ""
+                )
+                firestore.collection("users").document(user.uid).set(newUser)
+                _userData.value = newUser
+            }
+        }
     }
 
     fun addToFavourites(movieId: String) = updateUserListField("favourites", movieId, true)
@@ -62,6 +60,18 @@ class UserViewModel : ViewModel() {
     fun unmarkFromWatched(movieId: String) = updateUserListField("watched", movieId, false)
 
     private fun updateUserListField(fieldName: String, movieId: String, add: Boolean) {
+        _userData.value = _userData.value?.copy(
+            favourites = if (fieldName == "favourites")
+                if (add) _userData.value!!.favourites + movieId else _userData.value!!.favourites - movieId
+            else _userData.value!!.favourites,
+            watchlist = if (fieldName == "watchlist")
+                if (add) _userData.value!!.watchlist + movieId else _userData.value!!.watchlist - movieId
+            else _userData.value!!.watchlist,
+            watched = if (fieldName == "watched")
+                if (add) _userData.value!!.watched + movieId else _userData.value!!.watched - movieId
+            else _userData.value!!.watched
+        )
+
         val user = auth.currentUser ?: return
         val docRef = firestore.collection("users").document(user.uid)
 
@@ -71,11 +81,8 @@ class UserViewModel : ViewModel() {
             val updatedList = if (add) currentList + movieId else currentList - movieId
             transaction.update(docRef, fieldName, updatedList.distinct())
         }.addOnSuccessListener {
-            loadUserData()
         }
     }
-
-
     fun getMovieDetailsFromTMDB(movieId: Int): MovieDetailsResponse? {
         return try {
             runBlocking {
@@ -87,4 +94,3 @@ class UserViewModel : ViewModel() {
         }
     }
 }
-

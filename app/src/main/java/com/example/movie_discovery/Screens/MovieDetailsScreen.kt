@@ -30,10 +30,10 @@ import com.example.movie_discovery.ui.theme.MoviesTheme
 
 @Composable
 fun MovieDetailsScreen(
-    movieId: Int?, //  receives movie ID only
+    movieId: Int?,
     viewModel: MovieDetailViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
-    // Observe movie detail from ViewModel
+
     val movieDetail by viewModel.movieDetails.collectAsState()
 
 
@@ -54,12 +54,12 @@ fun MovieDetailsScreen(
 
 
 
-    // Fetch movie details when ID changes
+
     LaunchedEffect(movieId) {
         movieId?.let { viewModel.getMovieDetails(it) }
     }
 
-    // Loading indicator
+
     if (movieDetail == null) {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -68,7 +68,7 @@ fun MovieDetailsScreen(
             CircularProgressIndicator(color = AccentRed)
         }
     } else {
-        // Screen content
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -77,7 +77,7 @@ fun MovieDetailsScreen(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Poster
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -91,7 +91,7 @@ fun MovieDetailsScreen(
                         .fillMaxSize()
                         .clip(RoundedCornerShape(20.dp))
                 )
-                // Favorite button
+
                 IconButton(
                     onClick = {
                         if (movieId != null) {
@@ -112,7 +112,7 @@ fun MovieDetailsScreen(
                     )
                 }
 
-                // Watchlist button
+
                 IconButton(
                     onClick = {
                         movieId?.let {
@@ -134,7 +134,6 @@ fun MovieDetailsScreen(
                     )
                 }
 
-                // Watched button
                 IconButton(
                     onClick = {
                         movieId?.let {
@@ -159,7 +158,7 @@ fun MovieDetailsScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Title
+
             Text(
                 text = movieDetail?.title ?: "No title available",
                 style = MaterialTheme.typography.headlineSmall.copy(
@@ -171,7 +170,7 @@ fun MovieDetailsScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Rating & Release
+
             Row(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
@@ -196,7 +195,7 @@ fun MovieDetailsScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Overview
+
             Text(
                 text = movieDetail?.overview ?: "No description available",
                 style = MaterialTheme.typography.bodyMedium.copy(
@@ -209,13 +208,13 @@ fun MovieDetailsScreen(
 
             Spacer(modifier = Modifier.height(30.dp))
 
-            // Buttons
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 Button(
-                    onClick = { /* TODO: Watch movie */ },
+                    onClick = {},
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = AccentRed)
                 ) {
@@ -229,7 +228,7 @@ fun MovieDetailsScreen(
                 }
 
                 OutlinedButton(
-                    onClick = { /* TODO: Share movie */ },
+                    onClick = {},
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(text = "Share", color = MaterialTheme.colorScheme.onSurface)

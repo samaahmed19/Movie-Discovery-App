@@ -75,7 +75,7 @@ fun Profile(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Welcome, ${user.firstName.ifEmpty { "Guest" }}",
+                    text = "Welcome, ${user.firstName?.ifEmpty { "Guest" } ?: "Guest"}",
                     style = MaterialTheme.typography.headlineSmall.copy(
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
