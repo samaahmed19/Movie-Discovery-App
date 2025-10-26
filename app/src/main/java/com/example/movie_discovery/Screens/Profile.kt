@@ -28,8 +28,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.navigation.NavController
 import com.example.movie_discovery.Viewmodels.ThemeViewModel
 
-
-
 @Composable
 fun Profile(
     navController: NavController,
@@ -100,6 +98,19 @@ fun Profile(
             contentAlignment = Alignment.Center
         ) {
             Text("Loading user data...")
+        }
+        Button(
+            onClick = {
+                userViewModel.logout {
+                    navController.navigate("signin") {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+        ) {
+            Text("Log Out", color = Color.White)
         }
     }
 }

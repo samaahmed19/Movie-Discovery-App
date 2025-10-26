@@ -91,4 +91,11 @@ class UserViewModel : ViewModel() {
             null
         }
     }
+
+    fun logout(onComplete: (() -> Unit)? = null) {
+        auth.signOut()
+        _userData.value = null
+        onComplete?.invoke()
+    }
 }
+
