@@ -29,15 +29,21 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MoviesTheme {
-                MyApp( )
+            val themeViewModel: ThemeViewModel = viewModel()
+            val systemDark = isSystemInDarkTheme()
+            LaunchedEffect(Unit) {
+                themeViewModel.loadDarkMode(defaultDarkMode = systemDark)
+            }
+            val isDarkMode = themeViewModel.isDarkMode
+            MoviesTheme(darkTheme = isDarkMode) {
+                MyApp(themeViewModel = themeViewModel)
             }
         }
     }
 }
 
 @Composable
-fun MyApp() {
+fun MyApp(themeViewModel: ThemeViewModel) {
     val themeViewModel: ThemeViewModel = viewModel()
     val navController = rememberNavController()
 

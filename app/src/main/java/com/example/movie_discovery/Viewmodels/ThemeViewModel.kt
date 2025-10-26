@@ -1,6 +1,6 @@
 package com.example.movie_discovery.Viewmodels
 
-import androidx.compose.foundation.isSystemInDarkTheme
+
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -18,7 +18,10 @@ class ThemeViewModel : ViewModel() {
     private val firestore = Firebase.firestore
 
     fun loadDarkMode(defaultDarkMode: Boolean) {
-        val user = auth.currentUser ?: return
+        val user = auth.currentUser ?: run {
+            isDarkMode = defaultDarkMode
+            return
+        }
 
         firestore.collection("users").document(user.uid)
             .get()
@@ -35,6 +38,7 @@ class ThemeViewModel : ViewModel() {
                 isDarkMode = defaultDarkMode
             }
     }
+
 
     fun toggleDarkMode() {
         isDarkMode = !isDarkMode

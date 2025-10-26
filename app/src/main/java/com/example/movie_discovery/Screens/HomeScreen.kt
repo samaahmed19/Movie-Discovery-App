@@ -5,6 +5,7 @@ import androidx.compose.animation.AnimatedVisibility
 import com.example.movie_discovery.ui.theme.MoviesTheme
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -29,6 +30,8 @@ import com.example.movie_discovery.data.MovieDetailsResponse
 import com.example.movie_discovery.Viewmodels.HomeViewModel
 import com.example.movie_discovery.Viewmodels.UserViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.movie_discovery.Viewmodels.ThemeViewModel
+
 
 // -------------------------------
 // Home Screen
@@ -42,6 +45,7 @@ fun HomeScreen(
     // ViewModels
     val viewModel: HomeViewModel = viewModel()
     val userViewModel: UserViewModel = viewModel()
+    val themeViewModel: ThemeViewModel = viewModel()
 
     // State
     val popularMovies by viewModel.popularMovies.collectAsState()
@@ -49,11 +53,14 @@ fun HomeScreen(
     val upcomingMovies by viewModel.upcomingMovies.collectAsState()
     val topRatedMovies by viewModel.topRatedMovies.collectAsState()
     val userData by userViewModel.userData.collectAsState()
+    val systemDark = isSystemInDarkTheme()
+
 
     var selectedTab by remember { mutableStateOf(0) }
 
     // Fetch when screen appears
     LaunchedEffect(Unit) {
+        themeViewModel.loadDarkMode(defaultDarkMode = systemDark)
         viewModel.loadMovies()
     }
 
@@ -199,11 +206,19 @@ fun AnimatedMovieCard(
 fun MovieCard(
     movie: MovieDetailsResponse,
     modifier: Modifier = Modifier,
+    userData: com.example.movie_discovery.data.UserData?,
     onMovieClick: (Int) -> Unit = {},
-    userViewModel: UserViewModel,
-    userData: com.example.movie_discovery.data.UserData?
+    userViewModel: UserViewModel = viewModel()
 ) {
-    val isFavorite = movie.id.toString() in (userData?.favourites ?: emptyList())
+
+    val userViewModel: UserViewModel = viewModel()
+    var isFavorite by remember { mutableStateOf(false) }
+    val userData = userViewModel.userData.collectAsState().value
+
+    LaunchedEffect(userData) {
+        val movieIdStr = movie.id.toString()
+        isFavorite = movieIdStr in (userData?.favourites ?: emptyList())
+     }
 
     Card(
         modifier = modifier
@@ -269,16 +284,17 @@ fun MovieCard(
                         userViewModel.removeFromFavourites(movie.id.toString())
                     else
                         userViewModel.addToFavourites(movie.id.toString())
-                },
+                        isFavorite = !isFavorite
+        },
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .padding(10.dp)
-                    .size(24.dp)
             ) {
                 Icon(
                     imageVector = Icons.Filled.Favorite,
                     contentDescription = "Favorite",
-                    tint = if (isFavorite) Color.Red else Color.LightGray
+                    tint = if (isFavorite) Color.Red else Color.LightGray,
+                    modifier = Modifier.size(24.dp)
                 )
             }
         }
