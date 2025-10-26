@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Star
@@ -23,6 +24,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.movie_discovery.Viewmodels.UserViewModel
 import com.example.movie_discovery.data.MovieDetailsResponse
+import androidx.compose.foundation.rememberScrollState
+
 
 @Composable
 fun Profile(
@@ -33,6 +36,8 @@ fun Profile(
     LaunchedEffect(Unit) {
         userViewModel.loadUserData()
     }
+
+    val scrollState = rememberScrollState()
 
     val userData by userViewModel.userData.collectAsState()
 
@@ -55,7 +60,8 @@ fun Profile(
     }
     Column(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxWidth()
+            .verticalScroll(scrollState)
             .background(MaterialTheme.colorScheme.background)
             .padding(16.dp)
     ) {
@@ -88,7 +94,7 @@ fun Profile(
             Spacer(Modifier.height(16.dp))
             MovieListSection("Watched", watchedMovies, userViewModel)
         } ?: Box(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
             Text("Loading user data...")
