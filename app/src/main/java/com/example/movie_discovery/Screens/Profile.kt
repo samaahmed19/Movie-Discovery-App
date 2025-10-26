@@ -25,10 +25,12 @@ import coil.compose.AsyncImage
 import com.example.movie_discovery.Viewmodels.UserViewModel
 import com.example.movie_discovery.data.MovieDetailsResponse
 import androidx.compose.foundation.rememberScrollState
+import androidx.navigation.NavController
 
 
 @Composable
 fun Profile(
+    navController: NavController,
     userViewModel: UserViewModel = viewModel(),
     isDarkMode: Boolean,
     onDarkModeToggle: (Boolean) -> Unit
@@ -88,11 +90,11 @@ fun Profile(
 
             Spacer(Modifier.height(24.dp))
 
-            MovieListSection("Favourites", favouriteMovies, userViewModel)
+            MovieListSection("Favourites", favouriteMovies, userViewModel, navController)
             Spacer(Modifier.height(16.dp))
-            MovieListSection("Watchlist", watchlistMovies, userViewModel)
+            MovieListSection("Watchlist", watchlistMovies, userViewModel, navController)
             Spacer(Modifier.height(16.dp))
-            MovieListSection("Watched", watchedMovies, userViewModel)
+            MovieListSection("Watched", watchedMovies, userViewModel, navController)
         } ?: Box(
             modifier = Modifier.fillMaxWidth(),
             contentAlignment = Alignment.Center
@@ -106,7 +108,8 @@ fun Profile(
 fun MovieListSection(
     title: String,
     movies: List<MovieDetailsResponse>,
-    userViewModel: UserViewModel
+    userViewModel: UserViewModel,
+    navController: NavController,
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
@@ -129,9 +132,12 @@ fun MovieListSection(
         } else {
             LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 items(movies) { movie ->
-                    MovieCard(
+                    ProfileMovieCard(
                         movie = movie,
                         userViewModel = userViewModel,
+                        onMovieClick = { id: Int ->
+                            navController.navigate("details/$id")
+                        }
                     )
                 }
             }
@@ -140,9 +146,10 @@ fun MovieListSection(
 }
 
 @Composable
-fun MovieCard(
+fun ProfileMovieCard(
     movie: MovieDetailsResponse,
     userViewModel: UserViewModel,
+    onMovieClick: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var isFavorite by remember { mutableStateOf(false) }
@@ -157,7 +164,8 @@ fun MovieCard(
     Card(
         modifier = modifier
             .width(160.dp)
-            .height(260.dp),
+            .height(260.dp)
+            .clickable { onMovieClick(movie.id) },
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(6.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
