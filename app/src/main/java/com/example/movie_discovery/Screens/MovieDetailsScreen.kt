@@ -6,6 +6,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Star
@@ -103,11 +105,12 @@ fun MovieDetailsScreen(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .padding(12.dp)
-                        .size(44.dp)
+                        .size(60.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Favorite,
                         contentDescription = "Favorite",
+                        modifier = Modifier.size(36.dp),
                         tint = if (isFavorite) Color.Red else Color.LightGray.copy(alpha = 0.6f)
                     )
                 }
@@ -124,11 +127,12 @@ fun MovieDetailsScreen(
                     modifier = Modifier
                         .align(Alignment.BottomStart)
                         .padding(12.dp)
-                        .size(44.dp)
+                        .size(60.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Filled.PlayArrow,
+                        imageVector = Icons.Filled.Add,
                         contentDescription = "Watchlist",
+                        modifier = Modifier.size(36.dp),
                         tint = if (isWatchlist) Color(0xFF00C853)
                         else Color.LightGray.copy(alpha = 0.6f)
                     )
@@ -145,11 +149,12 @@ fun MovieDetailsScreen(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
                         .padding(12.dp)
-                        .size(44.dp)
+                        .size(60.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Filled.Star,
+                        imageVector = Icons.Filled.Check,
                         contentDescription = "Watched",
+                        modifier = Modifier.size(36.dp),
                         tint = if (isWatched) Color(0xFFFFD700)
                         else Color.LightGray.copy(alpha = 0.6f)
                     )
