@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Star
@@ -23,16 +24,22 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.movie_discovery.Viewmodels.UserViewModel
 import com.example.movie_discovery.data.MovieDetailsResponse
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.navigation.NavController
+import com.example.movie_discovery.Viewmodels.ThemeViewModel
 
 @Composable
 fun Profile(
+    navController: NavController,
     userViewModel: UserViewModel = viewModel(),
-    isDarkMode: Boolean,
-    onDarkModeToggle: (Boolean) -> Unit
+    themeViewModel: ThemeViewModel = viewModel()
 ) {
     LaunchedEffect(Unit) {
         userViewModel.loadUserData()
     }
+
+    val scrollState = rememberScrollState()
 
     val userData by userViewModel.userData.collectAsState()
 
@@ -56,18 +63,26 @@ fun Profile(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(scrollState)
             .background(MaterialTheme.colorScheme.background)
             .padding(16.dp)
     ) {
         userData?.let { user ->
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxSize(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                IconButton(onClick = { navController.popBackStack() }) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
                 Text(
-                    text = "Welcome, ${user.firstName?.ifEmpty { "Guest" } ?: "Guest"}",
+                    text = "Hello, ${user.firstName?.ifEmpty { "Guest" } ?: "Guest"}",
                     style = MaterialTheme.typography.headlineSmall.copy(
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
@@ -75,23 +90,53 @@ fun Profile(
                 )
 
                 DarkModeSwitch(
-                    checked = isDarkMode,
-                    onCheckedChange = onDarkModeToggle
+                    themeViewModel = themeViewModel
                 )
             }
 
             Spacer(Modifier.height(24.dp))
 
-            MovieListSection("Favourites", favouriteMovies, userViewModel)
+            MovieListSection("Favourites", favouriteMovies, userViewModel, navController)
             Spacer(Modifier.height(16.dp))
-            MovieListSection("Watchlist", watchlistMovies, userViewModel)
+            MovieListSection("Watchlist", watchlistMovies, userViewModel, navController)
             Spacer(Modifier.height(16.dp))
-            MovieListSection("Watched", watchedMovies, userViewModel)
+            MovieListSection("Watched", watchedMovies, userViewModel, navController)
         } ?: Box(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
             Text("Loading user data...")
+        }
+
+        Spacer(Modifier.height(12.dp))
+        Button(
+            onClick = {
+                userViewModel.logout {
+                    navController.navigate("signin") {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+        ) {
+            Text("Log Out", color = Color.White)
+        }
+        Spacer(Modifier.height(12.dp))
+        Button(
+            onClick = {
+                userViewModel.deleteAccount { success ->
+                    if (success) {
+                        navController.navigate("signin") {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+        ) {
+            Text("Delete Account", color = Color.White)
         }
     }
 }
@@ -100,7 +145,8 @@ fun Profile(
 fun MovieListSection(
     title: String,
     movies: List<MovieDetailsResponse>,
-    userViewModel: UserViewModel
+    userViewModel: UserViewModel,
+    navController: NavController,
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
@@ -123,9 +169,12 @@ fun MovieListSection(
         } else {
             LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 items(movies) { movie ->
-                    MovieCard(
+                    ProfileMovieCard(
                         movie = movie,
                         userViewModel = userViewModel,
+                        onMovieClick = { id: Int ->
+                            navController.navigate("details/$id")
+                        }
                     )
                 }
             }
@@ -134,9 +183,10 @@ fun MovieListSection(
 }
 
 @Composable
-fun MovieCard(
+fun ProfileMovieCard(
     movie: MovieDetailsResponse,
     userViewModel: UserViewModel,
+    onMovieClick: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var isFavorite by remember { mutableStateOf(false) }
@@ -151,7 +201,8 @@ fun MovieCard(
     Card(
         modifier = modifier
             .width(160.dp)
-            .height(260.dp),
+            .height(260.dp)
+            .clickable { onMovieClick(movie.id) },
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(6.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
@@ -228,14 +279,17 @@ fun MovieCard(
 
 @Composable
 fun DarkModeSwitch(
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
+    themeViewModel: ThemeViewModel = viewModel()
 ) {
-    val trackColor = if (checked) MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+    val isDarkMode = themeViewModel.isDarkMode
+
+    val trackColor = if (isDarkMode) MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
     else MaterialTheme.colorScheme.surfaceVariant
-    val thumbColor = if (checked) MaterialTheme.colorScheme.primary
+
+    val thumbColor = if (isDarkMode) MaterialTheme.colorScheme.primary
     else MaterialTheme.colorScheme.onSurfaceVariant
-    val icon = if (checked) "🌙" else "☀️"
+
+    val icon = if (isDarkMode) "🌙" else "☀️"
 
     Box(
         modifier = Modifier
@@ -243,13 +297,13 @@ fun DarkModeSwitch(
             .height(30.dp)
             .clip(RoundedCornerShape(50))
             .background(trackColor)
-            .clickable { onCheckedChange(!checked) }
+            .clickable { themeViewModel.toggleDarkMode() }
             .padding(horizontal = 4.dp, vertical = 3.dp),
         contentAlignment = Alignment.CenterStart
     ) {
         Box(
             modifier = Modifier
-                .offset(x = if (checked) 28.dp else 0.dp)
+                .offset(x = if (isDarkMode) 28.dp else 0.dp)
                 .size(24.dp)
                 .clip(RoundedCornerShape(50))
                 .background(thumbColor),

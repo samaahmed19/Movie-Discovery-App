@@ -7,5 +7,6 @@ data class UserData(
     val email: String = "",
     val favourites: List<String> = emptyList(),
     val watchlist: List<String> = emptyList(),
-    val watched: List<String> = emptyList()
+    val watched: List<String> = emptyList(),
+    val isDarkMode: Boolean = false
 )
