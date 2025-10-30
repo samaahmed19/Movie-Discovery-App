@@ -117,7 +117,7 @@ fun MovieDetailsScreen(
                             }
                         },
                     contentAlignment = Alignment.Center
-                ) {
+                ) { //Icon
                     Icon(
                         imageVector = Icons.Filled.Favorite,
                         contentDescription = "Favorite",
