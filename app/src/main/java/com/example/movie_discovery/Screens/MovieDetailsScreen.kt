@@ -1,8 +1,10 @@
 package com.example.movie_discovery.Screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -14,34 +16,42 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
-import com.example.movie_discovery.ui.theme.AccentRed
 import com.example.movie_discovery.Viewmodels.MovieDetailViewModel
 import com.example.movie_discovery.Viewmodels.UserViewModel
-import com.example.movie_discovery.ui.theme.MoviesTheme
+import com.example.movie_discovery.ui.theme.AccentRed
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun MovieDetailsScreen(
     movieId: Int?,
     viewModel: MovieDetailViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+
 ) {
-
     val movieDetail by viewModel.movieDetails.collectAsState()
-
+    val userViewModel: UserViewModel = viewModel()
 
     var isFavorite by remember { mutableStateOf(false) }
     var isWatchlist by remember { mutableStateOf(false) }
     var isWatched by remember { mutableStateOf(false) }
-    val userViewModel: UserViewModel = viewModel()
 
+    var favoriteScale by remember { mutableFloatStateOf(1f) }
+    val coroutineScope = rememberCoroutineScope()
+
+    val scrollState = rememberScrollState()
+
+    LaunchedEffect(Unit) {
+        userViewModel.loadUserData()
+    }
 
     LaunchedEffect(movieId, userViewModel.userData.collectAsState().value) {
         val userData = userViewModel.userData.value
@@ -51,113 +61,109 @@ fun MovieDetailsScreen(
         isWatched = movieIdStr in (userData?.watched ?: emptyList())
     }
 
-
-
-
-
     LaunchedEffect(movieId) {
         movieId?.let { viewModel.getMovieDetails(it) }
     }
 
-
     if (movieDetail == null) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CircularProgressIndicator(color = AccentRed)
         }
     } else {
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(400.dp)
+                    .height(420.dp)
             ) {
                 AsyncImage(
                     model = "https://image.tmdb.org/t/p/w500${movieDetail?.posterPath}",
-                    contentDescription = movieDetail?.title ?: "Movie Poster",
+                    contentDescription = movieDetail?.title,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .fillMaxSize()
-                        .clip(RoundedCornerShape(20.dp))
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(24.dp))
                 )
 
-                IconButton(
-                    onClick = {
-                        if (movieId != null) {
-                            if (isFavorite) userViewModel.removeFromFavourites(movieId.toString())
-                            else userViewModel.addToFavourites(movieId.toString())
-                            isFavorite = !isFavorite
-                        }
-                    },
+                Box(
                     modifier = Modifier
-                        .align(Alignment.TopEnd)
+                        .align(Alignment.TopStart)
                         .padding(12.dp)
-                        .size(44.dp)
+                        .size(48.dp)
+                        .scale(favoriteScale)
+                        .clip(CircleShape)
+                        .background(Color.Black.copy(alpha = 0.25f))
+                        .clickable {
+                            movieId?.let {
+                                if (isFavorite)
+                                    userViewModel.removeFromFavourites(it.toString())
+                                else
+                                    userViewModel.addToFavourites(it.toString())
+                                userViewModel.loadUserData()
+                                isFavorite = !isFavorite
+
+                                favoriteScale = 1.3f
+                                coroutineScope.launch {
+                                    delay(150)
+                                    favoriteScale = 1f
+                                }
+                            }
+                        },
+                    contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Favorite,
                         contentDescription = "Favorite",
-                        tint = if (isFavorite) Color.Red else Color.LightGray.copy(alpha = 0.6f)
+                        tint = if (isFavorite) Color.Red else Color.LightGray,
+                        modifier = Modifier.size(26.dp)
                     )
                 }
-
-
-                IconButton(
-                    onClick = {
-                        movieId?.let {
-                            if (isWatchlist) userViewModel.removeFromWatchlist(it.toString())
-                            else userViewModel.addToWatchlist(it.toString())
-                            isWatchlist = !isWatchlist
-                        }
-                    },
+                IconBox(
+                    icon = Icons.Filled.Star,
+                    tint = if (isWatched) Color(0xFFFFD700) else Color.LightGray,
                     modifier = Modifier
                         .align(Alignment.BottomStart)
                         .padding(12.dp)
-                        .size(44.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.PlayArrow,
-                        contentDescription = "Watchlist",
-                        tint = if (isWatchlist) Color(0xFF00C853)
-                        else Color.LightGray.copy(alpha = 0.6f)
-                    )
-                }
-
-                IconButton(
+                        .background(Color.Black.copy(alpha = 0.25f), shape = CircleShape),
                     onClick = {
                         movieId?.let {
-                            if (isWatched) userViewModel.unmarkFromWatched(it.toString())
-                            else userViewModel.markAsWatched(it.toString())
+                            if (isWatched)
+                                userViewModel.unmarkFromWatched(it.toString())
+                            else
+                                userViewModel.markAsWatched(it.toString())
+                            userViewModel.loadUserData()
                             isWatched = !isWatched
                         }
-                    },
+                    }
+                )
+                IconBox(
+                    icon = Icons.Filled.PlayArrow,
+                    tint = if (isWatchlist) Color(0xFF00C853) else Color.LightGray,
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
                         .padding(12.dp)
-                        .size(44.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Star,
-                        contentDescription = "Watched",
-                        tint = if (isWatched) Color(0xFFFFD700)
-                        else Color.LightGray.copy(alpha = 0.6f)
-                    )
-                }
+                        .background(Color.Black.copy(alpha = 0.25f), shape = CircleShape),
+                    onClick = {
+                        movieId?.let {
+                            if (isWatchlist)
+                                userViewModel.removeFromWatchlist(it.toString())
+                            else
+                                userViewModel.addToWatchlist(it.toString())
+                            userViewModel.loadUserData()
+                            isWatchlist = !isWatchlist
+                        }
+                    }
+                )
             }
 
             Spacer(modifier = Modifier.height(20.dp))
-
 
             Text(
                 text = movieDetail?.title ?: "No title available",
@@ -169,7 +175,6 @@ fun MovieDetailsScreen(
             )
 
             Spacer(modifier = Modifier.height(8.dp))
-
 
             Row(
                 horizontalArrangement = Arrangement.Center,
@@ -184,17 +189,20 @@ fun MovieDetailsScreen(
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = "Rating: ${movieDetail?.voteAverage ?: "N/A"}",
-                    style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f))
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
+                    )
                 )
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
                     text = "Release: ${movieDetail?.releaseDate ?: "Unknown"}",
-                    style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f))
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
+                    )
                 )
             }
 
             Spacer(modifier = Modifier.height(20.dp))
-
 
             Text(
                 text = movieDetail?.overview ?: "No description available",
@@ -207,7 +215,6 @@ fun MovieDetailsScreen(
             )
 
             Spacer(modifier = Modifier.height(30.dp))
-
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -238,19 +245,20 @@ fun MovieDetailsScreen(
     }
 }
 
-@Preview(showBackground = true, name = "Light Mode")
 @Composable
-fun MovieDetailsScreenLightPreview() {
-    MoviesTheme(darkTheme = false) {
-        MovieDetailsScreen(movieId = 1)
+fun IconBox(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    tint: Color,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {}
+) {
+    Box(
+        modifier = modifier
+            .size(48.dp)
+            .clip(CircleShape)
+            .clickable { onClick() },
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(imageVector = icon, contentDescription = null, tint = tint, modifier = Modifier.size(26.dp))
     }
 }
-
-@Preview(showBackground = true, name = "Dark Mode")
-@Composable
-fun MovieDetailsScreenDarkPreview() {
-    MoviesTheme(darkTheme = true) {
-        MovieDetailsScreen(movieId = 1)
-    }
-}
-
