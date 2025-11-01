@@ -3,6 +3,7 @@ package com.example.movie_discovery.Screens
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import android.content.res.Configuration
+import android.util.Patterns
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -53,7 +54,7 @@ fun SignUpScreen(
     var isLastNameError by remember { mutableStateOf(false) }
     var isEmailError by remember { mutableStateOf(false) }
     var isPasswordError by remember { mutableStateOf(false) }
-
+    val isEmailValid = Patterns.EMAIL_ADDRESS.matcher(email).matches()
     val authState by authViewModel.authState.collectAsState()
     val context = LocalContext.current
 
@@ -126,14 +127,18 @@ fun SignUpScreen(
                         label = {
                             Text(
                                 "First Name",
-                                color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.7f)
+                                color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(
+                                    alpha = 0.7f
+                                )
                             )
                         },
                         modifier = Modifier.weight(1f),
                         isError = isFirstNameError,
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = AccentRed,
-                            unfocusedBorderColor = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.3f),
+                            unfocusedBorderColor = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(
+                                alpha = 0.3f
+                            ),
                             focusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black,
                             unfocusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black
                         )
@@ -144,14 +149,18 @@ fun SignUpScreen(
                         label = {
                             Text(
                                 "Last Name",
-                                color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.7f)
+                                color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(
+                                    alpha = 0.7f
+                                )
                             )
                         },
                         modifier = Modifier.weight(1f),
                         isError = isLastNameError,
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = AccentRed,
-                            unfocusedBorderColor = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.3f),
+                            unfocusedBorderColor = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(
+                                alpha = 0.3f
+                            ),
                             focusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black,
                             unfocusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black
                         )
@@ -264,29 +273,24 @@ fun SignUpScreen(
                     onClick = {
                         isFirstNameError = firstName.isBlank()
                         isLastNameError = lastName.isBlank()
-                        isEmailError = email.isBlank()
+                        isEmailError =
+                            email.isBlank() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()
                         isPasswordError = password.isBlank()
 
                         val hasError =
                             isFirstNameError || isLastNameError || isEmailError || isPasswordError
 
-                        if (!hasError) {
-                            if (password == confirmPassword) {
-
-                                authViewModel.signUp(firstName, lastName, email, password)
-                            } else {
-                                Toast.makeText(
-                                    context,
-                                    "Passwords do not match",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        } else {
+                        if (hasError) {
                             Toast.makeText(
                                 context,
-                                "Please fill all required fields",
+                                "Please fill all fields correctly",
                                 Toast.LENGTH_SHORT
                             ).show()
+                        } else if (password != confirmPassword) {
+                            Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT)
+                                .show()
+                        } else {
+                            authViewModel.signUp(firstName, lastName, email, password)
                         }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = AccentRed),
@@ -311,7 +315,6 @@ fun SignUpScreen(
                         )
                     }
                 }
-
             }
         }
 
@@ -338,8 +341,8 @@ fun SignUpScreen(
     LaunchedEffect(authState) {
         when (val state = authState) {
             is AuthState.Success -> {
-                Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
-                navController.navigate("home") {
+                Toast.makeText(context, state.message, Toast.LENGTH_LONG).show()
+                navController.navigate("signIn") {
                     popUpTo(navController.graph.startDestinationId) { inclusive = true }
                 }
                 authViewModel.resetAuthState()
@@ -354,3 +357,4 @@ fun SignUpScreen(
         }
     }
 }
+

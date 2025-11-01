@@ -1,6 +1,7 @@
 package com.example.movie_discovery.Screens
 
 import android.content.res.Configuration
+import android.util.Patterns
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,25 +17,24 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import com.example.movie_discovery.ui.theme.*
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.movie_discovery.data.AuthState
 import com.example.movie_discovery.data.AuthViewModel
-
+import com.example.movie_discovery.ui.theme.*
 
 @Composable
 fun NeonText(
@@ -47,7 +47,7 @@ fun NeonText(
         fontSize = 32.sp,
         fontWeight = FontWeight.Bold,
         fontStyle = fontStyle
-    )
+   )
     Box(modifier = modifier) {
         Text(
             text = text,
@@ -79,9 +79,10 @@ fun SignInScreen(
     val scrollState = rememberScrollState()
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
     var isEmailError by remember { mutableStateOf(false) }
     var isPasswordError by remember { mutableStateOf(false) }
-    var passwordVisible by remember { mutableStateOf(false) }
+
     val authState by authViewModel.authState.collectAsState()
     val context = LocalContext.current
 
@@ -130,7 +131,7 @@ fun SignInScreen(
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-               Column(
+            Column(
                 modifier = Modifier.padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -144,21 +145,17 @@ fun SignInScreen(
 
                 OutlinedTextField(
                     value = email,
-                    onValueChange = { email = it },
+                    onValueChange = { email = it; isEmailError = false },
                     label = {
                         Text(
                             "Email",
-                            color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(
-                                alpha = 0.7f
-                            )
+                            color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.7f)
                         )
                     },
                     isError = isEmailError,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = AccentRed,
-                        unfocusedBorderColor = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(
-                            alpha = 0.3f
-                        ),
+                        unfocusedBorderColor = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.3f),
                         focusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black,
                         unfocusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black
                     ),
@@ -169,22 +166,16 @@ fun SignInScreen(
 
                 OutlinedTextField(
                     value = password,
-                    onValueChange = { password = it },
+                    onValueChange = { password = it; isPasswordError = false },
                     label = {
                         Text(
                             "Password",
-                            color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(
-                                alpha = 0.7f
-                            )
+                            color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.7f)
                         )
                     },
                     visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
-                        val image = if (passwordVisible)
-                            Icons.Default.Visibility
-                        else
-                            Icons.Default.VisibilityOff
-
+                        val image = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
                         IconButton(onClick = { passwordVisible = !passwordVisible }) {
                             Icon(
                                 imageVector = image,
@@ -196,9 +187,7 @@ fun SignInScreen(
                     isError = isPasswordError,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = AccentRed,
-                        unfocusedBorderColor = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(
-                            alpha = 0.3f
-                        ),
+                        unfocusedBorderColor = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.3f),
                         focusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black,
                         unfocusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black
                     ),
@@ -209,14 +198,13 @@ fun SignInScreen(
 
                 Button(
                     onClick = {
-                        isEmailError = email.isBlank()
+                        isEmailError = email.isBlank() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()
                         isPasswordError = password.isBlank()
 
-                        if (!isEmailError && !isPasswordError) {
-                            authViewModel.signIn(email, password)
+                        if (isEmailError || isPasswordError) {
+                            Toast.makeText(context, "Please enter a valid email and password", Toast.LENGTH_SHORT).show()
                         } else {
-                            Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT)
-                                .show()
+                            authViewModel.signIn(email, password)
                         }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = AccentRed),
@@ -224,14 +212,22 @@ fun SignInScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(70.dp)
-                        .padding(top = 16.dp, bottom = 8.dp)
+                        .padding(top = 16.dp, bottom = 8.dp),
+                    enabled = authState != AuthState.Loading
                 ) {
-                    Text(
-                        "Sign In",
-                        color = TextPrimary,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                    if (authState == AuthState.Loading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            color = Color.White
+                        )
+                    } else {
+                        Text(
+                            "Sign In",
+                            color = TextPrimary,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
         }
@@ -257,21 +253,25 @@ fun SignInScreen(
         }
 
         Spacer(modifier = Modifier.height(30.dp))
+    }
 
 
+    LaunchedEffect(authState) {
         when (val state = authState) {
             is AuthState.Success -> {
                 Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
-                navController?.navigate("home")
+                navController?.navigate("home") {
+                    popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                }
                 authViewModel.resetAuthState()
             }
 
             is AuthState.Error -> {
-                Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, state.message, Toast.LENGTH_LONG).show()
                 authViewModel.resetAuthState()
             }
 
-            else -> {}
+            else -> Unit
         }
     }
 }
