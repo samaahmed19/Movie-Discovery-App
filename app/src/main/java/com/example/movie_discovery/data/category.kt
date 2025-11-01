@@ -14,7 +14,7 @@ val sampleCategories = listOf(
     Category(14, "Fantasy", "https://sm.ign.com/ign_mear/cover/h/harry-pott/harry-potter-the-series_qz8f.jpg"),
     Category(36, "History", "https://variety.com/wp-content/uploads/2021/04/300.jpg"),
     Category(27, "Horror", "https://blogs-images.forbes.com/jeffewing/files/2018/09/Valak.jpg"),
-    Category(10402, "Music", "https://www.delfontmackintosh.co.uk/imgs/media/45f3b43409d36bb96dfa3243d8711612/mamma-mia-london-production-1102-1332-photo-by-brinkhoff-moegenburg.jpg"),
+    Category(10402, "Music", "https://play-lh.googleusercontent.com/9WLX4kpGokn73nXMUAElCj0byelBhVPSM5vbskzxZuMH8_guUJIbzSknr4wJ_8jRoZhVS9YRIWdunr9HMLLb"),
     Category(9648, "Mystery", "https://files.pikosky.sk/files/uploads/2012/02/sherlock-holmes-game-of-shadows-poster-final.jpg"),
     Category(10749, "Romance", "https://occ-0-8407-114.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABegKrvKk6xSPjRB3xULrR7smkeT-j9WRASWE55g7DrVYxF8Lml5d15bCEmpoEUEufxBgcU2_WgZr0FX9gndmeVtvlnBkZYtvIjYk.jpg?r=1e8"),
     Category(878, "Sci-Fi", "https://www.slamedia.org/wp-content/uploads/2014/11/interstellar-feat.jpeg"),
