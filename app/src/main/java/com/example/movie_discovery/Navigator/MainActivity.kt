@@ -38,6 +38,7 @@ class MainActivity : ComponentActivity() {
             }
 
             val isDarkMode = themeViewModel.isDarkMode
+
             MoviesTheme(darkTheme = isDarkMode) {
                 MyApp(themeViewModel = themeViewModel)
             }
@@ -46,7 +47,6 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-
 fun MyApp(themeViewModel: ThemeViewModel) {
     val navController = rememberNavController()
     val systemDark = isSystemInDarkTheme()
@@ -55,9 +55,7 @@ fun MyApp(themeViewModel: ThemeViewModel) {
         themeViewModel.loadDarkMode(defaultDarkMode = systemDark)
     }
 
-
     val isDarkMode = themeViewModel.isDarkMode
-
 
     MoviesTheme(darkTheme = isDarkMode) {
         NavHost(
@@ -162,10 +160,10 @@ fun MyApp(themeViewModel: ThemeViewModel) {
             }
 
             // ---------------------------
-            // Settings Screen (Localization)
+            // Settings Screen
             // ---------------------------
             composable("settings") {
-                SettingsScreen()
+                SettingsScreen(onBackClick = { navController.popBackStack() })
             }
         }
     }
