@@ -17,6 +17,7 @@ import com.example.movie_discovery.Screens.HomeScreen
 import com.example.movie_discovery.Screens.MovieDetailsScreen
 import com.example.movie_discovery.Screens.Profile
 import com.example.movie_discovery.Screens.SearchScreen
+import com.example.movie_discovery.Screens.SettingsScreen
 import com.example.movie_discovery.Screens.SignInScreen
 import com.example.movie_discovery.Screens.SignUpScreen
 import com.example.movie_discovery.Screens.SplashScreen
@@ -31,9 +32,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             val themeViewModel: ThemeViewModel = viewModel()
             val systemDark = isSystemInDarkTheme()
+
             LaunchedEffect(Unit) {
                 themeViewModel.loadDarkMode(defaultDarkMode = systemDark)
             }
+
             val isDarkMode = themeViewModel.isDarkMode
             MoviesTheme(darkTheme = isDarkMode) {
                 MyApp(themeViewModel = themeViewModel)
@@ -43,63 +46,54 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MyApp(themeViewModel: ThemeViewModel) {
-    val themeViewModel: ThemeViewModel = viewModel()
-    val navController = rememberNavController()
 
+fun MyApp(themeViewModel: ThemeViewModel) {
+    val navController = rememberNavController()
     val systemDark = isSystemInDarkTheme()
 
     LaunchedEffect(Unit) {
         themeViewModel.loadDarkMode(defaultDarkMode = systemDark)
     }
 
+
     val isDarkMode = themeViewModel.isDarkMode
+
 
     MoviesTheme(darkTheme = isDarkMode) {
         NavHost(
             navController = navController,
             startDestination = "splash"
         ) {
-        // ---------------------------
-        // Splash Screen
-        // ---------------------------
-        composable("splash") {
-            SplashScreen(
-                onTimeout = {
-                    navController.navigate("signIn") {
-                        popUpTo("splash") { inclusive = true }
+            // ---------------------------
+            // Splash Screen
+            // ---------------------------
+            composable("splash") {
+                SplashScreen(
+                    onTimeout = {
+                        navController.navigate("signIn") {
+                            popUpTo("splash") { inclusive = true }
+                        }
                     }
-                }
-            )
-        }
+                )
+            }
 
-        // ---------------------------
-        // Sign In Screen
-        // ---------------------------
-        composable("signIn") {
-            SignInScreen(navController = navController)
-        }
+            // ---------------------------
+            // Sign In Screen
+            // ---------------------------
+            composable("signIn") {
+                SignInScreen(navController = navController)
+            }
 
-        // ---------------------------
-        // Sign Up Screen
-        // ---------------------------
-        composable("signup") {
-            SignUpScreen(navController = navController)
-        }
+            // ---------------------------
+            // Sign Up Screen
+            // ---------------------------
+            composable("signup") {
+                SignUpScreen(navController = navController)
+            }
 
-        // ---------------------------
-        // Home Screen
-        // ---------------------------
-        composable("home") {
-            HomeScreen(
-                onMovieClick = { movieTitle ->
-                    navController.navigate("details/$movieTitle")
-                },
-                onSearchClick = {
-                    navController.navigate("search_screen")
-                }
-            )
-        }
+            // ---------------------------
+            // Home Screen
+            // ---------------------------
             composable("home") {
                 HomeScreen(
                     onMovieClick = { movieId ->
@@ -110,45 +104,55 @@ fun MyApp(themeViewModel: ThemeViewModel) {
                     },
                     onProfileClick = {
                         navController.navigate("profile")
+                    },
+                    onSettingsClick = {
+                        navController.navigate("settings")
                     }
                 )
             }
 
             // ---------------------------
-        // Search Screen
-        // ---------------------------
-        composable("search_screen") {
-            SearchScreen(navController = navController)
-        }
+            // Search Screen
+            // ---------------------------
+            composable("search_screen") {
+                SearchScreen(navController = navController)
+            }
 
-        composable(
-            route = "category_screen/{genreId}/{genreName}",
-            arguments = listOf(
-                navArgument("genreId") { type = NavType.IntType },
-                navArgument("genreName") { type = NavType.StringType }
-            )
-        ) { backStackEntry ->
-            val genreId = backStackEntry.arguments?.getInt("genreId") ?: 0
-            val genreNameEncoded = backStackEntry.arguments?.getString("genreName") ?: ""
-            val genreName = URLDecoder.decode(genreNameEncoded, StandardCharsets.UTF_8.toString())
-            CategoryScreen(
-                genreId = genreId,
-                genreName = genreName,
-                navController = navController
-            )
-        }
+            // ---------------------------
+            // Category Screen
+            // ---------------------------
+            composable(
+                route = "category_screen/{genreId}/{genreName}",
+                arguments = listOf(
+                    navArgument("genreId") { type = NavType.IntType },
+                    navArgument("genreName") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val genreId = backStackEntry.arguments?.getInt("genreId") ?: 0
+                val genreNameEncoded = backStackEntry.arguments?.getString("genreName") ?: ""
+                val genreName =
+                    URLDecoder.decode(genreNameEncoded, StandardCharsets.UTF_8.toString())
+                CategoryScreen(
+                    genreId = genreId,
+                    genreName = genreName,
+                    navController = navController
+                )
+            }
 
-        // ---------------------------
-        // Movie Details Screen
-        // ---------------------------
-        composable(
-            route = "details/{movieId}",
-            arguments = listOf(navArgument("movieId") { type = NavType.IntType })
-        ) { backStackEntry ->
-            val movieId = backStackEntry.arguments?.getInt("movieId")
-            MovieDetailsScreen(movieId = movieId)
-        }
+            // ---------------------------
+            // Movie Details Screen
+            // ---------------------------
+            composable(
+                route = "details/{movieId}",
+                arguments = listOf(navArgument("movieId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val movieId = backStackEntry.arguments?.getInt("movieId")
+                MovieDetailsScreen(movieId = movieId)
+            }
 
+            // ---------------------------
+            // Profile Screen
+            // ---------------------------
             composable("profile") {
                 Profile(
                     navController = navController,
@@ -157,6 +161,12 @@ fun MyApp(themeViewModel: ThemeViewModel) {
                 )
             }
 
+            // ---------------------------
+            // Settings Screen (Localization)
+            // ---------------------------
+            composable("settings") {
+                SettingsScreen()
+            }
+        }
     }
-}
 }

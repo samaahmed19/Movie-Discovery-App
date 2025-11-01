@@ -37,21 +37,26 @@ fun MovieDetailsScreen(
     viewModel: MovieDetailViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 
 ) {
+
     val movieDetail by viewModel.movieDetails.collectAsState()
     val userViewModel: UserViewModel = viewModel()
+
 
     var isFavorite by remember { mutableStateOf(false) }
     var isWatchlist by remember { mutableStateOf(false) }
     var isWatched by remember { mutableStateOf(false) }
 
+
     var favoriteScale by remember { mutableFloatStateOf(1f) }
     val coroutineScope = rememberCoroutineScope()
+
 
     val scrollState = rememberScrollState()
 
     LaunchedEffect(Unit) {
         userViewModel.loadUserData()
     }
+
 
     LaunchedEffect(movieId, userViewModel.userData.collectAsState().value) {
         val userData = userViewModel.userData.value
@@ -61,15 +66,19 @@ fun MovieDetailsScreen(
         isWatched = movieIdStr in (userData?.watched ?: emptyList())
     }
 
+
     LaunchedEffect(movieId) {
         movieId?.let { viewModel.getMovieDetails(it) }
     }
+
 
     if (movieDetail == null) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CircularProgressIndicator(color = AccentRed)
         }
-    } else {
+    }
+
+    else {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -78,11 +87,13 @@ fun MovieDetailsScreen(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(420.dp)
             ) {
+
                 AsyncImage(
                     model = "https://image.tmdb.org/t/p/w500${movieDetail?.posterPath}",
                     contentDescription = movieDetail?.title,
@@ -91,6 +102,7 @@ fun MovieDetailsScreen(
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(24.dp))
                 )
+
 
                 Box(
                     modifier = Modifier
@@ -117,7 +129,9 @@ fun MovieDetailsScreen(
                             }
                         },
                     contentAlignment = Alignment.Center
-                ) { //Icon
+                ) {
+                    //Icon
+
                     Icon(
                         imageVector = Icons.Filled.Favorite,
                         contentDescription = "Favorite",
@@ -143,6 +157,7 @@ fun MovieDetailsScreen(
                         }
                     }
                 )
+
                 IconBox(
                     icon = Icons.Filled.PlayArrow,
                     tint = if (isWatchlist) Color(0xFF00C853) else Color.LightGray,
@@ -165,6 +180,7 @@ fun MovieDetailsScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
+
             Text(
                 text = movieDetail?.title ?: "No title available",
                 style = MaterialTheme.typography.headlineSmall.copy(
@@ -173,6 +189,7 @@ fun MovieDetailsScreen(
                 ),
                 textAlign = TextAlign.Center
             )
+
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -186,6 +203,7 @@ fun MovieDetailsScreen(
                     tint = Color(0xFFFFD700),
                     modifier = Modifier.size(20.dp)
                 )
+
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = "Rating: ${movieDetail?.voteAverage ?: "N/A"}",
@@ -193,6 +211,7 @@ fun MovieDetailsScreen(
                         color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
                     )
                 )
+
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
                     text = "Release: ${movieDetail?.releaseDate ?: "Unknown"}",
@@ -203,6 +222,7 @@ fun MovieDetailsScreen(
             }
 
             Spacer(modifier = Modifier.height(20.dp))
+
 
             Text(
                 text = movieDetail?.overview ?: "No description available",
@@ -220,11 +240,13 @@ fun MovieDetailsScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
+
                 Button(
                     onClick = {},
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = AccentRed)
                 ) {
+
                     Icon(
                         imageVector = Icons.Filled.PlayArrow,
                         contentDescription = "Watch",
@@ -233,6 +255,7 @@ fun MovieDetailsScreen(
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(text = "Watch Now", color = MaterialTheme.colorScheme.onPrimary)
                 }
+
 
                 OutlinedButton(
                     onClick = {},
@@ -252,6 +275,7 @@ fun IconBox(
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {}
 ) {
+
     Box(
         modifier = modifier
             .size(48.dp)
@@ -259,6 +283,7 @@ fun IconBox(
             .clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {
+
         Icon(imageVector = icon, contentDescription = null, tint = tint, modifier = Modifier.size(26.dp))
     }
 }

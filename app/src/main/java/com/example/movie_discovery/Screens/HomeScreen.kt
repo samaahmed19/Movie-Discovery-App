@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -32,7 +33,6 @@ import com.example.movie_discovery.Viewmodels.UserViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.movie_discovery.Viewmodels.ThemeViewModel
 
-
 // -------------------------------
 // Home Screen
 // -------------------------------
@@ -40,14 +40,13 @@ import com.example.movie_discovery.Viewmodels.ThemeViewModel
 fun HomeScreen(
     onMovieClick: (Int) -> Unit,
     onSearchClick: () -> Unit,
-    onProfileClick: () -> Unit = {}
+    onProfileClick: () -> Unit = {},
+    onSettingsClick: () -> Unit = {}
 ) {
-    // ViewModels
     val viewModel: HomeViewModel = viewModel()
     val userViewModel: UserViewModel = viewModel()
     val themeViewModel: ThemeViewModel = viewModel()
 
-    // State
     val popularMovies by viewModel.popularMovies.collectAsState()
     val trendingMovies by viewModel.trendingMovies.collectAsState()
     val upcomingMovies by viewModel.upcomingMovies.collectAsState()
@@ -55,10 +54,8 @@ fun HomeScreen(
     val userData by userViewModel.userData.collectAsState()
     val systemDark = isSystemInDarkTheme()
 
-
     var selectedTab by remember { mutableStateOf(0) }
 
-    // Fetch when screen appears
     LaunchedEffect(Unit) {
         themeViewModel.loadDarkMode(defaultDarkMode = systemDark)
         viewModel.loadMovies()
@@ -84,7 +81,16 @@ fun HomeScreen(
                 color = AccentRed,
                 fontWeight = FontWeight.Bold
             )
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                // settings icon
+                IconButton(onClick = { onSettingsClick() }) {
+                    Icon(
+                        imageVector = Icons.Default.Settings,
+                        contentDescription = "Settings",
+                        tint = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+                // Profile icon
                 IconButton(onClick = { onProfileClick() }) {
                     Icon(
                         imageVector = Icons.Default.Person,
@@ -210,15 +216,13 @@ fun MovieCard(
     onMovieClick: (Int) -> Unit = {},
     userViewModel: UserViewModel = viewModel()
 ) {
-
-    val userViewModel: UserViewModel = viewModel()
     var isFavorite by remember { mutableStateOf(false) }
-    val userData = userViewModel.userData.collectAsState().value
+    val userDataState = userViewModel.userData.collectAsState().value
 
-    LaunchedEffect(userData) {
+    LaunchedEffect(userDataState) {
         val movieIdStr = movie.id.toString()
-        isFavorite = movieIdStr in (userData?.favourites ?: emptyList())
-     }
+        isFavorite = movieIdStr in (userDataState?.favourites ?: emptyList())
+    }
 
     Card(
         modifier = modifier
@@ -277,15 +281,15 @@ fun MovieCard(
                 }
             }
 
-            //  Favorite Icon
+            // Favorite Icon
             IconButton(
                 onClick = {
                     if (isFavorite)
                         userViewModel.removeFromFavourites(movie.id.toString())
                     else
                         userViewModel.addToFavourites(movie.id.toString())
-                        isFavorite = !isFavorite
-        },
+                    isFavorite = !isFavorite
+                },
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .padding(10.dp)
@@ -308,7 +312,7 @@ fun MovieCard(
 @Composable
 fun HomeScreenLightPreview() {
     MoviesTheme(darkTheme = false) {
-        HomeScreen(onMovieClick = {}, onSearchClick = {}, onProfileClick = {})
+        HomeScreen(onMovieClick = {}, onSearchClick = {}, onProfileClick = {}, onSettingsClick = {})
     }
 }
 
@@ -316,7 +320,6 @@ fun HomeScreenLightPreview() {
 @Composable
 fun HomeScreenDarkPreview() {
     MoviesTheme(darkTheme = true) {
-        HomeScreen(onMovieClick = {}, onSearchClick = {}, onProfileClick = {})
+        HomeScreen(onMovieClick = {}, onSearchClick = {}, onProfileClick = {}, onSettingsClick = {})
     }
 }
-
