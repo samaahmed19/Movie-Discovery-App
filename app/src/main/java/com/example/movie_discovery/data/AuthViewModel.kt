@@ -1,6 +1,7 @@
 package com.example.movie_discovery.data
 
 import androidx.lifecycle.ViewModel
+import com.google.firebase.auth.ActionCodeSettings
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,13 +15,13 @@ class AuthViewModel : ViewModel() {
     private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
     val authState: StateFlow<AuthState> = _authState
 
-    fun signUp(firstName: String, lastName: String,email: String, password: String) {
+    fun signUp(firstName: String, lastName: String, email: String, password: String) {
         _authState.value = AuthState.Loading
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    val userId = auth.currentUser?.uid ?: return@addOnCompleteListener
-                    val firestore = FirebaseFirestore.getInstance()
+                    val user = auth.currentUser
+                    val userId = user?.uid ?: return@addOnCompleteListener
 
                     val userData = hashMapOf(
                         "firstName" to firstName,
@@ -34,16 +35,31 @@ class AuthViewModel : ViewModel() {
 
                     firestore.collection("users").document(userId)
                         .set(userData)
-
                         .addOnSuccessListener {
-                            _authState.value = AuthState.Success("Account created successfully!")
+                            val actionCodeSettings = ActionCodeSettings.newBuilder()
+                                .setUrl("https://movie-discovery-ab154.web.app/__/auth/action")
+                                .setHandleCodeInApp(true)
+                                .setAndroidPackageName("com.example.movie_discovery", true, "21")
+                                .build()
+
+                            user?.sendEmailVerification(actionCodeSettings)
+                                ?.addOnSuccessListener {
+                                    _authState.value = AuthState.Success(
+                                        "Account created! Please check your email to verify before logging in."
+                                    )
+                                }
+                                ?.addOnFailureListener { e ->
+                                    _authState.value = AuthState.Error(
+                                        "Account created, but failed to send verification email: ${e.message}"
+                                    )
+                                }
                         }
                         .addOnFailureListener { e ->
-                            _authState.value = AuthState.Error(e.message ?: "Error saving data")
+                            _authState.value = AuthState.Error(e.message ?: "Error saving data.")
                         }
                 } else {
                     _authState.value =
-                        AuthState.Error(task.exception?.message ?: "Something went wrong")
+                        AuthState.Error(task.exception?.message ?: "Sign up failed. Please try again.")
                 }
             }
     }
@@ -53,10 +69,16 @@ class AuthViewModel : ViewModel() {
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    _authState.value = AuthState.Success("Signed in successfully!")
+                    val user = auth.currentUser
+                    if (user != null && user.isEmailVerified) {
+                        _authState.value = AuthState.Success("Signed in successfully!")
+                    } else {
+                        auth.signOut()
+                        _authState.value = AuthState.Error("Please verify your email before signing in.")
+                    }
                 } else {
                     _authState.value =
-                        AuthState.Error(task.exception?.message ?: "Invalid credentials")
+                        AuthState.Error(task.exception?.message ?: "Invalid credentials.")
                 }
             }
     }

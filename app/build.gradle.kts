@@ -43,6 +43,7 @@ android {
 }
 
 dependencies {
+    implementation("com.google.android.gms:play-services-auth:21.4.0")
     testImplementation("org.robolectric:robolectric:4.12.2")
     implementation(libs.androidx.junit.ktx)
     testImplementation("app.cash.turbine:turbine:1.0.0")
