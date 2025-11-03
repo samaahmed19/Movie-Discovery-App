@@ -163,8 +163,11 @@ fun MyApp(themeViewModel: ThemeViewModel) {
             // Settings Screen
             // ---------------------------
             composable("settings") {
-                SettingsScreen(onBackClick = { navController.popBackStack() })
+                SettingsScreen(
+                    onBackClick = { navController.popBackStack() }
+                )
             }
+
         }
     }
 }

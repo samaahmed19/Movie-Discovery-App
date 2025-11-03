@@ -5,15 +5,24 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.firestore
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
 class ThemeViewModel : ViewModel() {
     var isDarkMode by mutableStateOf(false)
         private set
 
+    private val _fontType = MutableStateFlow("Roboto")
+    val fontType: StateFlow<String> = _fontType
+
+    private val _fontSize = MutableStateFlow(16f)
+    val fontSize: StateFlow<Float> = _fontSize
     private val auth = Firebase.auth
     private val firestore = Firebase.firestore
 
@@ -45,5 +54,15 @@ class ThemeViewModel : ViewModel() {
         val user = auth.currentUser ?: return
         firestore.collection("users").document(user.uid)
             .update("darkMode", isDarkMode)
+    }
+    fun setFontType(type: String) {
+        viewModelScope.launch {
+            _fontType.value = type
+        }
+        fun setFontSize(size: Float) {
+            viewModelScope.launch {
+                _fontSize.value = size
+            }
+        }
     }
 }
