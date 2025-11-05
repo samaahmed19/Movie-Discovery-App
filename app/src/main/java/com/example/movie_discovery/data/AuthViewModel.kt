@@ -12,8 +12,14 @@ class AuthViewModel : ViewModel() {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 
+    // Auth state
     private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
     val authState: StateFlow<AuthState> = _authState
+
+    // User settings as StateFlows
+    val language = MutableStateFlow("en")
+    val fontType = MutableStateFlow("Poppins")
+    val fontSize = MutableStateFlow(16f)
 
     fun signUp(firstName: String, lastName: String, email: String, password: String) {
         _authState.value = AuthState.Loading
@@ -31,9 +37,9 @@ class AuthViewModel : ViewModel() {
                         "watchlist" to emptyList<String>(),
                         "favorites" to emptyList<String>(),
                         "isDarkMode" to false,
-                        "language" to "en",
-                        "fontType" to "Poppins",
-                        "fontSize" to 16f
+                        "language" to language.value,
+                        "fontType" to fontType.value,
+                        "fontSize" to fontSize.value
                     )
 
                     firestore.collection("users").document(userId)
@@ -74,16 +80,40 @@ class AuthViewModel : ViewModel() {
                 if (task.isSuccessful) {
                     val user = auth.currentUser
                     if (user != null && user.isEmailVerified) {
+                        loadUserSettings(user.uid)
                         _authState.value = AuthState.Success("Signed in successfully!")
                     } else {
                         auth.signOut()
-                        _authState.value = AuthState.Error("Please verify your email before signing in.")
+                        _authState.value = AuthState.Error("Please verify your email first.")
                     }
                 } else {
                     _authState.value =
                         AuthState.Error(task.exception?.message ?: "Invalid credentials.")
                 }
             }
+    }
+
+    private fun loadUserSettings(userId: String) {
+        firestore.collection("users").document(userId).get()
+            .addOnSuccessListener { doc ->
+                language.value = doc.getString("language") ?: "en"
+                fontType.value = doc.getString("fontType") ?: "Poppins"
+                fontSize.value = (doc.getDouble("fontSize") ?: 16.0).toFloat()
+            }
+    }
+
+    fun updateUserSetting(field: String, value: Any) {
+        val userId = auth.currentUser?.uid ?: return
+        firestore.collection("users").document(userId)
+            .update(field, value)
+            .addOnSuccessListener { }
+            .addOnFailureListener { }
+
+        when(field) {
+            "language" -> language.value = value as String
+            "fontType" -> fontType.value = value as String
+            "fontSize" -> fontSize.value = value as Float
+        }
     }
 
     fun resetAuthState() {
@@ -97,3 +127,4 @@ sealed class AuthState {
     data class Success(val message: String) : AuthState()
     data class Error(val message: String) : AuthState()
 }
+
