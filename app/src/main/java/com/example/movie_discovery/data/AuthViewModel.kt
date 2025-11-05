@@ -30,7 +30,10 @@ class AuthViewModel : ViewModel() {
                         "watched" to emptyList<String>(),
                         "watchlist" to emptyList<String>(),
                         "favorites" to emptyList<String>(),
-                        "isDarkMode" to false
+                        "isDarkMode" to false,
+                        "language" to "en",
+                        "fontType" to "Poppins",
+                        "fontSize" to 16f
                     )
 
                     firestore.collection("users").document(userId)
