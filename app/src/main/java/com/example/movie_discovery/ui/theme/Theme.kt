@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
@@ -12,16 +13,25 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.unit.sp
+import androidx.compose.runtime.staticCompositionLocalOf
 
+val LocalFontFamily = staticCompositionLocalOf<FontFamily> {
+    error("No FontFamily provided")
+}
 @Composable
 fun MoviesTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = false,
-    typography: Typography = Typography(),
     content: @Composable () -> Unit
 ) {
-
+    val typography = Typography(
+        bodyLarge = typography.bodyLarge.copy(fontFamily = LocalFontFamily.current),
+        bodyMedium = typography.bodyMedium.copy(fontFamily = LocalFontFamily.current),
+        bodySmall = typography.bodySmall.copy(fontFamily = LocalFontFamily.current),
+        titleLarge = typography.titleLarge.copy(fontFamily = LocalFontFamily.current),
+        titleMedium = typography.titleMedium.copy(fontFamily = LocalFontFamily.current),
+        titleSmall = typography.titleSmall.copy(fontFamily = LocalFontFamily.current)
+    )
     val DarkColorScheme = darkColorScheme(
         primary = AccentRed,
         secondary = Gold,

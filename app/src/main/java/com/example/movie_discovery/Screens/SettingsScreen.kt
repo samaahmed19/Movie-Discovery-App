@@ -200,7 +200,7 @@ fun FontTypeSelector(
     fontSize: androidx.compose.ui.unit.TextUnit
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val fonts = listOf("Poppins", "Roboto", "Cairo")
+    val fonts = listOf("Momo", "Roboto", "Cairo")
 
     Box {
         OutlinedTextField(

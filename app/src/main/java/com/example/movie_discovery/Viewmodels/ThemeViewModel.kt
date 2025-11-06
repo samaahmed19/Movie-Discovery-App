@@ -4,6 +4,8 @@ package com.example.movie_discovery.Viewmodels
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.SystemFontFamily
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.Firebase
@@ -17,6 +19,12 @@ import kotlinx.coroutines.launch
 class ThemeViewModel : ViewModel() {
     var isDarkMode by mutableStateOf(false)
         private set
+
+    var selectedFont by mutableStateOf(FontFamily.Default)
+
+    fun setFont(font: FontFamily) {
+        selectedFont = font as SystemFontFamily
+    }
 
     private val _fontType = MutableStateFlow("Roboto")
     val fontType: StateFlow<String> = _fontType

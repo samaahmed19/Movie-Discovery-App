@@ -19,7 +19,7 @@ class SettingsViewModel(private val dataStore: SettingsDataStore) : ViewModel() 
     private val _fontSize = MutableStateFlow(18f)
     val fontSize = _fontSize.asStateFlow()
 
-    private val _fontType = MutableStateFlow("Poppins")
+    private val _fontType = MutableStateFlow("Cairo")
     val fontType = _fontType.asStateFlow()
 
     init {
@@ -47,11 +47,11 @@ class SettingsViewModel(private val dataStore: SettingsDataStore) : ViewModel() 
     fun resetToDefault() {
         viewModelScope.launch {
             dataStore.saveLanguage("en")
-            dataStore.saveFontType("Poppins")
+            dataStore.saveFontType("Cairo")
             dataStore.saveFontSize(18f)
         }
         _selectedLanguage.value = "en"
-        _fontType.value = "Poppins"
+        _fontType.value = "Cairo"
         _fontSize.value = 18f
     }
 

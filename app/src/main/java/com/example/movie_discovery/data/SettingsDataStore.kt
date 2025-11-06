@@ -1,7 +1,6 @@
 package com.example.movie_discovery.data
 
 import android.content.Context
-import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -47,7 +46,7 @@ class SettingsDataStore(private val context: Context) {
     }
 
     val fontTypeFlow: Flow<String> = context.dataStore.data.map { prefs ->
-        prefs[FONT_TYPE_KEY] ?: "Poppins"
+        prefs[FONT_TYPE_KEY] ?: "Cairo"
     }
 
     val fontSizeFlow: Flow<Float> = context.dataStore.data.map { prefs ->

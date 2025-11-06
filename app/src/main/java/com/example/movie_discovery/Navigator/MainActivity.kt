@@ -1,11 +1,21 @@
 package com.example.movie_discovery.Navigator
 
 import android.os.Bundle
+import android.provider.Settings
 import androidx.activity.ComponentActivity
+import androidx.activity.R
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -21,10 +31,14 @@ import com.example.movie_discovery.Screens.SettingsScreen
 import com.example.movie_discovery.Screens.SignInScreen
 import com.example.movie_discovery.Screens.SignUpScreen
 import com.example.movie_discovery.Screens.SplashScreen
+import com.example.movie_discovery.Viewmodels.SettingsViewModel
 import com.example.movie_discovery.Viewmodels.ThemeViewModel
+import com.example.movie_discovery.data.SettingsDataStore
+import com.example.movie_discovery.ui.theme.LocalFontFamily
 import com.example.movie_discovery.ui.theme.MoviesTheme
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,8 +53,32 @@ class MainActivity : ComponentActivity() {
 
             val isDarkMode = themeViewModel.isDarkMode
 
+            val context = this
+            val dataStore = remember { SettingsDataStore(context) }
+
+            val settingsViewModel: SettingsViewModel = viewModel(
+                factory = object : ViewModelProvider.Factory {
+                    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                        return SettingsViewModel(dataStore) as T
+                    }
+                }
+            )
+
+            val fontType by settingsViewModel.fontType.collectAsState()
+
+            val customFont = remember(fontType) {
+                when (fontType) {
+                    "Roboto" -> FontFamily(Font(com.example.movie_discovery.R.font.roboto_regular))
+                    "Cairo" -> FontFamily(Font(com.example.movie_discovery.R.font.cairo_regular))
+                    "Momo" -> FontFamily(Font(com.example.movie_discovery.R.font.momo_regular))
+                    else -> FontFamily(Font(com.example.movie_discovery.R.font.momo_regular))
+                }
+            }
+
+            CompositionLocalProvider(LocalFontFamily provides customFont) {
             MoviesTheme(darkTheme = isDarkMode) {
                 MyApp(themeViewModel = themeViewModel)
+                }
             }
         }
     }
