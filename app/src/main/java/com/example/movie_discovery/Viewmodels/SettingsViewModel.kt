@@ -1,66 +1,91 @@
 package com.example.movie_discovery.Viewmodels
 
-import android.app.Activity
 import android.content.Context
 import android.content.res.Configuration
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.example.movie_discovery.data.SettingsDataStore
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
+import com.google.firebase.firestore.firestore
+import com.google.firebase.firestore.ktx.firestore
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.StateFlow
 import java.util.Locale
 
-class SettingsViewModel(private val dataStore: SettingsDataStore) : ViewModel() {
+data class UserSettings(
+    val language: String = "en",
+    val fontType: String = "Momo",
+    val fontSize: Float = 18f
+)
 
-    private val _selectedLanguage = MutableStateFlow("en")
-    val selectedLanguage = _selectedLanguage.asStateFlow()
+class SettingsViewModel : ViewModel() {
 
-    private val _fontSize = MutableStateFlow(18f)
-    val fontSize = _fontSize.asStateFlow()
+    private val auth = Firebase.auth
+    private val firestore = Firebase.firestore
 
-    private val _fontType = MutableStateFlow("Cairo")
-    val fontType = _fontType.asStateFlow()
+    private val _userSettings = MutableStateFlow(UserSettings())
+    val userSettings: StateFlow<UserSettings> = _userSettings
 
     init {
-        viewModelScope.launch { dataStore.languageFlow.collect { _selectedLanguage.value = it } }
-        viewModelScope.launch { dataStore.fontTypeFlow.collect { _fontType.value = it } }
-        viewModelScope.launch { dataStore.fontSizeFlow.collect { _fontSize.value = it } }
+        loadUserSettings()
     }
 
-    fun changeLanguage(lang: String, context: Context? = null) {
-        _selectedLanguage.value = lang
-        viewModelScope.launch { dataStore.saveLanguage(lang) }
-        context?.let { setLocale(it, lang) }
+    private fun loadUserSettings() {
+        val user = auth.currentUser ?: return
+        val docRef = firestore.collection("users").document(user.uid)
+        docRef.addSnapshotListener { document, error ->
+            if (error != null) return@addSnapshotListener
+            if (document != null && document.exists()) {
+                val settings = UserSettings(
+                    language = document.getString("language") ?: "en",
+                    fontType = document.getString("fontType") ?: "Momo",
+                    fontSize = (document.getDouble("fontSize") ?: 18.0).toFloat()
+                )
+                _userSettings.value = settings
+            } else {
+                docRef.set(_userSettings.value)
+            }
+        }
+    }
+
+    fun changeLanguage(lang: String, context: Context) {
+        updateSetting("language", lang)
+        applyLocale(lang, context)
+    }
+
+    fun changeFontType(font: String) {
+        updateSetting("fontType", font)
     }
 
     fun changeFontSize(size: Float) {
-        _fontSize.value = size
-        viewModelScope.launch { dataStore.saveFontSize(size) }
+        updateSetting("fontSize", size)
     }
 
-    fun changeFontType(type: String) {
-        _fontType.value = type
-        viewModelScope.launch { dataStore.saveFontType(type) }
+    fun resetToDefault(context: Context) {
+        changeLanguage("en", context)
+        changeFontType("Momo")
+        changeFontSize(18f)
     }
 
-    fun resetToDefault() {
-        viewModelScope.launch {
-            dataStore.saveLanguage("en")
-            dataStore.saveFontType("Cairo")
-            dataStore.saveFontSize(18f)
+    private fun updateSetting(field: String, value: Any) {
+        val user = auth.currentUser ?: return
+        val docRef = firestore.collection("users").document(user.uid)
+        _userSettings.value = when (field) {
+            "language" -> _userSettings.value.copy(language = value as String)
+            "fontType" -> _userSettings.value.copy(fontType = value as String)
+            "fontSize" -> _userSettings.value.copy(fontSize = value as Float)
+            else -> _userSettings.value
         }
-        _selectedLanguage.value = "en"
-        _fontType.value = "Cairo"
-        _fontSize.value = 18f
+
+        docRef.update(field, value)
     }
 
-    private fun setLocale(context: Context, lang: String) {
+    private fun applyLocale(lang: String, context: Context) {
         val locale = Locale(lang)
         Locale.setDefault(locale)
         val config = Configuration(context.resources.configuration)
         config.setLocale(locale)
         context.resources.updateConfiguration(config, context.resources.displayMetrics)
-        (context as? Activity)?.recreate()
+        (context as? android.app.Activity)?.recreate()
     }
 }
+

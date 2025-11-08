@@ -43,6 +43,9 @@ android {
 }
 
 dependencies {
+    implementation("com.google.firebase:firebase-analytics-ktx:21.3.0")
+    implementation("com.google.firebase:firebase-auth-ktx:22.2.0")
+    implementation("com.google.firebase:firebase-firestore-ktx:24.6.1")
     implementation("com.google.android.gms:play-services-auth:21.4.0")
     implementation("androidx.compose.ui:ui-text-google-fonts:1.7.0")
     implementation(libs.androidx.compose.ui.text)
