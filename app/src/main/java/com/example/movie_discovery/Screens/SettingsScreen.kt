@@ -1,9 +1,12 @@
 @file:Suppress("UNCHECKED_CAST")
-
 package com.example.movie_discovery.Screens
 
+import android.content.Context
+import android.content.res.Configuration
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
@@ -16,31 +19,24 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.movie_discovery.R
 import com.example.movie_discovery.Viewmodels.SettingsViewModel
-import com.example.movie_discovery.data.SettingsDataStore
 import com.example.movie_discovery.ui.theme.AccentRed
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(onBackClick: () -> Unit = {} ) {
+fun SettingsScreen(
+    onBackClick: () -> Unit
+) {
     val context = LocalContext.current
-    val dataStore = remember { SettingsDataStore(context) }
+    val settingsViewModel: SettingsViewModel = viewModel()
 
-    val settingsViewModel: SettingsViewModel = viewModel(
-        factory = object : ViewModelProvider.Factory {
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return SettingsViewModel(dataStore) as T
-            }
-        }
-    )
+    val userSettings by settingsViewModel.userSettings.collectAsState()
 
-    val selectedLanguage by settingsViewModel.selectedLanguage.collectAsState()
-    val fontSize by settingsViewModel.fontSize.collectAsState()
-    val fontType by settingsViewModel.fontType.collectAsState()
+    val selectedLanguage = userSettings.language
+    val fontType = userSettings.fontType
+    val fontSize = userSettings.fontSize
 
     val customFont = when (fontType) {
         "Roboto" -> FontFamily(Font(R.font.roboto_regular))
@@ -72,6 +68,7 @@ fun SettingsScreen(onBackClick: () -> Unit = {} ) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .verticalScroll(rememberScrollState())
                 .padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
@@ -85,7 +82,7 @@ fun SettingsScreen(onBackClick: () -> Unit = {} ) {
 
             LanguageSelector(
                 selectedLanguage = selectedLanguage,
-                onLanguageChange = { lang -> settingsViewModel.changeLanguage(lang, context) },
+                onLanguageChange = { settingsViewModel.changeLanguage(it, context) },
                 fontFamily = customFont,
                 fontSize = fontSize.sp
             )
@@ -124,9 +121,8 @@ fun SettingsScreen(onBackClick: () -> Unit = {} ) {
             )
 
             Divider()
-
             Button(
-                onClick = { settingsViewModel.resetToDefault() },
+                onClick = { settingsViewModel.resetToDefault(context) },
                 modifier = Modifier.align(Alignment.CenterHorizontally),
                 colors = ButtonDefaults.buttonColors(containerColor = AccentRed)
             ) {
@@ -140,10 +136,7 @@ fun SettingsScreen(onBackClick: () -> Unit = {} ) {
         }
     }
 }
-
-
 // Language Selector
-
 @Composable
 fun LanguageSelector(
     selectedLanguage: String,
@@ -156,10 +149,7 @@ fun LanguageSelector(
         LanguageOption("العربية", selectedLanguage == "ar", { onLanguageChange("ar") }, fontFamily, fontSize)
     }
 }
-
-
 // Language Option
-
 @Composable
 fun LanguageOption(
     language: String,
@@ -188,9 +178,7 @@ fun LanguageOption(
     }
 }
 
-
-// Font Type Selector
-
+//Font Type Selector
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FontTypeSelector(
@@ -200,7 +188,7 @@ fun FontTypeSelector(
     fontSize: androidx.compose.ui.unit.TextUnit
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val fonts = listOf("Momo", "Roboto", "Cairo")
+    val fonts = listOf("Roboto", "Cairo", "Momo")
 
     Box {
         OutlinedTextField(
@@ -237,9 +225,7 @@ fun FontTypeSelector(
     }
 }
 
-
-// Font Size Slider
-
+//Font Size Slider
 @Composable
 fun FontSizeSlider(
     fontSize: Float,
@@ -264,7 +250,3 @@ fun FontSizeSlider(
         Text("${fontSize.toInt()} sp", fontFamily = fontFamily, fontSize = fontSize.sp)
     }
 }
-
-
-
-

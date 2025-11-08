@@ -1,0 +1,53 @@
+[33mcommit c19150557b74a8da2238a9ee078d24ffc816b806[m
+Merge: b8aaf7a 2b7de25
+Author: [1;31mLina[m Ashraf <linaaaashraff@gmail.com>
+Date:   Sat Nov 1 21:37:00 2025 +0200
+
+    Merge remote-tracking branch 'origin/main'
+
+[33mcommit b8aaf7a8b477f0ab120b408e2a8ca8cc6da72341[m
+Merge: 0144149 78216d1
+Author: [1;31mLina[m Ashraf <linaaaashraff@gmail.com>
+Date:   Sat Nov 1 20:12:03 2025 +0200
+
+    edit localization in settings
+
+[33mcommit 2b7de25b1c896bf161dcde4d3faa0866ecbb3283[m
+Merge: 537a762 837c989
+Author: [1;31mLina[m Ashraf <linaaaashraff@gmail.com>
+Date:   Sat Nov 1 20:15:15 2025 +0200
+
+    Merge remote-tracking branch 'origin/main'
+
+[33mcommit 537a762fb9b36647343dc80b61e56e6f39c33bfa[m
+Merge: 0144149 78216d1
+Author: [1;31mLina[m Ashraf <linaaaashraff@gmail.com>
+Date:   Sat Nov 1 20:12:03 2025 +0200
+
+    localization in settings
+
+[33mcommit 837c989ed35b65aada87c2c7e31338beb1bcc014[m
+Merge: 0144149 78216d1
+Author: [1;31mLina[m Ashraf <linaaaashraff@gmail.com>
+Date:   Sat Nov 1 20:12:03 2025 +0200
+
+    Merge remote-tracking branch 'origin/main'
+
+[33mcommit e7e2ec3926e29dabc2ef5a18721eb9408fe6e842[m
+Merge: 3ee8a42 d1b20fe
+Author: [1;31mLina[m Ashraf <linaaaashraff@gmail.com>
+Date:   Wed Oct 22 22:08:45 2025 +0300
+
+    Merge remote-tracking branch 'origin/main'
+
+[33mcommit 53b1557e32b848cfe101e8ae3362aed9dd68e05c[m
+Author: [1;31mLina[m Ashraf <linaaaashraff@gmail.com>
+Date:   Mon Oct 13 21:06:48 2025 +0300
+
+    API for movie title,poster and description
+
+[33mcommit 40d3002f3301e2c3b3715c1fc890ba6322a9c72d[m
+Author: [1;31mLina[m Ashraf <ashraflina21@gmail.com>
+Date:   Fri Oct 3 14:57:00 2025 +0300
+
+     create movie details screen
