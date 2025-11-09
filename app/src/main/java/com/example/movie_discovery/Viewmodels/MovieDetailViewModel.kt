@@ -23,14 +23,33 @@ class MovieDetailViewModel : ViewModel() {
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
-    fun getMovieDetails(movieId: Int,language: String = "en-US") {
+    fun getMovieDetails(movieId: Int, language: String) {
         viewModelScope.launch {
             _isLoading.value = true
             _error.value = null
 
             try {
-                val response = apiService.getMovieDetails(movieId, apiKey,language)
-                _movieDetails.value = response
+                val response = apiService.getMovieDetails(movieId, apiKey, language)
+                if (language.startsWith("ar")) {
+                    val titleMissing = response.title.isNullOrBlank()
+                    val overviewMissing = response.overview.isNullOrBlank()
+                    val genresMissing = response.genres.isNullOrEmpty()
+                    if (titleMissing || overviewMissing || genresMissing) {
+                        val englishResponse = apiService.getMovieDetails(movieId, apiKey, "en-US")
+
+                        val mergedResponse = response.copy(
+                            title = if (titleMissing) englishResponse.title else response.title,
+                            overview = if (overviewMissing) englishResponse.overview else response.overview,
+                            genres = if (genresMissing) englishResponse.genres else response.genres
+                        )
+
+                        _movieDetails.value = mergedResponse
+                    } else {
+                        _movieDetails.value = response
+                    }
+                } else {
+                    _movieDetails.value = response
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
                 _error.value = e.message ?: "Unknown error occurred"

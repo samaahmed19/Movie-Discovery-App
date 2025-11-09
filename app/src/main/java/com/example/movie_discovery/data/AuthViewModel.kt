@@ -6,17 +6,18 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import java.util.Locale
 
 class AuthViewModel : ViewModel() {
 
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 
-    // Auth state
+    private val isArabic = Locale.getDefault().language.startsWith("ar")
+
     private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
     val authState: StateFlow<AuthState> = _authState
 
-    // User settings as StateFlows
     val language = MutableStateFlow("en")
     val fontType = MutableStateFlow("Poppins")
     val fontSize = MutableStateFlow(16f)
@@ -26,8 +27,8 @@ class AuthViewModel : ViewModel() {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    val user = auth.currentUser
-                    val userId = user?.uid ?: return@addOnCompleteListener
+                    val user = auth.currentUser ?: return@addOnCompleteListener
+                    val userId = user.uid
 
                     val userData = hashMapOf(
                         "firstName" to firstName,
@@ -51,24 +52,33 @@ class AuthViewModel : ViewModel() {
                                 .setAndroidPackageName("com.example.movie_discovery", true, "21")
                                 .build()
 
-                            user?.sendEmailVerification(actionCodeSettings)
-                                ?.addOnSuccessListener {
+                            user.sendEmailVerification(actionCodeSettings)
+                                .addOnSuccessListener {
                                     _authState.value = AuthState.Success(
-                                        "Account created! Please check your email to verify before logging in."
+                                        if (isArabic)
+                                            "تم إنشاء الحساب! تحقق من بريدك الإلكتروني لتفعيله قبل تسجيل الدخول."
+                                        else
+                                            "Account created! Please check your email to verify before logging in."
                                     )
                                 }
-                                ?.addOnFailureListener { e ->
+                                .addOnFailureListener { e ->
                                     _authState.value = AuthState.Error(
-                                        "Account created, but failed to send verification email: ${e.message}"
+                                        if (isArabic)
+                                            "تم إنشاء الحساب، لكن فشل إرسال رسالة التفعيل: ${e.message}"
+                                        else
+                                            "Account created, but failed to send verification email: ${e.message}"
                                     )
                                 }
                         }
                         .addOnFailureListener { e ->
-                            _authState.value = AuthState.Error(e.message ?: "Error saving data.")
+                            _authState.value = AuthState.Error(
+                                e.message ?: if (isArabic) "حدث خطأ أثناء حفظ البيانات." else "Error saving data."
+                            )
                         }
                 } else {
-                    _authState.value =
-                        AuthState.Error(task.exception?.message ?: "Sign up failed. Please try again.")
+                    _authState.value = AuthState.Error(
+                        task.exception?.message ?: if (isArabic) "فشل إنشاء الحساب، حاول مرة أخرى." else "Sign up failed. Please try again."
+                    )
                 }
             }
     }
@@ -81,14 +91,19 @@ class AuthViewModel : ViewModel() {
                     val user = auth.currentUser
                     if (user != null && user.isEmailVerified) {
                         loadUserSettings(user.uid)
-                        _authState.value = AuthState.Success("Signed in successfully!")
+                        _authState.value = AuthState.Success(
+                            if (isArabic) "تم تسجيل الدخول بنجاح!" else "Signed in successfully!"
+                        )
                     } else {
                         auth.signOut()
-                        _authState.value = AuthState.Error("Please verify your email first.")
+                        _authState.value = AuthState.Error(
+                            if (isArabic) "يرجى تفعيل بريدك الإلكتروني أولاً." else "Please verify your email first."
+                        )
                     }
                 } else {
-                    _authState.value =
-                        AuthState.Error(task.exception?.message ?: "Invalid credentials.")
+                    _authState.value = AuthState.Error(
+                        task.exception?.message ?: if (isArabic) "بيانات الدخول غير صحيحة." else "Invalid credentials."
+                    )
                 }
             }
     }
@@ -104,12 +119,9 @@ class AuthViewModel : ViewModel() {
 
     fun updateUserSetting(field: String, value: Any) {
         val userId = auth.currentUser?.uid ?: return
-        firestore.collection("users").document(userId)
-            .update(field, value)
-            .addOnSuccessListener { }
-            .addOnFailureListener { }
+        firestore.collection("users").document(userId).update(field, value)
 
-        when(field) {
+        when (field) {
             "language" -> language.value = value as String
             "fontType" -> fontType.value = value as String
             "fontSize" -> fontSize.value = value as Float
@@ -127,4 +139,5 @@ sealed class AuthState {
     data class Success(val message: String) : AuthState()
     data class Error(val message: String) : AuthState()
 }
+
 

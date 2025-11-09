@@ -54,17 +54,16 @@ fun SignUpScreen(
     var isLastNameError by remember { mutableStateOf(false) }
     var isEmailError by remember { mutableStateOf(false) }
     var isPasswordError by remember { mutableStateOf(false) }
-    val isEmailValid = Patterns.EMAIL_ADDRESS.matcher(email).matches()
     val authState by authViewModel.authState.collectAsState()
     val context = LocalContext.current
 
+    // 👇 تحديد لغة النظام (عربي ولا إنجليزي)
+    val systemLanguage = context.resources.configuration.locales[0].language
+    val isArabic = systemLanguage.startsWith("ar")
+
     val backgroundBrush = if (isSystemInDarkTheme()) {
         Brush.verticalGradient(
-            colors = listOf(
-                DarkNavy,
-                CardBackground.copy(alpha = 0.8f),
-                DarkNavy
-            )
+            colors = listOf(DarkNavy, CardBackground.copy(alpha = 0.8f), DarkNavy)
         )
     } else {
         Brush.verticalGradient(colors = listOf(Color.White, Color(0xFFF5F5F5), Color.White))
@@ -110,7 +109,7 @@ fun SignUpScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Sign Up",
+                    text = if (isArabic) "إنشاء حساب" else "Sign Up",
                     color = if (isSystemInDarkTheme()) TextPrimary else Color.Black,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.SemiBold,
@@ -126,19 +125,15 @@ fun SignUpScreen(
                         onValueChange = { firstName = it; isFirstNameError = false },
                         label = {
                             Text(
-                                "First Name",
-                                color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(
-                                    alpha = 0.7f
-                                )
+                                if (isArabic) "الاسم الأول" else "First Name",
+                                color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.7f)
                             )
                         },
                         modifier = Modifier.weight(1f),
                         isError = isFirstNameError,
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = AccentRed,
-                            unfocusedBorderColor = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(
-                                alpha = 0.3f
-                            ),
+                            unfocusedBorderColor = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.3f),
                             focusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black,
                             unfocusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black
                         )
@@ -148,19 +143,15 @@ fun SignUpScreen(
                         onValueChange = { lastName = it; isLastNameError = false },
                         label = {
                             Text(
-                                "Last Name",
-                                color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(
-                                    alpha = 0.7f
-                                )
+                                if (isArabic) "اسم العائلة" else "Last Name",
+                                color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.7f)
                             )
                         },
                         modifier = Modifier.weight(1f),
                         isError = isLastNameError,
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = AccentRed,
-                            unfocusedBorderColor = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(
-                                alpha = 0.3f
-                            ),
+                            unfocusedBorderColor = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.3f),
                             focusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black,
                             unfocusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black
                         )
@@ -172,18 +163,14 @@ fun SignUpScreen(
                     onValueChange = { email = it; isEmailError = false },
                     label = {
                         Text(
-                            "Email",
-                            color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(
-                                alpha = 0.7f
-                            )
+                            if (isArabic) "البريد الإلكتروني" else "Email",
+                            color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.7f)
                         )
                     },
                     isError = isEmailError,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = AccentRed,
-                        unfocusedBorderColor = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(
-                            alpha = 0.3f
-                        ),
+                        unfocusedBorderColor = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.3f),
                         focusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black,
                         unfocusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black
                     ),
@@ -197,10 +184,8 @@ fun SignUpScreen(
                     onValueChange = { password = it },
                     label = {
                         Text(
-                            "Password",
-                            color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(
-                                alpha = 0.7f
-                            )
+                            if (isArabic) "كلمة المرور" else "Password",
+                            color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.7f)
                         )
                     },
                     visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -212,16 +197,17 @@ fun SignUpScreen(
                         IconButton(onClick = { passwordVisible = !passwordVisible }) {
                             Icon(
                                 imageVector = image,
-                                contentDescription = if (passwordVisible) "Hide password" else "Show password",
+                                contentDescription = if (passwordVisible)
+                                    (if (isArabic) "إخفاء كلمة المرور" else "Hide password")
+                                else
+                                    (if (isArabic) "إظهار كلمة المرور" else "Show password"),
                                 tint = if (isSystemInDarkTheme()) TextSecondary else Color.Gray
                             )
                         }
                     },
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = AccentRed,
-                        unfocusedBorderColor = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(
-                            alpha = 0.3f
-                        ),
+                        unfocusedBorderColor = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.3f),
                         focusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black,
                         unfocusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black
                     ),
@@ -235,10 +221,8 @@ fun SignUpScreen(
                     onValueChange = { confirmPassword = it },
                     label = {
                         Text(
-                            "Confirm Password",
-                            color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(
-                                alpha = 0.7f
-                            )
+                            if (isArabic) "تأكيد كلمة المرور" else "Confirm Password",
+                            color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.7f)
                         )
                     },
                     visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -250,16 +234,17 @@ fun SignUpScreen(
                         IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
                             Icon(
                                 imageVector = image,
-                                contentDescription = if (confirmPasswordVisible) "Hide password" else "Show password",
+                                contentDescription = if (confirmPasswordVisible)
+                                    (if (isArabic) "إخفاء كلمة المرور" else "Hide password")
+                                else
+                                    (if (isArabic) "إظهار كلمة المرور" else "Show password"),
                                 tint = if (isSystemInDarkTheme()) TextSecondary else Color.Gray
                             )
                         }
                     },
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = AccentRed,
-                        unfocusedBorderColor = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(
-                            alpha = 0.3f
-                        ),
+                        unfocusedBorderColor = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.3f),
                         focusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black,
                         unfocusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black
                     ),
@@ -267,7 +252,6 @@ fun SignUpScreen(
                         .fillMaxWidth()
                         .padding(vertical = 8.dp)
                 )
-
 
                 Button(
                     onClick = {
@@ -283,12 +267,15 @@ fun SignUpScreen(
                         if (hasError) {
                             Toast.makeText(
                                 context,
-                                "Please fill all fields correctly",
+                                if (isArabic) "يرجى ملء جميع الحقول بشكل صحيح" else "Please fill all fields correctly",
                                 Toast.LENGTH_SHORT
                             ).show()
                         } else if (password != confirmPassword) {
-                            Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT)
-                                .show()
+                            Toast.makeText(
+                                context,
+                                if (isArabic) "كلمتا المرور غير متطابقتين" else "Passwords do not match",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         } else {
                             authViewModel.signUp(firstName, lastName, email, password)
                         }
@@ -308,7 +295,7 @@ fun SignUpScreen(
                         )
                     } else {
                         Text(
-                            "Sign Up",
+                            if (isArabic) "إنشاء حساب" else "Sign Up",
                             color = TextPrimary,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold
@@ -322,12 +309,12 @@ fun SignUpScreen(
 
         Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
             Text(
-                "Already have an account? ",
+                if (isArabic) "لديك حساب بالفعل؟ " else "Already have an account? ",
                 color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.7f),
                 fontSize = 16.sp
             )
             Text(
-                text = "SIGN IN",
+                text = if (isArabic) "تسجيل الدخول" else "SIGN IN",
                 color = AccentRed,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
@@ -347,14 +334,11 @@ fun SignUpScreen(
                 }
                 authViewModel.resetAuthState()
             }
-
             is AuthState.Error -> {
                 Toast.makeText(context, state.message, Toast.LENGTH_LONG).show()
                 authViewModel.resetAuthState()
             }
-
             else -> Unit
         }
     }
 }
-
