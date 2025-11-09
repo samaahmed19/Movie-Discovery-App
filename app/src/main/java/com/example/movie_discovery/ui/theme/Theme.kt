@@ -4,7 +4,6 @@ import android.os.Build
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
@@ -12,26 +11,27 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import com.example.movie_discovery.R
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.runtime.staticCompositionLocalOf
 
-val LocalFontFamily = staticCompositionLocalOf<FontFamily> {
-    error("No FontFamily provided")
-}
 @Composable
 fun MoviesTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
+    val DefaultFontFamily = FontFamily(Font(R.font.roboto_regular))
+
     val typography = Typography(
-        bodyLarge = typography.bodyLarge.copy(fontFamily = LocalFontFamily.current),
-        bodyMedium = typography.bodyMedium.copy(fontFamily = LocalFontFamily.current),
-        bodySmall = typography.bodySmall.copy(fontFamily = LocalFontFamily.current),
-        titleLarge = typography.titleLarge.copy(fontFamily = LocalFontFamily.current),
-        titleMedium = typography.titleMedium.copy(fontFamily = LocalFontFamily.current),
-        titleSmall = typography.titleSmall.copy(fontFamily = LocalFontFamily.current)
+        bodyLarge = Typography().bodyLarge.copy(fontFamily = DefaultFontFamily),
+        bodyMedium = Typography().bodyMedium.copy(fontFamily = DefaultFontFamily),
+        bodySmall = Typography().bodySmall.copy(fontFamily = DefaultFontFamily),
+        titleLarge = Typography().titleLarge.copy(fontFamily = DefaultFontFamily),
+        titleMedium = Typography().titleMedium.copy(fontFamily = DefaultFontFamily),
+        titleSmall = Typography().titleSmall.copy(fontFamily = DefaultFontFamily)
     )
+
     val DarkColorScheme = darkColorScheme(
         primary = AccentRed,
         secondary = Gold,
@@ -74,7 +74,3 @@ fun MoviesTheme(
         content = content
     )
 }
-
-
-
-

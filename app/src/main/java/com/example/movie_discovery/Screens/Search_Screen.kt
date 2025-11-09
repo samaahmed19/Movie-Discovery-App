@@ -21,15 +21,20 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
+import com.example.movie_discovery.R
 import com.example.movie_discovery.Viewmodels.SearchViewModel
+import com.example.movie_discovery.Viewmodels.SettingsViewModel
 import com.example.movie_discovery.Viewmodels.UserViewModel
 import com.example.movie_discovery.data.Category
 import com.example.movie_discovery.data.sampleCategories
@@ -42,13 +47,24 @@ import java.nio.charset.StandardCharsets
 fun SearchScreen(
     navController: NavController,
     viewModel: SearchViewModel = viewModel(),
-    userViewModel: UserViewModel = viewModel()
+    userViewModel: UserViewModel = viewModel(),
+    settingsViewModel: SettingsViewModel = viewModel()
 ) {
     var query by remember { mutableStateOf("") }
     val searchResults by viewModel.searchResults.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val userData by userViewModel.userData.collectAsState()
+    val userSettings by settingsViewModel.userSettings.collectAsState()
 
+    val selectedLanguage = userSettings.language
+    val fontType = userSettings.fontType
+    val fontSize = userSettings.fontSize
+
+    val customFont = when (fontType) {
+        "Roboto" -> FontFamily(Font(com.example.movie_discovery.R.font.roboto_regular))
+        "Cairo" -> FontFamily(Font(com.example.movie_discovery.R.font.cairo_regular))
+        else -> FontFamily(Font(R.font.momo_regular))
+    }
     LaunchedEffect(Unit) {
         userViewModel.loadUserData()
     }
@@ -71,7 +87,13 @@ fun SearchScreen(
             OutlinedTextField(
                 value = query,
                 onValueChange = { query = it },
-                placeholder = { Text("Search movie") },
+                placeholder = {
+                    Text(
+                        text = if (selectedLanguage == "ar") "ابحث عن فيلم..." else "Search movie...",
+                        fontFamily = customFont,
+                        fontSize = fontSize.sp
+                    )
+                },
                 leadingIcon = {
                     Icon(Icons.Default.Search, contentDescription = null, tint = TextSecondary)
                 },
@@ -107,9 +129,10 @@ fun SearchScreen(
                     .padding(horizontal = 16.dp)
             ) {
                 Text(
-                    text = "Explore Categories",
+                    text = if (selectedLanguage == "ar") "اكتشف التصنيفات" else "Explore Categories",
                     color = MaterialTheme.colorScheme.onBackground,
-                    style = MaterialTheme.typography.titleLarge,
+                    fontFamily = customFont,
+                    fontSize = fontSize.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(vertical = 12.dp)
                 )
@@ -123,10 +146,15 @@ fun SearchScreen(
                         CategoryCard(
                             category = category,
                             onClick = {
-                                val encodedName = URLEncoder.encode(category.name, StandardCharsets.UTF_8.toString())
+                                val displayName = if (selectedLanguage == "ar") category.nameAr else category.nameEn
+                                val encodedName = URLEncoder.encode(displayName, StandardCharsets.UTF_8.toString())
                                 navController.navigate("category_screen/${category.id}/$encodedName")
-                            }
+                            },
+                            selectedLanguage = selectedLanguage,
+                            fontFamily = customFont,
+                            fontSize = fontSize
                         )
+
                     }
                 }
             }
@@ -145,11 +173,12 @@ fun SearchScreen(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(searchResults) { movie ->
-                        val isFavorite = movie.id.toString() in (userData?.favourites ?: emptyList())
+                        val isFavorite =
+                            movie.id.toString() in (userData?.favourites ?: emptyList())
                         Box(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(12.dp))
-                                .clickable{ navController.navigate("details/${movie.id}") }
+                                .clickable { navController.navigate("details/${movie.id}") }
                         ) {
                             AsyncImage(
                                 model = "https://image.tmdb.org/t/p/w500${movie.posterPath}",
@@ -163,7 +192,7 @@ fun SearchScreen(
 
                             IconButton(
                                 onClick = {
-                                    if(isFavorite)
+                                    if (isFavorite)
                                         userViewModel.removeFromFavourites(movie.id.toString())
                                     else
                                         userViewModel.addToFavourites(movie.id.toString())
@@ -176,7 +205,7 @@ fun SearchScreen(
                                 Icon(
                                     imageVector = Icons.Filled.Favorite,
                                     contentDescription = "Favorite",
-                                    tint = if(isFavorite) Color.Red else Color.LightGray
+                                    tint = if (isFavorite) Color.Red else Color.LightGray
                                 )
                             }
                         }
@@ -188,23 +217,29 @@ fun SearchScreen(
 }
 
 @Composable
-fun CategoryCard(category: Category, onClick: () -> Unit) {
+fun CategoryCard(
+    category: Category,
+    onClick: () -> Unit,
+    selectedLanguage: String,
+    fontFamily: FontFamily,
+    fontSize: Float
+) {
 
     Card(
         modifier = Modifier
             .aspectRatio(1f)
             .clickable { onClick() }
-            .shadow(10.dp , RoundedCornerShape(16.dp)),
+            .shadow(10.dp, RoundedCornerShape(16.dp)),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(6.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         )
     ) {
-        Box{
+        Box {
             AsyncImage(
                 model = category.imageUrl,
-                contentDescription = category.name,
+                contentDescription = if (selectedLanguage == "ar") category.nameAr else category.nameEn,
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
             )
@@ -216,13 +251,17 @@ fun CategoryCard(category: Category, onClick: () -> Unit) {
                     .background(Color.Black.copy(alpha = 0.5f))
                     .padding(vertical = 6.dp)
             ) {
+                val displayName = if (selectedLanguage == "ar") category.nameAr else category.nameEn
+
                 Text(
-                    text = category.name,
+                    text = displayName,
                     color = Color.White,
+                    fontFamily = fontFamily,
+                    fontSize = fontSize.sp,
                     fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.align(Alignment.Center)
                 )
+
             }
 
         }

@@ -21,7 +21,9 @@ import com.example.movie_discovery.Screens.SettingsScreen
 import com.example.movie_discovery.Screens.SignInScreen
 import com.example.movie_discovery.Screens.SignUpScreen
 import com.example.movie_discovery.Screens.SplashScreen
+import com.example.movie_discovery.Viewmodels.SettingsViewModel
 import com.example.movie_discovery.Viewmodels.ThemeViewModel
+import com.example.movie_discovery.data.AuthViewModel
 import com.example.movie_discovery.ui.theme.MoviesTheme
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
@@ -54,6 +56,7 @@ class MainActivity : ComponentActivity() {
 fun MyApp(themeViewModel: ThemeViewModel) {
     val navController = rememberNavController()
     val systemDark = isSystemInDarkTheme()
+    val settingsViewModel: SettingsViewModel = viewModel()
 
     LaunchedEffect(Unit) {
         themeViewModel.loadDarkMode(defaultDarkMode = systemDark)
@@ -171,7 +174,6 @@ fun MyApp(themeViewModel: ThemeViewModel) {
                     onBackClick = { navController.popBackStack() }
                 )
             }
-
         }
     }
 }

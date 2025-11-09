@@ -23,13 +23,13 @@ class MovieDetailViewModel : ViewModel() {
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
-    fun getMovieDetails(movieId: Int) {
+    fun getMovieDetails(movieId: Int,language: String = "en-US") {
         viewModelScope.launch {
             _isLoading.value = true
             _error.value = null
 
             try {
-                val response = apiService.getMovieDetails(movieId, apiKey)
+                val response = apiService.getMovieDetails(movieId, apiKey,language)
                 _movieDetails.value = response
             } catch (e: Exception) {
                 e.printStackTrace()
