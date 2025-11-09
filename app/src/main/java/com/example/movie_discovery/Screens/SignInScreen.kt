@@ -47,7 +47,7 @@ fun NeonText(
         fontSize = 32.sp,
         fontWeight = FontWeight.Bold,
         fontStyle = fontStyle
-   )
+    )
     Box(modifier = modifier) {
         Text(
             text = text,
@@ -85,6 +85,10 @@ fun SignInScreen(
 
     val authState by authViewModel.authState.collectAsState()
     val context = LocalContext.current
+
+    // تحديد لغة النظام
+    val systemLanguage = context.resources.configuration.locales[0].language
+    val isArabic = systemLanguage.startsWith("ar")
 
     val backgroundBrush = if (isSystemInDarkTheme()) {
         Brush.verticalGradient(
@@ -136,7 +140,7 @@ fun SignInScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Sign In",
+                    text = if (isArabic) "تسجيل الدخول" else "Sign In",
                     color = if (isSystemInDarkTheme()) TextPrimary else Color.Black,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.SemiBold,
@@ -148,7 +152,7 @@ fun SignInScreen(
                     onValueChange = { email = it; isEmailError = false },
                     label = {
                         Text(
-                            "Email",
+                            if (isArabic) "البريد الإلكتروني" else "Email",
                             color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.7f)
                         )
                     },
@@ -169,7 +173,7 @@ fun SignInScreen(
                     onValueChange = { password = it; isPasswordError = false },
                     label = {
                         Text(
-                            "Password",
+                            if (isArabic) "كلمة المرور" else "Password",
                             color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.7f)
                         )
                     },
@@ -179,7 +183,10 @@ fun SignInScreen(
                         IconButton(onClick = { passwordVisible = !passwordVisible }) {
                             Icon(
                                 imageVector = image,
-                                contentDescription = if (passwordVisible) "Hide password" else "Show password",
+                                contentDescription = if (passwordVisible)
+                                    (if (isArabic) "إخفاء كلمة المرور" else "Hide password")
+                                else
+                                    (if (isArabic) "إظهار كلمة المرور" else "Show password"),
                                 tint = if (isSystemInDarkTheme()) TextSecondary else Color.Gray
                             )
                         }
@@ -202,7 +209,12 @@ fun SignInScreen(
                         isPasswordError = password.isBlank()
 
                         if (isEmailError || isPasswordError) {
-                            Toast.makeText(context, "Please enter a valid email and password", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                context,
+                                if (isArabic) "الرجاء إدخال بريد إلكتروني وكلمة مرور صحيحين"
+                                else "Please enter a valid email and password",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         } else {
                             authViewModel.signIn(email, password)
                         }
@@ -222,7 +234,7 @@ fun SignInScreen(
                         )
                     } else {
                         Text(
-                            "Sign In",
+                            if (isArabic) "تسجيل الدخول" else "Sign In",
                             color = TextPrimary,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold
@@ -239,12 +251,12 @@ fun SignInScreen(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(
-                "New user? ",
+                if (isArabic) "مستخدم جديد؟ " else "New user? ",
                 color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.7f),
                 fontSize = 16.sp
             )
             Text(
-                text = "SIGN UP",
+                text = if (isArabic) "إنشاء حساب" else "SIGN UP",
                 color = AccentRed,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
@@ -254,7 +266,6 @@ fun SignInScreen(
 
         Spacer(modifier = Modifier.height(30.dp))
     }
-
 
     LaunchedEffect(authState) {
         when (val state = authState) {
