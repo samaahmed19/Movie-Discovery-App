@@ -16,21 +16,27 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.movie_discovery.ui.theme.AccentRed
 import com.example.movie_discovery.data.MovieDetailsResponse
 import com.example.movie_discovery.Viewmodels.HomeViewModel
 import com.example.movie_discovery.Viewmodels.UserViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.movie_discovery.R
+import com.example.movie_discovery.Viewmodels.SettingsViewModel
 import com.example.movie_discovery.Viewmodels.ThemeViewModel
 
 // -------------------------------
@@ -43,6 +49,7 @@ fun HomeScreen(
     onProfileClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {}
 ) {
+    val settingsViewModel: SettingsViewModel = viewModel()
     val viewModel: HomeViewModel = viewModel()
     val userViewModel: UserViewModel = viewModel()
     val themeViewModel: ThemeViewModel = viewModel()
@@ -55,7 +62,17 @@ fun HomeScreen(
     val systemDark = isSystemInDarkTheme()
 
     var selectedTab by remember { mutableStateOf(0) }
+    val userSettings by settingsViewModel.userSettings.collectAsState()
 
+    val selectedLanguage = userSettings.language
+    val fontType = userSettings.fontType
+    val fontSize = userSettings.fontSize
+
+    val customFont = when (fontType) {
+        "Roboto" -> FontFamily(Font(com.example.movie_discovery.R.font.roboto_regular))
+        "Cairo" -> FontFamily(Font(com.example.movie_discovery.R.font.cairo_regular))
+        else -> FontFamily(Font(R.font.momo_regular))
+    }
     LaunchedEffect(Unit) {
         themeViewModel.loadDarkMode(defaultDarkMode = systemDark)
         viewModel.loadMovies()
@@ -76,11 +93,14 @@ fun HomeScreen(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "Movie Discovery",
+                text = if (selectedLanguage == "ar") "اكتشف الأفلام" else "Movie Discovery",
                 style = MaterialTheme.typography.headlineMedium,
                 color = AccentRed,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                fontFamily = customFont,
+                fontSize = fontSize.sp
             )
+
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 // settings icon
                 IconButton(onClick = { onSettingsClick() }) {
@@ -121,6 +141,19 @@ fun HomeScreen(
 // -------------------------------
 @Composable
 fun SearchBar(onSearchClick: () -> Unit) {
+    val settingsViewModel: SettingsViewModel = viewModel()
+    val userSettings by settingsViewModel.userSettings.collectAsState()
+
+    val selectedLanguage = userSettings.language
+    val fontType = userSettings.fontType
+    val fontSize = userSettings.fontSize
+
+    val customFont = when (fontType) {
+        "Roboto" -> FontFamily(Font(R.font.roboto_regular))
+        "Cairo" -> FontFamily(Font(R.font.cairo_regular))
+        else -> FontFamily(Font(R.font.momo_regular))
+    }
+
     TextField(
         value = "",
         onValueChange = {},
@@ -128,7 +161,13 @@ fun SearchBar(onSearchClick: () -> Unit) {
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
             .clickable { onSearchClick() },
-        placeholder = { Text("Search movies...") },
+        placeholder = {
+            Text(
+                text = if (selectedLanguage == "ar") "ابحث عن فيلم..." else "Search movies...",
+                fontFamily = customFont,
+                fontSize = fontSize.sp
+            )
+        },
         singleLine = true,
         enabled = false
     )
@@ -159,13 +198,36 @@ fun FeaturedMoviesSlider(movies: List<MovieDetailsResponse>) {
 // -------------------------------
 @Composable
 fun MovieTabs(selectedTab: Int, onTabSelected: (Int) -> Unit) {
+    val settingsViewModel: SettingsViewModel = viewModel()
+    val userSettings by settingsViewModel.userSettings.collectAsState()
+    val selectedLanguage = userSettings.language
+    val fontType = userSettings.fontType
+    val fontSize = userSettings.fontSize
+
+    val customFont = when (fontType) {
+        "Roboto" -> FontFamily(Font(R.font.roboto_regular))
+        "Cairo" -> FontFamily(Font(R.font.cairo_regular))
+        else -> FontFamily(Font(R.font.momo_regular))
+    }
+
     val tabs = listOf("Popular", "Top Rated", "Upcoming")
     ScrollableTabRow(selectedTabIndex = selectedTab) {
         tabs.forEachIndexed { index, title ->
             Tab(
                 selected = selectedTab == index,
                 onClick = { onTabSelected(index) },
-                text = { Text(title) }
+                text = {
+                    Text(
+                        text = if (selectedLanguage == "ar") when (title) {
+                            "Popular" -> "شائع"
+                            "Top Rated" -> "الأعلى تقييماً"
+                            "Upcoming" -> "قادمة قريباً"
+                            else -> title
+                        } else title,
+                        fontFamily = customFont,
+                        fontSize = fontSize.sp
+                    )
+                }
             )
         }
     }

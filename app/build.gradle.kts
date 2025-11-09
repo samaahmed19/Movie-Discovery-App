@@ -49,6 +49,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-auth:21.4.0")
     implementation("androidx.compose.ui:ui-text-google-fonts:1.7.0")
     implementation(libs.androidx.compose.ui.text)
+    implementation(libs.androidx.compose.runtime)
     testImplementation("org.robolectric:robolectric:4.12.2")
     implementation("androidx.datastore:datastore-preferences:1.1.1")
     testImplementation("app.cash.turbine:turbine:1.0.0")

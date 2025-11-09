@@ -20,15 +20,21 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
+import com.example.movie_discovery.R
 import com.example.movie_discovery.Viewmodels.SearchViewModel
+import com.example.movie_discovery.Viewmodels.SettingsViewModel
 import com.example.movie_discovery.Viewmodels.UserViewModel
 import com.example.movie_discovery.data.Movie
+import com.example.movie_discovery.ui.theme.AccentRed
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,21 +42,33 @@ fun CategoryScreen(
     genreId: Int,
     genreName: String,
     navController: NavHostController,
-    viewModel: SearchViewModel = viewModel(),
-    userViewModel: UserViewModel = viewModel()
+    searchViewModel: SearchViewModel = viewModel(),
+    userViewModel: UserViewModel = viewModel(),
+    settingsViewModel: SettingsViewModel = viewModel()
 ) {
-    val movies by viewModel.moviesByGenre.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
+    val movies by searchViewModel.moviesByGenre.collectAsState()
+    val isLoading by searchViewModel.isLoading.collectAsState()
+    val userSettings by settingsViewModel.userSettings.collectAsState()
+
+    val selectedLanguage = userSettings.language
+    val fontType = userSettings.fontType
+    val fontSize = userSettings.fontSize
+
+    val customFont = when (fontType) {
+        "Roboto" -> FontFamily(Font(R.font.roboto_regular))
+        "Cairo" -> FontFamily(Font(R.font.cairo_regular))
+        else -> FontFamily(Font(R.font.momo_regular))
+    }
 
     LaunchedEffect(genreId) {
-        viewModel.getMoviesByGenre(genreId)
+        searchViewModel.getMoviesByGenre(genreId)
         userViewModel.loadUserData()
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = genreName) },
+                title = { Text(text = genreName, fontFamily = customFont, fontSize = fontSize.sp) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
@@ -81,8 +99,10 @@ fun CategoryScreen(
                     if (featuredMovies.isNotEmpty()) {
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            text = "Top Results in $genreName",
-                            style = MaterialTheme.typography.titleLarge,
+                            text = if (selectedLanguage == "ar") "أفضل النتائج في $genreName" else "Top Results in $genreName",
+                            fontFamily = customFont,
+                            fontSize = fontSize.sp,
+                            color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.padding(horizontal = 16.dp)
                         )
                         Spacer(modifier = Modifier.height(16.dp))
@@ -106,8 +126,10 @@ fun CategoryScreen(
                 item {
                     if (movies.isNotEmpty()) {
                         Text(
-                            text = "All Movies",
-                            style = MaterialTheme.typography.titleLarge,
+                            text = if (selectedLanguage == "ar") "كل الأفلام" else "All Movies",
+                            fontFamily = customFont,
+                            fontSize = fontSize.sp,
+                            color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.padding(horizontal = 16.dp)
                         )
                         Spacer(modifier = Modifier.height(16.dp))

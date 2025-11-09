@@ -19,13 +19,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import com.example.movie_discovery.R
 import com.example.movie_discovery.Viewmodels.MovieDetailViewModel
+import com.example.movie_discovery.Viewmodels.SettingsViewModel
 import com.example.movie_discovery.Viewmodels.UserViewModel
 import com.example.movie_discovery.ui.theme.AccentRed
 import kotlinx.coroutines.delay
@@ -34,8 +38,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun MovieDetailsScreen(
     movieId: Int?,
-    viewModel: MovieDetailViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
-
+    viewModel: MovieDetailViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    settingsViewModel: SettingsViewModel = viewModel()
 ) {
 
     val movieDetail by viewModel.movieDetails.collectAsState()
@@ -52,7 +56,17 @@ fun MovieDetailsScreen(
 
 
     val scrollState = rememberScrollState()
+    val userSettings by settingsViewModel.userSettings.collectAsState()
 
+    val selectedLanguage = userSettings.language
+    val fontType = userSettings.fontType
+    val fontSize = userSettings.fontSize
+
+    val customFont = when (fontType) {
+        "Roboto" -> FontFamily(Font(com.example.movie_discovery.R.font.roboto_regular))
+        "Cairo" -> FontFamily(Font(com.example.movie_discovery.R.font.cairo_regular))
+        else -> FontFamily(Font(R.font.momo_regular))
+    }
     LaunchedEffect(Unit) {
         userViewModel.loadUserData()
     }
@@ -67,8 +81,10 @@ fun MovieDetailsScreen(
     }
 
 
-    LaunchedEffect(movieId) {
-        movieId?.let { viewModel.getMovieDetails(it) }
+    LaunchedEffect(movieId,selectedLanguage) {
+        movieId?.let {
+            val languageCode = if (selectedLanguage == "ar") "ar-SA" else "en-US"
+            viewModel.getMovieDetails(it,languageCode) }
     }
 
 
@@ -130,7 +146,7 @@ fun MovieDetailsScreen(
                         },
                     contentAlignment = Alignment.Center
                 ) {
-                    //Icon
+
 
                     Icon(
                         imageVector = Icons.Filled.Favorite,
@@ -179,20 +195,6 @@ fun MovieDetailsScreen(
             }
 
             Spacer(modifier = Modifier.height(20.dp))
-
-
-            Text(
-                text = movieDetail?.title ?: "No title available",
-                style = MaterialTheme.typography.headlineSmall.copy(
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                ),
-                textAlign = TextAlign.Center
-            )
-
-
-            Spacer(modifier = Modifier.height(8.dp))
-
             Row(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
@@ -206,17 +208,28 @@ fun MovieDetailsScreen(
 
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
-                    text = "Rating: ${movieDetail?.voteAverage ?: "N/A"}",
+                    text = if (selectedLanguage == "ar")
+                        "التقييم: ${movieDetail?.voteAverage ?: "غير متاح"}"
+                    else
+                        "Rating: ${movieDetail?.voteAverage ?: "N/A"}",
                     style = MaterialTheme.typography.bodyMedium.copy(
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
+                        fontFamily = customFont,
+                        fontSize = fontSize.sp
                     )
                 )
 
+
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
-                    text = "Release: ${movieDetail?.releaseDate ?: "Unknown"}",
+                    text = if (selectedLanguage == "ar")
+                        "تاريخ الإصدار: ${movieDetail?.releaseDate ?: "غير معروف"}"
+                    else
+                        "Release: ${movieDetail?.releaseDate ?: "Unknown"}",
                     style = MaterialTheme.typography.bodyMedium.copy(
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
+                        fontFamily = customFont,
+                        fontSize = fontSize.sp
                     )
                 )
             }
@@ -225,14 +238,18 @@ fun MovieDetailsScreen(
 
 
             Text(
-                text = movieDetail?.overview ?: "No description available",
+                text = movieDetail?.overview
+                    ?: if (selectedLanguage == "ar") "لا يوجد وصف متاح" else "No description available",
                 style = MaterialTheme.typography.bodyMedium.copy(
                     color = MaterialTheme.colorScheme.onBackground,
-                    lineHeight = 22.sp
+                    lineHeight = 22.sp,
+                    fontFamily = customFont,
+                    fontSize = fontSize.sp
                 ),
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(horizontal = 8.dp)
             )
+
 
             Spacer(modifier = Modifier.height(30.dp))
 
@@ -253,7 +270,13 @@ fun MovieDetailsScreen(
                         tint = Color.White
                     )
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text(text = "Watch Now", color = MaterialTheme.colorScheme.onPrimary)
+                    Text(
+                        text = if (selectedLanguage == "ar") "شاهد الآن" else "Watch Now",
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        fontFamily = customFont,
+                        fontSize = fontSize.sp
+                    )
+
                 }
 
 
@@ -261,7 +284,13 @@ fun MovieDetailsScreen(
                     onClick = {},
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text(text = "Share", color = MaterialTheme.colorScheme.onSurface)
+                    Text(
+                        text = if (selectedLanguage == "ar") "مشاركة" else "Share",
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontFamily = customFont,
+                        fontSize = fontSize.sp
+                    )
+
                 }
             }
         }
