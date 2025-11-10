@@ -50,6 +50,8 @@ dependencies {
     implementation("androidx.compose.ui:ui-text-google-fonts:1.7.0")
     implementation(libs.androidx.compose.ui.text)
     implementation(libs.androidx.compose.runtime)
+    implementation(libs.navigation.runtime.ktx)
+    implementation(libs.androidx.animation)
     testImplementation("org.robolectric:robolectric:4.12.2")
     implementation("androidx.datastore:datastore-preferences:1.1.1")
     testImplementation("app.cash.turbine:turbine:1.0.0")

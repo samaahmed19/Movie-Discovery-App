@@ -2,6 +2,9 @@ package com.example.movie_discovery.Screens
 
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
 import com.example.movie_discovery.ui.theme.MoviesTheme
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.Font
@@ -35,6 +39,7 @@ import com.example.movie_discovery.data.MovieDetailsResponse
 import com.example.movie_discovery.Viewmodels.HomeViewModel
 import com.example.movie_discovery.Viewmodels.UserViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.movie_discovery.R
 import com.example.movie_discovery.Viewmodels.SettingsViewModel
 import com.example.movie_discovery.Viewmodels.ThemeViewModel
@@ -44,6 +49,7 @@ import com.example.movie_discovery.Viewmodels.ThemeViewModel
 // -------------------------------
 @Composable
 fun HomeScreen(
+    navController : NavController ,
     onMovieClick: (Int) -> Unit,
     onSearchClick: () -> Unit,
     onProfileClick: () -> Unit = {},
@@ -122,7 +128,12 @@ fun HomeScreen(
         }
 
         SearchBar(onSearchClick = onSearchClick)
-        FeaturedMoviesSlider(movies = trendingMovies)
+        FeaturedMoviesSlider(
+            movies = trendingMovies,
+            userViewModel = userViewModel,
+            navController = navController
+        )
+
         MovieTabs(
             selectedTab = selectedTab,
             onTabSelected = { selectedTab = it }
@@ -177,18 +188,125 @@ fun SearchBar(onSearchClick: () -> Unit) {
 // Slider Section
 // -------------------------------
 @Composable
-fun FeaturedMoviesSlider(movies: List<MovieDetailsResponse>) {
-    LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+fun FeaturedMoviesSlider(
+    movies: List<MovieDetailsResponse>,
+    userViewModel: UserViewModel,
+    navController: NavController
+) {
+    LazyRow(
+        contentPadding = PaddingValues(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
         items(movies) { movie ->
+            AnimatedFeaturedHomeCard(
+                movie = movie,
+                userViewModel = userViewModel
+            ) {
+                navController.navigate("details/${movie.id}")
+            }
+        }
+    }
+}
+
+@Composable
+fun AnimatedFeaturedHomeCard(
+    movie: MovieDetailsResponse,
+    userViewModel: UserViewModel,
+    onClick: () -> Unit
+) {
+    var visible by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { visible = true }
+
+    AnimatedVisibility(
+        visible = visible,
+        enter = fadeIn() + slideInHorizontally(initialOffsetX = { it / 2 }),
+        exit = fadeOut()
+    ) {
+        FeaturedHomeCard(
+            movie = movie,
+            userViewModel = userViewModel,
+            onClick = onClick
+        )
+    }
+}
+
+
+@Composable
+fun FeaturedHomeCard(
+    movie: MovieDetailsResponse,
+    userViewModel: UserViewModel,
+    onClick: () -> Unit
+) {
+    val userData by userViewModel.userData.collectAsState()
+    val isFavorite = movie.id.toString() in (userData?.favourites ?: emptyList())
+
+    Card(
+        modifier = Modifier
+            .width(240.dp)
+            .aspectRatio(16 / 9f)
+            .clickable(onClick = onClick)
+            .shadow(10.dp, RoundedCornerShape(16.dp)),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Box {
             AsyncImage(
-                model = "https://image.tmdb.org/t/p/w500${movie.posterPath}",
+                model = "https://image.tmdb.org/t/p/w500${movie.backdropPath ?: movie.posterPath}",
                 contentDescription = movie.title,
-                modifier = Modifier
-                    .width(280.dp)
-                    .height(160.dp)
-                    .clip(RoundedCornerShape(16.dp)),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
             )
+
+            IconButton(
+                onClick = {
+                    if (isFavorite)
+                        userViewModel.removeFromFavourites(movie.id.toString())
+                    else
+                        userViewModel.addToFavourites(movie.id.toString())
+                },
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(6.dp)
+                    .size(28.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Favorite,
+                    contentDescription = "Favorite",
+                    tint = if (isFavorite) Color.Red else Color.White.copy(alpha = 0.8f)
+                )
+            }
+
+            Row(
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .fillMaxWidth()
+                    .background(Color.Black.copy(alpha = 0.5f))
+                    .padding(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = movie.title ?: "Unknown",
+                    color = Color.White,
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Filled.Star,
+                        contentDescription = "Rating",
+                        tint = Color(0xFFFFD700),
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "${movie.voteAverage ?: 0.0}",
+                        color = Color.White,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
         }
     }
 }
@@ -364,24 +482,5 @@ fun MovieCard(
                 )
             }
         }
-    }
-}
-
-// -------------------------------
-// Previews
-// -------------------------------
-@Preview(showBackground = true, name = "Light Mode")
-@Composable
-fun HomeScreenLightPreview() {
-    MoviesTheme(darkTheme = false) {
-        HomeScreen(onMovieClick = {}, onSearchClick = {}, onProfileClick = {}, onSettingsClick = {})
-    }
-}
-
-@Preview(showBackground = true, name = "Dark Mode")
-@Composable
-fun HomeScreenDarkPreview() {
-    MoviesTheme(darkTheme = true) {
-        HomeScreen(onMovieClick = {}, onSearchClick = {}, onProfileClick = {}, onSettingsClick = {})
     }
 }
