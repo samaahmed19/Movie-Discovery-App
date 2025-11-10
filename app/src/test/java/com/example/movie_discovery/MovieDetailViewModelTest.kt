@@ -54,7 +54,7 @@ class MovieDetailViewModelTest {
         coEvery { apiService.getMovieDetails(any(), any()) } returns mockResponse
 
 
-        viewModel.getMovieDetails(123)
+        viewModel.getMovieDetails(123,language = "en-Us")
         testDispatcher.scheduler.advanceUntilIdle()
 
 
@@ -71,7 +71,7 @@ class MovieDetailViewModelTest {
 
         coEvery { apiService.getMovieDetails(any(), any()) } throws RuntimeException("Network error")
 
-        viewModel.getMovieDetails(123)
+        viewModel.getMovieDetails(123, language = "en-Us")
         testDispatcher.scheduler.advanceUntilIdle()
 
 
