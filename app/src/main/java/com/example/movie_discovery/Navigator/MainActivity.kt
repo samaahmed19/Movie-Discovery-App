@@ -101,6 +101,7 @@ fun MyApp(themeViewModel: ThemeViewModel) {
             // ---------------------------
             composable("home") {
                 HomeScreen(
+                    navController = navController,
                     onMovieClick = { movieId ->
                         navController.navigate("details/$movieId")
                     },
