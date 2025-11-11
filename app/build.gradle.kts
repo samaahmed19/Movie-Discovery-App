@@ -43,6 +43,8 @@ android {
 }
 
 dependencies {
+    testImplementation("org.mockito:mockito-core:5.6.0")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.1.0")
     implementation("com.google.firebase:firebase-analytics-ktx:21.3.0")
     implementation("com.google.firebase:firebase-auth-ktx:22.2.0")
     implementation("com.google.firebase:firebase-firestore-ktx:24.6.1")
