@@ -27,3 +27,11 @@ class SettingsViewModelTest {
         val settings = viewModel.userSettings.first()
         assertEquals("ar", settings.language)
     }
+
+    @Test
+    fun changeFontType_shouldUpdateFontType() = runTest {
+        viewModel.changeFontType("Cairo")
+        val settings = viewModel.userSettings.first()
+        assertEquals("Cairo", settings.fontType)
+    }
+
