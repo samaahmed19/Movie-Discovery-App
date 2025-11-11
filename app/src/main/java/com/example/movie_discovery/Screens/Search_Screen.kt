@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
@@ -24,6 +25,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -173,40 +175,90 @@ fun SearchScreen(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(searchResults) { movie ->
-                        val isFavorite =
-                            movie.id.toString() in (userData?.favourites ?: emptyList())
                         Box(
                             modifier = Modifier
-                                .clip(RoundedCornerShape(12.dp))
-                                .clickable { navController.navigate("details/${movie.id}") }
+                                .width(180.dp)
+                                .height(260.dp)
                         ) {
-                            AsyncImage(
-                                model = "https://image.tmdb.org/t/p/w500${movie.posterPath}",
-                                contentDescription = movie.title,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(210.dp)
-                                    .clip(RoundedCornerShape(12.dp))
-                            )
+                            val isFavorite = movie.id.toString() in (userData?.favourites ?: emptyList())
 
-                            IconButton(
-                                onClick = {
-                                    if (isFavorite)
-                                        userViewModel.removeFromFavourites(movie.id.toString())
-                                    else
-                                        userViewModel.addToFavourites(movie.id.toString())
-                                },
+                            Card(
                                 modifier = Modifier
-                                    .align(Alignment.TopEnd)
-                                    .padding(8.dp)
-                                    .size(24.dp)
+                                    .fillMaxSize()
+                                    .clickable { navController.navigate("details/${movie.id}") }
+                                    .shadow(8.dp, RoundedCornerShape(16.dp)),
+                                shape = RoundedCornerShape(16.dp),
+                                elevation = CardDefaults.cardElevation(6.dp)
                             ) {
-                                Icon(
-                                    imageVector = Icons.Filled.Favorite,
-                                    contentDescription = "Favorite",
-                                    tint = if (isFavorite) Color.Red else Color.LightGray
-                                )
+                                Box {
+                                    Column(
+                                        modifier = Modifier.fillMaxSize(),
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        AsyncImage(
+                                            model = "https://image.tmdb.org/t/p/w500${movie.posterPath}",
+                                            contentDescription = movie.title,
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .height(190.dp)
+                                                .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)),
+                                            contentScale = ContentScale.Crop
+                                        )
+
+                                        Column(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(horizontal = 8.dp, vertical = 6.dp),
+                                            horizontalAlignment = Alignment.CenterHorizontally
+                                        ) {
+                                            Text(
+                                                text = movie.title ?: "Unknown",
+                                                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+
+                                            Spacer(modifier = Modifier.height(4.dp))
+
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.Center
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.Filled.Star,
+                                                    contentDescription = "Rating",
+                                                    tint = Color(0xFFFFD700),
+                                                    modifier = Modifier.size(16.dp)
+                                                )
+                                                Spacer(modifier = Modifier.width(4.dp))
+                                                Text(
+                                                    text = "${movie.voteAverage ?: 0.0}",
+                                                    style = MaterialTheme.typography.bodySmall,
+                                                    color = Color.Gray
+                                                )
+                                            }
+                                        }
+                                    }
+
+                                    IconButton(
+                                        onClick = {
+                                            if (isFavorite)
+                                                userViewModel.removeFromFavourites(movie.id.toString())
+                                            else
+                                                userViewModel.addToFavourites(movie.id.toString())
+                                        },
+                                        modifier = Modifier
+                                            .align(Alignment.TopEnd)
+                                            .padding(10.dp)
+                                            .size(24.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Favorite,
+                                            contentDescription = "Favorite",
+                                            tint = if (isFavorite) Color.Red else Color.LightGray
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
