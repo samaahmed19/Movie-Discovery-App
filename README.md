@@ -65,4 +65,11 @@ The application fetches movie data from The Movie Database (TMDB) API and provid
 ---
 ## License
 This project is licensed under the MIT License.
+---
 
+## 📄 Project Documentation
+The full detailed project documentation (including diagrams, tables, planning, and architecture) is available here:
+
+👉 **[Download Movie Discovery Documentation](./Movie_Discovery_Documentation.docx)**
+
+---
