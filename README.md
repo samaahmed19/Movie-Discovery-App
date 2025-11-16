@@ -63,13 +63,12 @@ The application fetches movie data from The Movie Database (TMDB) API and provid
 | 5      | Lina Ashraf Sediq Hamzawy         | - Build Movie Details screen (poster, overview, rating).<br>- API integration for movie details.<br>- Connect with ViewModel & handle states.  |
 | 6      | Mariam Magdy Soliman Youssef      |- Build Movie Details screen (poster, overview, rating).<br>- API integration for movie details.<br>- Connect with ViewModel & handle states. |
 ---
-## License
-This project is licensed under the MIT License.
----
-
 ## 📄 Project Documentation
 The full detailed project documentation (including diagrams, tables, planning, and architecture) is available here:
 
 👉 **[Download Movie Discovery Documentation](./Movie_Discovery_Documentation.docx)**
 
+--- 
+## License
+This project is licensed under the MIT License.
 ---
