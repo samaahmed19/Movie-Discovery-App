@@ -1,9 +1,11 @@
 package com.example.movie_discovery.Networking
 
 import com.example.movie_discovery.data.CategoryMoviesResponse
+import com.example.movie_discovery.data.CreditsResponse
 import com.example.movie_discovery.data.MovieDetailsResponse
 import com.example.movie_discovery.data.MovieResponse
 import com.example.movie_discovery.data.MovieSearchResponse
+import com.example.movie_discovery.data.VideoResponse
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -60,4 +62,20 @@ interface MovieApiService {
         @Query("language") language: String = "en-US",
         @Query("page") page: Int = 1
     ): MovieResponse
+
+    // Get video Trailer movies
+    @GET("movie/{movie_id}/videos")
+    suspend fun getMovieVideos(
+        @Path("movie_id") movieId: Int,
+        @Query("api_key") apiKey: String,
+        @Query("language") language: String = "en-US"
+    ): VideoResponse
+
+    // Get Cast movies
+    @GET("movie/{movie_id}/credits")
+    suspend fun getMovieCredits(
+        @Path("movie_id") movieId: Int,
+        @Query("api_key") apiKey: String,
+        @Query("language") language: String = "en-US"
+    ): CreditsResponse
 }

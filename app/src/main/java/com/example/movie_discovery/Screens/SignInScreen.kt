@@ -21,6 +21,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -86,8 +87,9 @@ fun SignInScreen(
     val authState by authViewModel.authState.collectAsState()
     val context = LocalContext.current
 
-    // تحديد لغة النظام
-    val systemLanguage = context.resources.configuration.locales[0].language
+    val configuration = LocalConfiguration.current
+    val systemLanguage = configuration.locales[0].language
+
     val isArabic = systemLanguage.startsWith("ar")
 
     val backgroundBrush = if (isSystemInDarkTheme()) {

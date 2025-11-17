@@ -1,5 +1,6 @@
 package com.example.movie_discovery.Screens
 
+import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -19,6 +20,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -26,25 +28,28 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.movie_discovery.R
 import com.example.movie_discovery.Viewmodels.MovieDetailViewModel
 import com.example.movie_discovery.Viewmodels.SettingsViewModel
 import com.example.movie_discovery.Viewmodels.UserViewModel
 import com.example.movie_discovery.ui.theme.AccentRed
+import com.google.api.Context
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
 fun MovieDetailsScreen(
     movieId: Int?,
+    navController: NavController,
     viewModel: MovieDetailViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
     settingsViewModel: SettingsViewModel = viewModel()
 ) {
-
+    val trailerKey by viewModel.trailerKey.collectAsState()
     val movieDetail by viewModel.movieDetails.collectAsState()
     val userViewModel: UserViewModel = viewModel()
-
+    val context = LocalContext.current
 
     var isFavorite by remember { mutableStateOf(false) }
     var isWatchlist by remember { mutableStateOf(false) }
@@ -53,7 +58,7 @@ fun MovieDetailsScreen(
 
     var favoriteScale by remember { mutableFloatStateOf(1f) }
     val coroutineScope = rememberCoroutineScope()
-
+    var isShareClicked by remember { mutableStateOf(false) }
 
     val scrollState = rememberScrollState()
     val userSettings by settingsViewModel.userSettings.collectAsState()
@@ -259,9 +264,15 @@ fun MovieDetailsScreen(
             ) {
 
                 Button(
-                    onClick = {},
+                    onClick = {trailerKey?.let { key ->
+                        navController.navigate("trailer/$key/$movieId")
+
+
+                    }
+                    },
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = AccentRed)
+                    colors = ButtonDefaults.buttonColors(containerColor = AccentRed),
+                    enabled = trailerKey != null
                 ) {
 
                     Icon(
@@ -271,7 +282,7 @@ fun MovieDetailsScreen(
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = if (selectedLanguage == "ar") "شاهد الآن" else "Watch Now",
+                        text = if (selectedLanguage == "ar") "شاهد الإعلان" else "Watch Traile",
                         color = MaterialTheme.colorScheme.onPrimary,
                         fontFamily = customFont,
                         fontSize = fontSize.sp
@@ -281,7 +292,10 @@ fun MovieDetailsScreen(
 
 
                 OutlinedButton(
-                    onClick = {},
+                    onClick = {
+                        val movieLink = "https://www.themoviedb.org/movie/$movieId"
+                        shareMovie(context, movieLink)
+                    },
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(
@@ -315,4 +329,13 @@ fun IconBox(
 
         Icon(imageVector = icon, contentDescription = null, tint = tint, modifier = Modifier.size(26.dp))
     }
+}
+private fun shareMovie(context: android.content.Context, movieLink: String) {
+    val sendIntent = Intent().apply {
+        action = Intent.ACTION_SEND
+        putExtra(Intent.EXTRA_TEXT, "Check out this movie!\n$movieLink")
+        type = "text/plain"
+    }
+    val shareIntent = Intent.createChooser(sendIntent, "Share movie via")
+    context.startActivity(shareIntent)
 }
