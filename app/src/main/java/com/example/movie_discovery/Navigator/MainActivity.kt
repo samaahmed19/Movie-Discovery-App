@@ -21,6 +21,7 @@ import com.example.movie_discovery.Screens.SettingsScreen
 import com.example.movie_discovery.Screens.SignInScreen
 import com.example.movie_discovery.Screens.SignUpScreen
 import com.example.movie_discovery.Screens.SplashScreen
+import com.example.movie_discovery.Screens.TrailerScreen
 import com.example.movie_discovery.Viewmodels.SettingsViewModel
 import com.example.movie_discovery.Viewmodels.ThemeViewModel
 import com.example.movie_discovery.data.AuthViewModel
@@ -153,7 +154,7 @@ fun MyApp(themeViewModel: ThemeViewModel) {
                 arguments = listOf(navArgument("movieId") { type = NavType.IntType })
             ) { backStackEntry ->
                 val movieId = backStackEntry.arguments?.getInt("movieId")
-                MovieDetailsScreen(movieId = movieId)
+                MovieDetailsScreen(movieId = movieId, navController = navController)
             }
 
             // ---------------------------
@@ -166,7 +167,25 @@ fun MyApp(themeViewModel: ThemeViewModel) {
                     themeViewModel = themeViewModel
                 )
             }
+            // ---------------------------
+            // Trailer Screen
+            // ---------------------------
+            composable(
+                route = "trailer/{videoKey}/{movieId}",
+                arguments = listOf(
+                    navArgument("videoKey") { type = NavType.StringType },
+                    navArgument("movieId") { type = NavType.IntType }
+                )
+            ) { backStackEntry ->
+                val videoKey = backStackEntry.arguments?.getString("videoKey")
+                val movieId = backStackEntry.arguments?.getInt("movieId") ?: 0
 
+                TrailerScreen(
+                    navController = navController,
+                    videoKey = videoKey,
+                    movieId = movieId
+                )
+            }
             // ---------------------------
             // Settings Screen
             // ---------------------------
