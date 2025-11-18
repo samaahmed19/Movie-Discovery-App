@@ -1,11 +1,16 @@
 package com.example.movie_discovery.Navigator
 
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -22,13 +27,14 @@ import com.example.movie_discovery.Screens.SignInScreen
 import com.example.movie_discovery.Screens.SignUpScreen
 import com.example.movie_discovery.Screens.SplashScreen
 import com.example.movie_discovery.Screens.TrailerScreen
-import com.example.movie_discovery.Viewmodels.SettingsViewModel
 import com.example.movie_discovery.Viewmodels.ThemeViewModel
-import com.example.movie_discovery.data.AuthViewModel
 import com.example.movie_discovery.ui.theme.MoviesTheme
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
-
+import com.example.movie_discovery.Viewmodels.UserViewModel
+import androidx.compose.material3.*
+import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,39 +42,28 @@ class MainActivity : ComponentActivity() {
         setContent {
             val themeViewModel: ThemeViewModel = viewModel()
             val systemDark = isSystemInDarkTheme()
-
             LaunchedEffect(Unit) {
                 themeViewModel.loadDarkMode(defaultDarkMode = systemDark)
             }
 
-            val isDarkMode = themeViewModel.isDarkMode
-
-            val context = this
+            val isDarkMode by themeViewModel.isDarkMode.collectAsState()
 
             MoviesTheme(darkTheme = isDarkMode) {
-                MyApp(themeViewModel = themeViewModel)
-
+                MyApp(themeViewModel)
             }
+
         }
     }
 }
-
 @Composable
-fun MyApp(themeViewModel: ThemeViewModel) {
+fun MyApp(
+    themeViewModel: ThemeViewModel
+) {
     val navController = rememberNavController()
-    val systemDark = isSystemInDarkTheme()
-    val settingsViewModel: SettingsViewModel = viewModel()
 
-    LaunchedEffect(Unit) {
-        themeViewModel.loadDarkMode(defaultDarkMode = systemDark)
-    }
-
-    val isDarkMode = themeViewModel.isDarkMode
-
-    MoviesTheme(darkTheme = isDarkMode) {
-        NavHost(
-            navController = navController,
-            startDestination = "splash"
+    NavHost(
+        navController = navController,
+        startDestination = "splash"
         ) {
             // ---------------------------
             // Splash Screen
@@ -162,9 +157,7 @@ fun MyApp(themeViewModel: ThemeViewModel) {
             // ---------------------------
             composable("profile") {
                 Profile(
-                    navController = navController,
-                    userViewModel = viewModel(),
-                    themeViewModel = themeViewModel
+                    navController = navController
                 )
             }
             // ---------------------------
@@ -191,9 +184,10 @@ fun MyApp(themeViewModel: ThemeViewModel) {
             // ---------------------------
             composable("settings") {
                 SettingsScreen(
-                    onBackClick = { navController.popBackStack() }
+                    onBackClick = { navController.popBackStack() },
+                    themeViewModel = themeViewModel
                 )
             }
         }
     }
-}
+
