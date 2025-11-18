@@ -1,30 +1,18 @@
 package com.example.movie_discovery.Viewmodels
 
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.SystemFontFamily
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.asStateFlow
 
 class ThemeViewModel : ViewModel() {
-    var isDarkMode by mutableStateOf(false)
-        private set
-
-    var selectedFont by mutableStateOf(FontFamily.Default)
-
-    fun setFont(font: FontFamily) {
-        selectedFont = font as SystemFontFamily
-    }
+    private val _isDarkMode = MutableStateFlow(false)
+    val isDarkMode: StateFlow<Boolean> = _isDarkMode.asStateFlow()
 
     private val _fontType = MutableStateFlow("Roboto")
     val fontType: StateFlow<String> = _fontType
@@ -36,41 +24,30 @@ class ThemeViewModel : ViewModel() {
 
     fun loadDarkMode(defaultDarkMode: Boolean) {
         val user = auth.currentUser ?: run {
-            isDarkMode = defaultDarkMode
+            _isDarkMode.value = defaultDarkMode
             return
         }
 
         firestore.collection("users").document(user.uid)
             .get()
             .addOnSuccessListener { doc ->
-                if (doc.exists() && doc.contains("darkMode")) {
-                    isDarkMode = doc.getBoolean("darkMode") ?: defaultDarkMode
+                if (doc.exists() && doc.contains("isDarkMode")) {
+                    _isDarkMode.value = doc.getBoolean("isDarkMode") ?: defaultDarkMode
                 } else {
-                    isDarkMode = defaultDarkMode
+                    _isDarkMode.value = defaultDarkMode
                     firestore.collection("users").document(user.uid)
-                        .set(mapOf("darkMode" to isDarkMode), SetOptions.merge())
+                        .set(mapOf("isDarkMode" to defaultDarkMode), SetOptions.merge())
                 }
             }
             .addOnFailureListener {
-                isDarkMode = defaultDarkMode
-            }
+                _isDarkMode.value = defaultDarkMode
+                }
     }
-
 
     fun toggleDarkMode() {
-        isDarkMode = !isDarkMode
+        _isDarkMode.value = !_isDarkMode.value
         val user = auth.currentUser ?: return
         firestore.collection("users").document(user.uid)
-            .update("darkMode", isDarkMode)
-    }
-    fun setFontType(type: String) {
-        viewModelScope.launch {
-            _fontType.value = type
-        }
-        fun setFontSize(size: Float) {
-            viewModelScope.launch {
-                _fontSize.value = size
-            }
-        }
+            .update("isDarkMode", _isDarkMode.value)
     }
 }

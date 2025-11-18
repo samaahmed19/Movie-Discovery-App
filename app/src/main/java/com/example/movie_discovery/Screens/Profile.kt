@@ -29,19 +29,19 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.movie_discovery.R
 import com.example.movie_discovery.Viewmodels.SettingsViewModel
-import com.example.movie_discovery.Viewmodels.ThemeViewModel
+
 
 @Composable
 fun Profile(
-    navController: NavController,
-    userViewModel: UserViewModel = viewModel(),
-    themeViewModel: ThemeViewModel = viewModel(),
-    settingsViewModel: SettingsViewModel = viewModel()
+    navController: NavController
 ) {
+
+    val userViewModel: UserViewModel = viewModel()
+    val settingsViewModel: SettingsViewModel = viewModel()
+
     val userSettings by settingsViewModel.userSettings.collectAsState()
 
     val selectedLanguage = userSettings.language
@@ -53,31 +53,17 @@ fun Profile(
         "Cairo" -> FontFamily(Font(R.font.cairo_regular))
         else -> FontFamily(Font(R.font.momo_regular))
     }
+
     LaunchedEffect(Unit) {
         userViewModel.loadUserData()
     }
-
     val scrollState = rememberScrollState()
 
     val userData by userViewModel.userData.collectAsState()
+    val favouriteMovies by userViewModel.favouriteMovies.collectAsState()
+    val watchlistMovies by userViewModel.watchlistMovies.collectAsState()
+    val watchedMovies by userViewModel.watchedMovies.collectAsState()
 
-    val favouriteMovies by produceState(initialValue = emptyList<MovieDetailsResponse>(), userData) {
-        value = userData?.favourites?.mapNotNull {
-            userViewModel.getMovieDetailsFromTMDB(it.toInt())
-        } ?: emptyList()
-    }
-
-    val watchlistMovies by produceState(initialValue = emptyList<MovieDetailsResponse>(), userData) {
-        value = userData?.watchlist?.mapNotNull {
-            userViewModel.getMovieDetailsFromTMDB(it.toInt())
-        } ?: emptyList()
-    }
-
-    val watchedMovies by produceState(initialValue = emptyList<MovieDetailsResponse>(), userData) {
-        value = userData?.watched?.mapNotNull {
-            userViewModel.getMovieDetailsFromTMDB(it.toInt())
-        } ?: emptyList()
-    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -87,12 +73,13 @@ fun Profile(
     ) {
         userData?.let { user ->
 
-            Row(
-                modifier = Modifier.fillMaxSize(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.Center
             ) {
-                IconButton(onClick = { navController.popBackStack() }) {
+                IconButton(onClick = { navController.popBackStack() },
+                    modifier = Modifier.align(Alignment.CenterStart)) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back",
@@ -109,13 +96,10 @@ fun Profile(
                         color = MaterialTheme.colorScheme.primary
                     ),
                     fontFamily = customFont,
-                    fontSize = fontSize.sp
+                    fontSize = fontSize.sp,
+                    modifier = Modifier.align(Alignment.Center)
                 )
 
-
-                DarkModeSwitch(
-                    themeViewModel = themeViewModel
-                )
             }
 
             Spacer(Modifier.height(24.dp))
@@ -338,43 +322,6 @@ fun ProfileMovieCard(
                     tint = if (isFavorite) Color.Red else Color.LightGray
                 )
             }
-        }
-    }
-}
-
-@Composable
-fun DarkModeSwitch(
-    themeViewModel: ThemeViewModel = viewModel()
-) {
-    val isDarkMode = themeViewModel.isDarkMode
-
-    val trackColor = if (isDarkMode) MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
-    else MaterialTheme.colorScheme.surfaceVariant
-
-    val thumbColor = if (isDarkMode) MaterialTheme.colorScheme.primary
-    else MaterialTheme.colorScheme.onSurfaceVariant
-
-    val icon = if (isDarkMode) "🌙" else "☀️"
-
-    Box(
-        modifier = Modifier
-            .width(60.dp)
-            .height(30.dp)
-            .clip(RoundedCornerShape(50))
-            .background(trackColor)
-            .clickable { themeViewModel.toggleDarkMode() }
-            .padding(horizontal = 4.dp, vertical = 3.dp),
-        contentAlignment = Alignment.CenterStart
-    ) {
-        Box(
-            modifier = Modifier
-                .offset(x = if (isDarkMode) 28.dp else 0.dp)
-                .size(24.dp)
-                .clip(RoundedCornerShape(50))
-                .background(thumbColor),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(text = icon, style = MaterialTheme.typography.bodyMedium)
         }
     }
 }
