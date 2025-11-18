@@ -9,9 +9,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -23,7 +25,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -161,7 +162,7 @@ fun MovieDetailsScreen(
                     )
                 }
                 IconBox(
-                    icon = Icons.Filled.Star,
+                    icon = Icons.Filled.Done,
                     tint = if (isWatched) Color(0xFFFFD700) else Color.LightGray,
                     modifier = Modifier
                         .align(Alignment.BottomStart)
@@ -180,7 +181,7 @@ fun MovieDetailsScreen(
                 )
 
                 IconBox(
-                    icon = Icons.Filled.PlayArrow,
+                    icon = Icons.Filled.Visibility,
                     tint = if (isWatchlist) Color(0xFF00C853) else Color.LightGray,
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
@@ -282,7 +283,7 @@ fun MovieDetailsScreen(
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = if (selectedLanguage == "ar") "شاهد الإعلان" else "Watch Traile",
+                        text = if (selectedLanguage == "ar") "شاهد الإعلان" else "Watch Trailer",
                         color = MaterialTheme.colorScheme.onPrimary,
                         fontFamily = customFont,
                         fontSize = fontSize.sp
