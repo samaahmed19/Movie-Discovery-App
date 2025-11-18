@@ -1,6 +1,7 @@
 package com.example.movie_discovery.Viewmodels
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.movie_discovery.Networking.RetrofitInstance
 import com.example.movie_discovery.data.MovieDetailsResponse
 import com.example.movie_discovery.data.UserData
@@ -9,7 +10,7 @@ import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 
 class UserViewModel : ViewModel() {
     private val auth = Firebase.auth
@@ -17,6 +18,15 @@ class UserViewModel : ViewModel() {
 
     private val _userData = MutableStateFlow<UserData?>(null)
     val userData: StateFlow<UserData?> = _userData
+
+    private val _favouriteMovies = MutableStateFlow<List<MovieDetailsResponse>>(emptyList())
+    val favouriteMovies: StateFlow<List<MovieDetailsResponse>> = _favouriteMovies
+
+    private val _watchlistMovies = MutableStateFlow<List<MovieDetailsResponse>>(emptyList())
+    val watchlistMovies: StateFlow<List<MovieDetailsResponse>> = _watchlistMovies
+
+    private val _watchedMovies = MutableStateFlow<List<MovieDetailsResponse>>(emptyList())
+    val watchedMovies: StateFlow<List<MovieDetailsResponse>> = _watchedMovies
 
     init {
         loadUserData()
@@ -30,8 +40,10 @@ class UserViewModel : ViewModel() {
         userDocRef.addSnapshotListener { document, error ->
             if (error != null) {
                 _userData.value = UserData(
+                    userId = "error",
                     firstName = "Error",
-                    email = "Error loading data"
+                    lastName = "",
+                    email = "Error loading data: ${error.message ?: "Unknown error"}"
                 )
                 return@addSnapshotListener
             }
@@ -39,6 +51,7 @@ class UserViewModel : ViewModel() {
                 val userData = UserData(
                     userId = document.getString("userId") ?: user.uid,
                     firstName = document.getString("firstName") ?: "Guest",
+                    lastName = document.getString("lastName") ?: "",
                     email = document.getString("email") ?: user.email.orEmpty(),
                     favourites = (document.get("favourites") as? List<*>)?.filterIsInstance<String>()
                         ?: emptyList(),
@@ -46,15 +59,26 @@ class UserViewModel : ViewModel() {
                         ?: emptyList(),
                     watched = (document.get("watched") as? List<*>)?.filterIsInstance<String>()
                         ?: emptyList(),
-                    isDarkMode = document.getBoolean("isDarkMode") ?: false
+                    isDarkMode = document.getBoolean("isDarkMode") ?: false,
+                    language = document.getString("language") ?: "en",
+                    fontType = document.getString("fontType") ?: "Poppins",
+                    fontSize = (document.getDouble("fontSize") ?: 16.0).toFloat()
                 )
                 _userData.value = userData
+
+                loadMovieDetails(userData.favourites, _favouriteMovies)
+                loadMovieDetails(userData.watchlist, _watchlistMovies)
+                loadMovieDetails(userData.watched, _watchedMovies)
             } else {
                 val newUser = UserData(
                     userId = user.uid,
                     firstName = user.displayName ?: "Guest",
+                    lastName = "",
                     email = user.email ?: "",
-                    isDarkMode = false
+                    isDarkMode = false,
+                    language = "en",
+                    fontType = "Poppins",
+                    fontSize = 16f
                 )
                 firestore.collection("users").document(user.uid).set(newUser)
                 _userData.value = newUser
@@ -62,15 +86,22 @@ class UserViewModel : ViewModel() {
         }
 
     }
-            fun addToFavourites(movieId: String) = updateUserListField("favourites", movieId, true)
+    fun addToFavourites(movieId: String) = updateUserListField("favourites", movieId, true)
     fun removeFromFavourites(movieId: String) = updateUserListField("favourites", movieId, false)
-    fun addToWatchlist(movieId: String) = updateUserListField("watchlist", movieId, true)
+    fun addToWatchlist(movieId: String) {
+        updateUserListField("watchlist", movieId, true)
+        updateUserListField("watched", movieId, false)
+    }
     fun removeFromWatchlist(movieId: String) = updateUserListField("watchlist", movieId, false)
-    fun markAsWatched(movieId: String) = updateUserListField("watched", movieId, true)
+    fun markAsWatched(movieId: String) {
+        updateUserListField("watched", movieId, true)
+        updateUserListField("watchlist", movieId, false)
+    }
     fun unmarkFromWatched(movieId: String) = updateUserListField("watched", movieId, false)
 
     private fun updateUserListField(fieldName: String, movieId: String, add: Boolean) {
         val currentData = _userData.value ?: return
+
         val updatedData = when (fieldName) {
             "favourites" -> currentData.copy(
                 favourites = if (add) currentData.favourites + movieId else currentData.favourites - movieId
@@ -83,9 +114,12 @@ class UserViewModel : ViewModel() {
             )
             else -> currentData
         }
+
         _userData.value = updatedData
+
         val user = auth.currentUser ?: return
         val docRef = firestore.collection("users").document(user.uid)
+
         firestore.runTransaction { transaction ->
             val snapshot = transaction.get(docRef)
             val currentList = snapshot.get(fieldName) as? List<String> ?: emptyList()
@@ -94,15 +128,31 @@ class UserViewModel : ViewModel() {
         }
     }
 
+    private fun loadMovieDetails(movieIds: List<String>, targetFlow: MutableStateFlow<List<MovieDetailsResponse>>) {
+        if (movieIds.isEmpty()) {
+            targetFlow.value = emptyList()
+            return
+        }
 
-    fun getMovieDetailsFromTMDB(movieId: Int): MovieDetailsResponse? {
+        viewModelScope.launch {
+            val movies = mutableListOf<MovieDetailsResponse>()
+            movieIds.forEach { movieId ->
+                try {
+                    val movie = getMovieDetailsFromTMDB(movieId.toInt())
+                    movie?.let { movies.add(it) }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+            targetFlow.value = movies
+        }
+    }
+    suspend fun getMovieDetailsFromTMDB(movieId: Int): MovieDetailsResponse? {
         return try {
-            runBlocking {
                 RetrofitInstance.api.getMovieDetails(
                     movieId,
                     "2745135cf88bf117b5ace2b3fbabf113"
                 )
-            }
         } catch (e: Exception) {
             e.printStackTrace()
             null
@@ -136,4 +186,3 @@ class UserViewModel : ViewModel() {
         }
     }
 }
-
