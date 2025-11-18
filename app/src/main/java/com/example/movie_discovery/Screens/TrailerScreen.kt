@@ -1,15 +1,18 @@
 package com.example.movie_discovery.Screens
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.pm.ActivityInfo
+import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebChromeClient
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.FrameLayout
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -31,6 +34,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -86,6 +90,9 @@ fun TrailerScreen(
     userViewModel: UserViewModel = viewModel(),
     trailerViewModel: TrailerViewModel = viewModel()
 ) {
+    val context = LocalContext.current
+    val activity = context as? Activity
+
     LaunchedEffect(Unit) {
         userViewModel.loadUserData()
     }
@@ -108,7 +115,6 @@ fun TrailerScreen(
     val textColor = MaterialTheme.colorScheme.onBackground
     val iconTint = MaterialTheme.colorScheme.onBackground
 
-
     val customFont = when (fontType) {
         "Roboto" -> FontFamily(Font(R.font.roboto_regular))
         "Cairo" -> FontFamily(Font(R.font.cairo_regular))
@@ -116,30 +122,41 @@ fun TrailerScreen(
     }
 
     var isFullScreen by remember { mutableStateOf(false) }
+    var customView by remember { mutableStateOf<View?>(null) }
 
     val layoutDirection = if (selectedLanguage == "ar") LayoutDirection.Rtl else LayoutDirection.Ltr
     val youtubeLang = if (selectedLanguage == "ar") "ar" else "en"
-    val videoUrl =
-        "https://www.youtube.com/embed/$videoKey?autoplay=1&modestbranding=1&controls=1&fs=0&hl=$youtubeLang"
+    val videoUrl = "https://www.youtube.com/embed/$videoKey?autoplay=1&modestbranding=1&controls=1&fs=1&hl=$youtubeLang"
 
     val backgroundBrush = Brush.verticalGradient(
         colors = listOf(backgroundColor, surfaceColor)
     )
 
-
     BackHandler(enabled = isFullScreen) {
         isFullScreen = false
+        customView = null
+        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
     }
 
-    CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(backgroundBrush)
-                .then(if (!isFullScreen) Modifier.statusBarsPadding().verticalScroll(rememberScrollState()) else Modifier)
-        ) {
+    if (isFullScreen && customView != null) {
+        AndroidView(
+            modifier = Modifier.fillMaxSize().background(Color.Black),
+            factory = {
+                FrameLayout(it).apply {
+                    addView(customView)
+                }
+            }
+        )
+    } else {
+        CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(backgroundBrush)
+                    .statusBarsPadding()
+                    .verticalScroll(rememberScrollState())
+            ) {
 
-            if (!isFullScreen) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -178,105 +195,105 @@ fun TrailerScreen(
                     }
                 }
                 Spacer(modifier = Modifier.height(20.dp))
-            }
 
-            if (videoKey != null) {
-                Box(
-                    modifier = if (isFullScreen) {
-                        Modifier
-                            .fillMaxSize()
-                            .background(Color.Black)
-                    } else {
-                        Modifier
+                if (videoKey != null) {
+                    Box(
+                        modifier = Modifier
                             .fillMaxWidth()
                             .aspectRatio(16f / 9f)
-                            .background(Color.Black)
-                    },
-                    contentAlignment = Alignment.Center
-                ) {
-                    AndroidView(
-                        modifier = Modifier.fillMaxSize(),
-                        factory = { context ->
-                            WebView(context).apply {
-                                layoutParams = ViewGroup.LayoutParams(
-                                    ViewGroup.LayoutParams.MATCH_PARENT,
-                                    ViewGroup.LayoutParams.MATCH_PARENT
-                                )
-                                settings.javaScriptEnabled = true
-                                settings.domStorageEnabled = true
-                                settings.loadWithOverviewMode = true
-                                settings.useWideViewPort = true
-                                settings.pluginState = WebSettings.PluginState.ON
-                                settings.userAgentString =
-                                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-
-                                webChromeClient = WebChromeClient()
-                                webViewClient = WebViewClient()
-                                loadUrl(videoUrl)
-                            }
-                        }
-                    )
-
-                    IconButton(
-                        onClick = { isFullScreen = !isFullScreen },
-                        modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .padding(12.dp)
-                            .background(Color.Black.copy(alpha = 0.6f), shape = CircleShape)
-                            .size(40.dp)
+                            .background(Color.Black),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Icon(
-                            imageVector = if (isFullScreen) Icons.Default.FullscreenExit else Icons.Default.Fullscreen,
-                            contentDescription = "Toggle Fullscreen",
-                            tint = Color.White,
-                            modifier = Modifier.size(24.dp)
+                        AndroidView(
+                            modifier = Modifier.fillMaxSize(),
+                            factory = { context ->
+                                WebView(context).apply {
+                                    layoutParams = ViewGroup.LayoutParams(
+                                        ViewGroup.LayoutParams.MATCH_PARENT,
+                                        ViewGroup.LayoutParams.MATCH_PARENT
+                                    )
+                                    settings.javaScriptEnabled = true
+                                    settings.domStorageEnabled = true
+                                    settings.loadWithOverviewMode = true
+                                    settings.useWideViewPort = true
+                                    settings.pluginState = WebSettings.PluginState.ON
+
+                                    webChromeClient = object : WebChromeClient() {
+                                        override fun onShowCustomView(view: View?, callback: CustomViewCallback?) {
+                                            super.onShowCustomView(view, callback)
+                                            customView = view
+                                            isFullScreen = true
+                                            activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                                        }
+
+                                        override fun onHideCustomView() {
+                                            super.onHideCustomView()
+                                            customView = null
+                                            isFullScreen = false
+                                            activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                                        }
+                                    }
+                                    webViewClient = WebViewClient()
+                                    loadUrl(videoUrl)
+                                }
+                            }
+                        )
+
+                        IconButton(
+                            onClick = {
+                                isFullScreen = true
+                                activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                            },
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .padding(8.dp)
+                                .background(Color.Black.copy(alpha = 0.6f), CircleShape)
+                                .size(40.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Fullscreen,
+                                contentDescription = "Fullscreen",
+                                tint = Color.White,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                    }
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = if (selectedLanguage == "ar") "الفيديو غير متاح" else "Video unavailable",
+                            color = textColor,
+                            fontFamily = customFont,
+                            fontSize = fontSize.sp
                         )
                     }
                 }
-            } else {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp),
-                    contentAlignment = Alignment.Center
-                ) {
+
+                if (castList.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(24.dp))
                     Text(
-                        text = if (selectedLanguage == "ar") "الفيديو غير متاح" else "Video unavailable",
-                        color = textColor,
+                        text = if (selectedLanguage == "ar") "طاقم التمثيل" else "Cast & Crew",
+                        style = MaterialTheme.typography.titleLarge,
                         fontFamily = customFont,
-                        fontSize = fontSize.sp
+                        fontSize = fontSize.sp,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                     )
-                }
-            }
-
-            if (!isFullScreen && castList.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Text(
-                    text = if (selectedLanguage == "ar") "طاقم التمثيل" else "Cast & Crew",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontFamily = customFont,
-                    fontSize = fontSize.sp,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                )
-
-                LazyRow(
-                    contentPadding = PaddingValues(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    items(castList) { actor ->
-                        CastMemberItem(actor, textColor, customFont)
+                    LazyRow(
+                        contentPadding = PaddingValues(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        items(castList) { actor ->
+                            CastMemberItem(actor, textColor, customFont)
+                        }
                     }
+                    Spacer(modifier = Modifier.height(40.dp))
                 }
-
-                Spacer(modifier = Modifier.height(40.dp))
-            }
-
-            if (isFullScreen) {
-
-            } else {
-
             }
         }
     }
@@ -288,7 +305,6 @@ fun CastMemberItem(actor: CastMember, textColor: Color, customFont: FontFamily) 
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.width(85.dp)
     ) {
-
         Card(
             shape = CircleShape,
             border = BorderStroke(2.dp, AccentRed.copy(alpha = 0.6f)),
@@ -302,9 +318,7 @@ fun CastMemberItem(actor: CastMember, textColor: Color, customFont: FontFamily) 
                 modifier = Modifier.fillMaxSize()
             )
         }
-
         Spacer(modifier = Modifier.height(8.dp))
-
         Text(
             text = actor.name,
             style = MaterialTheme.typography.labelMedium,
@@ -314,7 +328,6 @@ fun CastMemberItem(actor: CastMember, textColor: Color, customFont: FontFamily) 
             overflow = TextOverflow.Ellipsis,
             textAlign = TextAlign.Center
         )
-
         Text(
             text = actor.character,
             style = MaterialTheme.typography.labelSmall,
