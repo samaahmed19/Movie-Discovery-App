@@ -1,11 +1,10 @@
-
 package com.example.movie_discovery.Screens
 
-import android.content.Context
-import android.content.res.Configuration
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -13,7 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.UiComposable
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -23,17 +22,22 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.movie_discovery.R
 import com.example.movie_discovery.Viewmodels.SettingsViewModel
+import com.example.movie_discovery.Viewmodels.ThemeViewModel
 import com.example.movie_discovery.ui.theme.AccentRed
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    themeViewModel : ThemeViewModel
 ) {
     val context = LocalContext.current
     val settingsViewModel: SettingsViewModel = viewModel()
-
     val userSettings by settingsViewModel.userSettings.collectAsState()
+
+    LaunchedEffect(Unit) {
+        themeViewModel.loadDarkMode(false)
+    }
 
     val selectedLanguage = userSettings.language
     val fontType = userSettings.fontType
@@ -73,6 +77,24 @@ fun SettingsScreen(
                 .padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween){
+                Text(
+                    text = if (selectedLanguage == "ar") "الوضع الداكن" else "Dark Mode",
+                    fontFamily = customFont,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = fontSize.sp
+                )
+
+                DarkModeSwitch(
+                    themeViewModel = themeViewModel
+                )
+            }
+
+            Divider()
+
             // Language
             Text(
                 text = if (selectedLanguage == "ar") "اللغة" else "Language",
@@ -249,5 +271,42 @@ fun FontSizeSlider(
             )
         )
         Text("${fontSize.toInt()} sp", fontFamily = fontFamily, fontSize = fontSize.sp)
+    }
+}
+
+@Composable
+fun DarkModeSwitch(
+    themeViewModel: ThemeViewModel = viewModel()
+) {
+    val isDarkMode by themeViewModel.isDarkMode.collectAsState()
+
+    val trackColor = if (isDarkMode) MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+    else MaterialTheme.colorScheme.surfaceVariant
+
+    val thumbColor = if (isDarkMode) MaterialTheme.colorScheme.primary
+    else MaterialTheme.colorScheme.onSurfaceVariant
+
+    val icon = if (isDarkMode) "🌙" else "☀️"
+
+    Box(
+        modifier = Modifier
+            .width(60.dp)
+            .height(30.dp)
+            .clip(RoundedCornerShape(50))
+            .background(trackColor)
+            .clickable { themeViewModel.toggleDarkMode() }
+            .padding(horizontal = 4.dp, vertical = 3.dp),
+        contentAlignment = Alignment.CenterStart
+    ) {
+        Box(
+            modifier = Modifier
+                .offset(x = if (isDarkMode) 28.dp else 0.dp)
+                .size(24.dp)
+                .clip(RoundedCornerShape(50))
+                .background(thumbColor),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(text = icon, style = MaterialTheme.typography.bodyMedium)
+        }
     }
 }
