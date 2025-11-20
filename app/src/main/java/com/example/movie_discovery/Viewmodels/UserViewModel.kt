@@ -18,7 +18,6 @@ class UserViewModel : ViewModel() {
 
     private val _userData = MutableStateFlow<UserData?>(null)
     val userData: StateFlow<UserData?> = _userData
-
     private val _favouriteMovies = MutableStateFlow<List<MovieDetailsResponse>>(emptyList())
     val favouriteMovies: StateFlow<List<MovieDetailsResponse>> = _favouriteMovies
 
@@ -31,7 +30,6 @@ class UserViewModel : ViewModel() {
     init {
         loadUserData()
     }
-
 
     fun loadUserData() {
         val user = auth.currentUser ?: return
@@ -84,22 +82,67 @@ class UserViewModel : ViewModel() {
                 _userData.value = newUser
             }
         }
-
     }
     fun addToFavourites(movieId: String, onFailure: () -> Unit = {}) =
         updateUserListField("favourites", movieId, true,onFailure)
     fun removeFromFavourites(movieId: String,onFailure: () -> Unit = {}) = updateUserListField("favourites", movieId, false, onFailure)
+
     fun addToWatchlist(movieId: String,onFailure: () -> Unit = {}) {
-        updateUserListField("watchlist", movieId, true, onFailure)
-        updateUserListField("watched", movieId, false)
+        updateWatchlistAndWatched(movieId, addToWatchlist = true, removeFromWatched = true, onFailure = onFailure)
     }
-    fun removeFromWatchlist(movieId: String,onFailure: () -> Unit = {}) = updateUserListField("watchlist", movieId, false, onFailure)
+    fun removeFromWatchlist(movieId: String, onFailure: () -> Unit = {}) {
+        updateUserListField("watchlist", movieId, false, onFailure)
+    }
     fun markAsWatched(movieId: String,onFailure: () -> Unit = {}) {
-        updateUserListField("watched", movieId, true, onFailure)
-        updateUserListField("watchlist", movieId, false)
+        updateWatchlistAndWatched(movieId, addToWatched = true, removeFromWatchlist = true, onFailure = onFailure)
     }
     fun unmarkFromWatched(movieId: String,onFailure: () -> Unit = {}) = updateUserListField("watched", movieId, false, onFailure)
 
+    private fun updateWatchlistAndWatched(
+        movieId: String,
+        addToWatchlist: Boolean = false,
+        removeFromWatchlist: Boolean = false,
+        addToWatched: Boolean = false,
+        removeFromWatched: Boolean = false,
+        onFailure: () -> Unit = {}
+    ) {
+        val user = auth.currentUser ?: return
+        val docRef = firestore.collection("users").document(user.uid)
+
+        _userData.value = _userData.value?.copy(
+            watchlist = (_userData.value!!.watchlist + if (addToWatchlist) listOf(movieId) else emptyList())
+                .filterNot { removeFromWatchlist && it == movieId }
+                .distinct(),
+            watched = (_userData.value!!.watched + if (addToWatched) listOf(movieId) else emptyList())
+                .filterNot { removeFromWatched && it == movieId }
+                .distinct()
+        )
+        firestore.runTransaction { transaction ->
+            val snapshot = transaction.get(docRef)
+            val currentWatchlist = snapshot.get("watchlist") as? List<String> ?: emptyList()
+            val currentWatched = snapshot.get("watched") as? List<String> ?: emptyList()
+
+            val newWatchlist = (currentWatchlist + if (addToWatchlist) listOf(movieId) else emptyList())
+                .filterNot { removeFromWatchlist && it == movieId }
+                .distinct()
+            val newWatched = (currentWatched + if (addToWatched) listOf(movieId) else emptyList())
+                .filterNot { removeFromWatched && it == movieId }
+                .distinct()
+
+            transaction.update(docRef, "watchlist", newWatchlist)
+            transaction.update(docRef, "watched", newWatched)
+        }.addOnFailureListener { onFailure() }
+
+        viewModelScope.launch {
+            suspend fun MutableList<MovieDetailsResponse>.updateList(add: Boolean) {
+                if (add && none { it.id.toString() == movieId }) getMovieDetailsFromTMDB(movieId.toInt())?.let { add(it) }
+                if (!add) removeAll { it.id.toString() == movieId }
+            }
+
+            _watchlistMovies.value.toMutableList().apply { updateList(addToWatchlist); _watchlistMovies.value = this }
+            _watchedMovies.value.toMutableList().apply { updateList(addToWatched); _watchedMovies.value = this }
+        }
+    }
     private fun updateUserListField(fieldName: String, movieId: String, add: Boolean,onFailure: () -> Unit = {}) {
         val currentData = _userData.value ?: return
         val updatedData = when (fieldName) {
@@ -131,24 +174,13 @@ class UserViewModel : ViewModel() {
                 it.printStackTrace()
             }
     }
-
     private fun loadMovieDetails(movieIds: List<String>, targetFlow: MutableStateFlow<List<MovieDetailsResponse>>) {
-        if (movieIds.isEmpty()) {
-            targetFlow.value = emptyList()
-            return
-        }
+        if (movieIds.isEmpty()) return
 
         viewModelScope.launch {
-            val movies = mutableListOf<MovieDetailsResponse>()
-            movieIds.forEach { movieId ->
-                try {
-                    val movie = getMovieDetailsFromTMDB(movieId.toInt())
-                    movie?.let { movies.add(it) }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
+            targetFlow.value = movieIds.mapNotNull {
+                try { getMovieDetailsFromTMDB(it.toInt()) } catch (e: Exception) { null }
             }
-            targetFlow.value = movies
         }
     }
     suspend fun getMovieDetailsFromTMDB(movieId: Int): MovieDetailsResponse? {
