@@ -2,6 +2,7 @@ package com.example.movie_discovery.Screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -34,9 +35,10 @@ fun SettingsScreen(
     val context = LocalContext.current
     val settingsViewModel: SettingsViewModel = viewModel()
     val userSettings by settingsViewModel.userSettings.collectAsState()
+    val systemDark = isSystemInDarkTheme()
 
     LaunchedEffect(Unit) {
-        themeViewModel.loadDarkMode(false)
+        themeViewModel.loadDarkMode( defaultDarkMode = systemDark)
     }
 
     val selectedLanguage = userSettings.language

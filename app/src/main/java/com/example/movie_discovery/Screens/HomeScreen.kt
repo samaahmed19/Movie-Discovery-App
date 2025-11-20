@@ -5,7 +5,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
-import com.example.movie_discovery.ui.theme.MoviesTheme
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -30,7 +29,6 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -49,23 +47,23 @@ import com.example.movie_discovery.Viewmodels.ThemeViewModel
 // -------------------------------
 @Composable
 fun HomeScreen(
-    navController : NavController ,
+    navController: NavController,
+    userId: String?,
+    themeViewModel: ThemeViewModel,
     onMovieClick: (Int) -> Unit,
     onSearchClick: () -> Unit,
     onProfileClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {}
-) {
+)  {
     val settingsViewModel: SettingsViewModel = viewModel()
     val viewModel: HomeViewModel = viewModel()
     val userViewModel: UserViewModel = viewModel()
-    val themeViewModel: ThemeViewModel = viewModel()
 
     val popularMovies by viewModel.popularMovies.collectAsState()
     val trendingMovies by viewModel.trendingMovies.collectAsState()
     val upcomingMovies by viewModel.upcomingMovies.collectAsState()
     val topRatedMovies by viewModel.topRatedMovies.collectAsState()
     val userData by userViewModel.userData.collectAsState()
-    val systemDark = isSystemInDarkTheme()
 
     var selectedTab by remember { mutableStateOf(0) }
     val userSettings by settingsViewModel.userSettings.collectAsState()
@@ -79,8 +77,10 @@ fun HomeScreen(
         "Cairo" -> FontFamily(Font(com.example.movie_discovery.R.font.cairo_regular))
         else -> FontFamily(Font(R.font.momo_regular))
     }
-    LaunchedEffect(Unit) {
-        themeViewModel.loadDarkMode(defaultDarkMode = systemDark)
+    val systemDark = isSystemInDarkTheme()
+
+    LaunchedEffect(userId) {
+        themeViewModel.loadDarkMode(defaultDarkMode = systemDark )
         viewModel.loadMovies()
     }
 
