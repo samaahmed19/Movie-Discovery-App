@@ -230,7 +230,7 @@ fun MovieListSection(
         }
     }
 }
-
+//
 @Composable
 fun ProfileMovieCard(
     movie: MovieDetailsResponse,
