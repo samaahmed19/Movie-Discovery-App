@@ -196,7 +196,7 @@ fun MovieListSection(
     customFont: FontFamily,
     fontSize: androidx.compose.ui.unit.TextUnit,
     selectedLanguage: String
-    ) {
+) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = title,
@@ -217,7 +217,7 @@ fun MovieListSection(
             )
         } else {
             LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                items(movies) { movie ->
+                items(movies, key = { it.id }) { movie ->
                     ProfileMovieCard(
                         movie = movie,
                         userViewModel = userViewModel,
@@ -230,7 +230,7 @@ fun MovieListSection(
         }
     }
 }
-
+//
 @Composable
 fun ProfileMovieCard(
     movie: MovieDetailsResponse,
@@ -238,14 +238,8 @@ fun ProfileMovieCard(
     onMovieClick: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var isFavorite by remember { mutableStateOf(false) }
-
     val userData by userViewModel.userData.collectAsState()
-
-    LaunchedEffect(userData) {
-        val movieIdStr = movie.id.toString()
-        isFavorite = userData?.favourites?.contains(movieIdStr) == true
-    }
+    val isFavorite = userData?.favourites?.contains(movie.id.toString()) == true
 
     Card(
         modifier = modifier
@@ -306,13 +300,12 @@ fun ProfileMovieCard(
                 }
             }
 
-
+            // Only one IconButton, fully controlled by userData
             IconButton(
                 onClick = {
                     val movieIdStr = movie.id.toString()
                     if (isFavorite) userViewModel.removeFromFavourites(movieIdStr)
                     else userViewModel.addToFavourites(movieIdStr)
-                    isFavorite = !isFavorite
                 },
                 modifier = Modifier.align(Alignment.TopEnd).padding(8.dp)
             ) {
