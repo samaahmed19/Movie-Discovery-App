@@ -1,6 +1,8 @@
 package com.example.movie_discovery.Screens
 
 import android.content.Intent
+import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -9,9 +11,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.*
@@ -25,6 +30,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -51,13 +57,18 @@ fun MovieDetailsScreen(
     val movieDetail by viewModel.movieDetails.collectAsState()
     val userViewModel: UserViewModel = viewModel()
     val context = LocalContext.current
-
+    val activity = context as? android.app.Activity
+    LaunchedEffect(Unit) {
+        activity?.requestedOrientation = android.content.pm.ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+    }
     var isFavorite by remember { mutableStateOf(false) }
     var isWatchlist by remember { mutableStateOf(false) }
     var isWatched by remember { mutableStateOf(false) }
 
 
     var favoriteScale by remember { mutableFloatStateOf(1f) }
+    var watchlistScale by remember { mutableFloatStateOf(1f) }
+    var watchedScale by remember { mutableFloatStateOf(1f) }
     val coroutineScope = rememberCoroutineScope()
     var isShareClicked by remember { mutableStateOf(false) }
 
@@ -87,10 +98,11 @@ fun MovieDetailsScreen(
     }
 
 
-    LaunchedEffect(movieId,selectedLanguage) {
+    LaunchedEffect(movieId, selectedLanguage) {
         movieId?.let {
             val languageCode = if (selectedLanguage == "ar") "ar-SA" else "en-US"
-            viewModel.getMovieDetails(it,languageCode) }
+            viewModel.getMovieDetails(it, languageCode)
+        }
     }
 
 
@@ -98,9 +110,7 @@ fun MovieDetailsScreen(
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CircularProgressIndicator(color = AccentRed)
         }
-    }
-
-    else {
+    } else {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -135,12 +145,7 @@ fun MovieDetailsScreen(
                         .clip(CircleShape)
                         .background(Color.Black.copy(alpha = 0.25f))
                         .clickable {
-                            movieId?.let {
-                                if (isFavorite)
-                                    userViewModel.removeFromFavourites(it.toString())
-                                else
-                                    userViewModel.addToFavourites(it.toString())
-                                userViewModel.loadUserData()
+                            movieId?.let { id ->
                                 isFavorite = !isFavorite
 
                                 favoriteScale = 1.3f
@@ -148,11 +153,28 @@ fun MovieDetailsScreen(
                                     delay(150)
                                     favoriteScale = 1f
                                 }
+
+                                if (isFavorite) {
+                                    userViewModel.addToFavourites(
+                                        movieId = id.toString(),
+                                        onFailure = {
+                                            isFavorite = false
+                                            Toast.makeText(context, "Failed to add. Check internet.", Toast.LENGTH_SHORT).show()
+                                        }
+                                    )
+                                } else {
+                                    userViewModel.removeFromFavourites(
+                                        movieId = id.toString(),
+                                        onFailure = {
+                                            isFavorite = true
+                                            Toast.makeText(context, "Failed to remove. Check internet.", Toast.LENGTH_SHORT).show()
+                                        }
+                                    )
+                                }
                             }
                         },
                     contentAlignment = Alignment.Center
                 ) {
-
 
                     Icon(
                         imageVector = Icons.Filled.Favorite,
@@ -161,21 +183,58 @@ fun MovieDetailsScreen(
                         modifier = Modifier.size(26.dp)
                     )
                 }
+                IconButton(
+                    onClick = { navController.popBackStack() },
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(12.dp)
+                        .background(Color.Black.copy(alpha = 0.4f), CircleShape)
+                        .size(48.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back",
+                        tint = Color.White,
+                        modifier = Modifier
+                            .size(24.dp)
+                            .scale(scaleX = -1f, scaleY = 1f)
+                    )
+                }
                 IconBox(
                     icon = Icons.Filled.Done,
                     tint = if (isWatched) Color(0xFFFFD700) else Color.LightGray,
                     modifier = Modifier
                         .align(Alignment.BottomStart)
                         .padding(12.dp)
+                        .scale(watchedScale)
                         .background(Color.Black.copy(alpha = 0.25f), shape = CircleShape),
                     onClick = {
-                        movieId?.let {
-                            if (isWatched)
-                                userViewModel.unmarkFromWatched(it.toString())
-                            else
-                                userViewModel.markAsWatched(it.toString())
-                            userViewModel.loadUserData()
+                        movieId?.let { id ->
                             isWatched = !isWatched
+                            watchedScale = 1.3f
+                            coroutineScope.launch {
+                                delay(150)
+                                watchedScale = 1f
+                            }
+
+                            if (isWatched) {
+                                userViewModel.markAsWatched(
+                                    movieId = id.toString(),
+                                    onFailure = {
+                                        isWatched = false
+                                        Toast.makeText(context, "Failed. Check internet.", Toast.LENGTH_SHORT).show()
+                                    }
+                                )
+                                isWatchlist = false
+                            } else {
+                                userViewModel.unmarkFromWatched(
+                                    movieId = id.toString(),
+                                    onFailure = {
+                                        isWatched = true
+                                        Toast.makeText(context, "Failed. Check internet.", Toast.LENGTH_SHORT).show()
+                                    }
+                                )
+                            }
                         }
                     }
                 )
@@ -186,15 +245,36 @@ fun MovieDetailsScreen(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
                         .padding(12.dp)
+                        .scale(watchlistScale)
                         .background(Color.Black.copy(alpha = 0.25f), shape = CircleShape),
                     onClick = {
-                        movieId?.let {
-                            if (isWatchlist)
-                                userViewModel.removeFromWatchlist(it.toString())
-                            else
-                                userViewModel.addToWatchlist(it.toString())
-                            userViewModel.loadUserData()
+                        movieId?.let { id ->
                             isWatchlist = !isWatchlist
+
+                            watchlistScale = 1.3f
+                            coroutineScope.launch {
+                                delay(150)
+                                watchlistScale = 1f
+                            }
+
+                            if (isWatchlist) {
+                                userViewModel.addToWatchlist(
+                                    movieId = id.toString(),
+                                    onFailure = {
+                                        isWatchlist = false
+                                        Toast.makeText(context, "Failed. Check internet.", Toast.LENGTH_SHORT).show()
+                                    }
+                                )
+                                isWatched = false
+                            } else {
+                                userViewModel.removeFromWatchlist(
+                                    movieId = id.toString(),
+                                    onFailure = {
+                                        isWatchlist = true
+                                        Toast.makeText(context, "Failed. Check internet.", Toast.LENGTH_SHORT).show()
+                                    }
+                                )
+                            }
                         }
                     }
                 )
@@ -260,52 +340,91 @@ fun MovieDetailsScreen(
             Spacer(modifier = Modifier.height(30.dp))
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
 
-                Button(
-                    onClick = {trailerKey?.let { key ->
-                        navController.navigate("trailer/$key/$movieId")
-
-
-                    }
+                Card(
+                    onClick = {
+                        trailerKey?.let { key ->
+                            navController.navigate("trailer/$key/$movieId")
+                        }
                     },
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = AccentRed),
-                    enabled = trailerKey != null
+                    enabled = trailerKey != null,
+                    shape = CircleShape,
+                    modifier = Modifier
+                        .weight(1.5f)
+                        .fillMaxHeight(),
+                    colors = CardDefaults.cardColors(containerColor = Color.Transparent)
                 ) {
+                    Box(contentAlignment = Alignment.Center) {
 
-                    Icon(
-                        imageVector = Icons.Filled.PlayArrow,
-                        contentDescription = "Watch",
-                        tint = Color.White
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = if (selectedLanguage == "ar") "شاهد الإعلان" else "Watch Trailer",
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        fontFamily = customFont,
-                        fontSize = fontSize.sp
-                    )
+                        AsyncImage(
+                            model = "https://image.tmdb.org/t/p/w500${movieDetail?.backdropPath ?: movieDetail?.posterPath}",
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
 
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(AccentRed.copy(alpha = 0.3f))
+                                .background(Color.Black.copy(alpha = 0.5f))
+                        )
+
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Filled.PlayArrow,
+                                contentDescription = "Watch",
+                                tint = Color.White,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = if (selectedLanguage == "ar") "شاهد الإعلان" else "Watch Trailer",
+                                color = Color.White,
+                                fontFamily = customFont,
+                                fontSize = (fontSize * 0.9f).sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
                 }
-
 
                 OutlinedButton(
                     onClick = {
                         val movieLink = "https://www.themoviedb.org/movie/$movieId"
                         shareMovie(context, movieLink)
                     },
-                    shape = RoundedCornerShape(12.dp)
+                    shape = CircleShape,
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight(),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+                    contentPadding = PaddingValues(0.dp)
                 ) {
-                    Text(
-                        text = if (selectedLanguage == "ar") "مشاركة" else "Share",
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontFamily = customFont,
-                        fontSize = fontSize.sp
-                    )
-
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = if (selectedLanguage == "ar") "مشاركة" else "Share",
+                            color = MaterialTheme.colorScheme.onSurface,
+                            fontFamily = customFont,
+                            fontSize = (fontSize * 0.9f).sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Icon(
+                            imageVector = Icons.Default.Share,
+                            contentDescription = "Share",
+                            tint = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
                 }
             }
         }
@@ -328,9 +447,15 @@ fun IconBox(
         contentAlignment = Alignment.Center
     ) {
 
-        Icon(imageVector = icon, contentDescription = null, tint = tint, modifier = Modifier.size(26.dp))
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = tint,
+            modifier = Modifier.size(26.dp)
+        )
     }
 }
+
 private fun shareMovie(context: android.content.Context, movieLink: String) {
     val sendIntent = Intent().apply {
         action = Intent.ACTION_SEND

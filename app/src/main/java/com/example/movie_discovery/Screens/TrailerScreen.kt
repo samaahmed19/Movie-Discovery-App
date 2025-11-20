@@ -11,6 +11,10 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.FrameLayout
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -289,13 +293,27 @@ fun TrailerScreen(
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         items(castList) { actor ->
-                            CastMemberItem(actor, textColor, customFont)
+                            AnimatedCastMemberItem(actor, textColor, customFont)
                         }
                     }
                     Spacer(modifier = Modifier.height(40.dp))
                 }
             }
         }
+    }
+}
+
+@Composable
+fun AnimatedCastMemberItem(actor: CastMember, textColor: Color, customFont: FontFamily) {
+    var visible by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { visible = true }
+
+    AnimatedVisibility(
+        visible = visible,
+        enter = fadeIn() + slideInHorizontally(initialOffsetX = { it / 2 }),
+        exit = fadeOut()
+    ) {
+        CastMemberItem(actor, textColor, customFont)
     }
 }
 

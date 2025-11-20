@@ -71,7 +71,9 @@ fun MyApp(
             composable("splash") {
                 SplashScreen(
                     onTimeout = {
-                        navController.navigate("signIn") {
+                        val user = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
+                        val destination = if (user != null && user.isEmailVerified) "home" else "signIn"
+                        navController.navigate(destination) {
                             popUpTo("splash") { inclusive = true }
                         }
                     }

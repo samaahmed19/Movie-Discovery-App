@@ -148,7 +148,7 @@ fun Profile(
         Button(
             onClick = {
                 userViewModel.logout {
-                    navController.navigate("signin") {
+                    navController.navigate("signIn") {
                         popUpTo(0) { inclusive = true }
                     }
                 }
@@ -168,7 +168,7 @@ fun Profile(
             onClick = {
                 userViewModel.deleteAccount { success ->
                     if (success) {
-                        navController.navigate("signin") {
+                        navController.navigate("signIn") {
                             popUpTo(0) { inclusive = true }
                         }
                     }

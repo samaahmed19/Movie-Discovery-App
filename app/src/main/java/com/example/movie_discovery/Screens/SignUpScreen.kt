@@ -132,6 +132,7 @@ fun SignUpScreen(
                                 color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.7f)
                             )
                         },
+                        singleLine = true,
                         modifier = Modifier.weight(1f),
                         isError = isFirstNameError,
                         colors = OutlinedTextFieldDefaults.colors(
@@ -150,6 +151,7 @@ fun SignUpScreen(
                                 color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.7f)
                             )
                         },
+                        singleLine = true,
                         modifier = Modifier.weight(1f),
                         isError = isLastNameError,
                         colors = OutlinedTextFieldDefaults.colors(
@@ -177,6 +179,7 @@ fun SignUpScreen(
                         focusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black,
                         unfocusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black
                     ),
+                    singleLine = true,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 8.dp)
@@ -214,6 +217,7 @@ fun SignUpScreen(
                         focusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black,
                         unfocusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black
                     ),
+                    singleLine = true,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 8.dp)
@@ -251,6 +255,7 @@ fun SignUpScreen(
                         focusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black,
                         unfocusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black
                     ),
+                    singleLine = true,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 8.dp)
