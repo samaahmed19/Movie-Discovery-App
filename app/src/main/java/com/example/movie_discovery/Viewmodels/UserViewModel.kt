@@ -86,22 +86,22 @@ class UserViewModel : ViewModel() {
         }
 
     }
-    fun addToFavourites(movieId: String) = updateUserListField("favourites", movieId, true)
-    fun removeFromFavourites(movieId: String) = updateUserListField("favourites", movieId, false)
-    fun addToWatchlist(movieId: String) {
-        updateUserListField("watchlist", movieId, true)
+    fun addToFavourites(movieId: String, onFailure: () -> Unit = {}) =
+        updateUserListField("favourites", movieId, true,onFailure)
+    fun removeFromFavourites(movieId: String,onFailure: () -> Unit = {}) = updateUserListField("favourites", movieId, false, onFailure)
+    fun addToWatchlist(movieId: String,onFailure: () -> Unit = {}) {
+        updateUserListField("watchlist", movieId, true, onFailure)
         updateUserListField("watched", movieId, false)
     }
-    fun removeFromWatchlist(movieId: String) = updateUserListField("watchlist", movieId, false)
-    fun markAsWatched(movieId: String) {
-        updateUserListField("watched", movieId, true)
+    fun removeFromWatchlist(movieId: String,onFailure: () -> Unit = {}) = updateUserListField("watchlist", movieId, false, onFailure)
+    fun markAsWatched(movieId: String,onFailure: () -> Unit = {}) {
+        updateUserListField("watched", movieId, true, onFailure)
         updateUserListField("watchlist", movieId, false)
     }
-    fun unmarkFromWatched(movieId: String) = updateUserListField("watched", movieId, false)
+    fun unmarkFromWatched(movieId: String,onFailure: () -> Unit = {}) = updateUserListField("watched", movieId, false, onFailure)
 
-    private fun updateUserListField(fieldName: String, movieId: String, add: Boolean) {
+    private fun updateUserListField(fieldName: String, movieId: String, add: Boolean,onFailure: () -> Unit = {}) {
         val currentData = _userData.value ?: return
-
         val updatedData = when (fieldName) {
             "favourites" -> currentData.copy(
                 favourites = if (add) currentData.favourites + movieId else currentData.favourites - movieId
@@ -126,6 +126,10 @@ class UserViewModel : ViewModel() {
             val updatedList = if (add) currentList + movieId else currentList - movieId
             transaction.update(docRef, fieldName, updatedList.distinct())
         }
+            .addOnFailureListener {
+                onFailure()
+                it.printStackTrace()
+            }
     }
 
     private fun loadMovieDetails(movieIds: List<String>, targetFlow: MutableStateFlow<List<MovieDetailsResponse>>) {

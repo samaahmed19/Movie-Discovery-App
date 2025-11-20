@@ -101,7 +101,14 @@ fun SignInScreen(
             colors = listOf(Color.White, Color(0xFFF5F5F5), Color.White)
         )
     }
-
+    LaunchedEffect(Unit) {
+        val currentUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
+        if (currentUser != null && currentUser.isEmailVerified) {
+            navController?.navigate("home") {
+                popUpTo(navController.graph.startDestinationId) { inclusive = true }
+            }
+        }
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -165,6 +172,7 @@ fun SignInScreen(
                         focusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black,
                         unfocusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black
                     ),
+                    singleLine = true,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 8.dp)
@@ -200,6 +208,7 @@ fun SignInScreen(
                         focusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black,
                         unfocusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black
                     ),
+                    singleLine = true,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 8.dp)

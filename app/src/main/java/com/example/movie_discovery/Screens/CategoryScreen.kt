@@ -1,6 +1,10 @@
 package com.example.movie_discovery.Screens
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -146,7 +150,7 @@ fun CategoryScreen(
                     ) {
                         for (movie in rowItems) {
                             Box(modifier = Modifier.weight(1f)) {
-                                MovieCardR(
+                                AnimatedGridMovieCard(
                                     movie = movie,
                                     userViewModel = userViewModel
                                 ) {
@@ -169,8 +173,26 @@ fun AnimatedFeaturedCategoryCard(movie: Movie, userViewModel: UserViewModel, onC
     var visible by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { visible = true }
 
-    AnimatedVisibility(visible = visible) {
+    AnimatedVisibility(
+        visible = visible,
+        enter = slideInHorizontally() + fadeIn(),
+        exit = fadeOut()
+    ) {
         FeaturedCategoryCardR(movie = movie, userViewModel = userViewModel, onClick = onClick)
+    }
+}
+
+@Composable
+fun AnimatedGridMovieCard(movie: Movie, userViewModel: UserViewModel, onClick: () -> Unit) {
+    var visible by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { visible = true }
+
+    AnimatedVisibility(
+        visible = visible,
+        enter = scaleIn() + fadeIn(),
+        exit = fadeOut()
+    ) {
+        MovieCardR(movie = movie, userViewModel = userViewModel, onClick = onClick)
     }
 }
 
