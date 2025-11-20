@@ -1,16 +1,18 @@
 package com.example.movie_discovery.Navigator
 
 import android.os.Bundle
-import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -28,26 +30,30 @@ import com.example.movie_discovery.Screens.SignUpScreen
 import com.example.movie_discovery.Screens.SplashScreen
 import com.example.movie_discovery.Screens.TrailerScreen
 import com.example.movie_discovery.Viewmodels.ThemeViewModel
+import com.example.movie_discovery.ui.theme.DarkNavy
 import com.example.movie_discovery.ui.theme.MoviesTheme
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
-import com.example.movie_discovery.Viewmodels.UserViewModel
-import androidx.compose.material3.*
-import androidx.compose.ui.platform.LocalContext
-import kotlinx.coroutines.delay
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             val themeViewModel: ThemeViewModel = viewModel()
+            val isThemeLoaded by themeViewModel.isThemeLoaded.collectAsState()
+            val isDarkMode by themeViewModel.isDarkMode.collectAsState()
             val systemDark = isSystemInDarkTheme()
+
             LaunchedEffect(Unit) {
                 themeViewModel.loadDarkMode(defaultDarkMode = systemDark)
             }
-
-            val isDarkMode by themeViewModel.isDarkMode.collectAsState()
-
+            if (!isThemeLoaded) {
+                SplashScreen(
+                    onTimeout = { }
+                )
+                return@setContent
+            }
             MoviesTheme(darkTheme = isDarkMode) {
                 MyApp(themeViewModel)
             }
@@ -72,7 +78,8 @@ fun MyApp(
                 SplashScreen(
                     onTimeout = {
                         val user = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
-                        val destination = if (user != null && user.isEmailVerified) "home" else "signIn"
+                        val destination =
+                            if (user != null && user.isEmailVerified) "home" else "signIn"
                         navController.navigate(destination) {
                             popUpTo("splash") { inclusive = true }
                         }
@@ -98,8 +105,11 @@ fun MyApp(
             // Home Screen
             // ---------------------------
             composable("home") {
+                val userId = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
                 HomeScreen(
                     navController = navController,
+                    userId = userId,
+                    themeViewModel = themeViewModel,
                     onMovieClick = { movieId ->
                         navController.navigate("details/$movieId")
                     },
@@ -114,7 +124,6 @@ fun MyApp(
                     }
                 )
             }
-
             // ---------------------------
             // Search Screen
             // ---------------------------
@@ -192,4 +201,5 @@ fun MyApp(
             }
         }
     }
+
 
