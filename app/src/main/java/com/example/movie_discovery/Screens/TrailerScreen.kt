@@ -3,26 +3,23 @@ package com.example.movie_discovery.Screens
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.pm.ActivityInfo
-import android.view.View
+import android.os.Build
 import android.view.ViewGroup
-import android.webkit.WebChromeClient
-import android.webkit.WebSettings
-import android.webkit.WebView
-import android.webkit.WebViewClient
-import android.widget.FrameLayout
+import android.view.WindowManager
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -32,14 +29,15 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
@@ -50,6 +48,9 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
@@ -59,6 +60,9 @@ import com.example.movie_discovery.Viewmodels.TrailerViewModel
 import com.example.movie_discovery.Viewmodels.UserViewModel
 import com.example.movie_discovery.data.CastMember
 import com.example.movie_discovery.ui.theme.AccentRed
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 
 @Composable
 fun TrailerNeonText(text: String, neonColor: Color, textColor: Color) {
@@ -80,7 +84,12 @@ fun TrailerNeonText(text: String, neonColor: Color, textColor: Color) {
             ),
             textAlign = TextAlign.Center
         )
-        Text(text = text, color = textColor, style = baseStyle, textAlign = TextAlign.Center)
+        Text(
+            text = text,
+            color = textColor,
+            style = baseStyle,
+            textAlign = TextAlign.Center
+        )
     }
 }
 
@@ -96,10 +105,9 @@ fun TrailerScreen(
 ) {
     val context = LocalContext.current
     val activity = context as? Activity
+    val lifecycleOwner = LocalLifecycleOwner.current
 
-    LaunchedEffect(Unit) {
-        userViewModel.loadUserData()
-    }
+    LaunchedEffect(Unit) { userViewModel.loadUserData() }
 
     val userSettings by settingsViewModel.userSettings.collectAsState()
     val selectedLanguage = userSettings.language
@@ -111,12 +119,9 @@ fun TrailerScreen(
     }
     val castList by trailerViewModel.cast.collectAsState()
 
-    val userData by userViewModel.userData.collectAsState()
-    val isDarkMode = userData?.isDarkMode == true
-
+    val textColor = MaterialTheme.colorScheme.onBackground
     val backgroundColor = MaterialTheme.colorScheme.background
     val surfaceColor = MaterialTheme.colorScheme.surface
-    val textColor = MaterialTheme.colorScheme.onBackground
     val iconTint = MaterialTheme.colorScheme.onBackground
 
     val customFont = when (fontType) {
@@ -126,41 +131,85 @@ fun TrailerScreen(
     }
 
     var isFullScreen by remember { mutableStateOf(false) }
-    var customView by remember { mutableStateOf<View?>(null) }
 
-    val layoutDirection = if (selectedLanguage == "ar") LayoutDirection.Rtl else LayoutDirection.Ltr
-    val youtubeLang = if (selectedLanguage == "ar") "ar" else "en"
-    val videoUrl = "https://www.youtube.com/embed/$videoKey?autoplay=1&modestbranding=1&controls=1&fs=1&hl=$youtubeLang"
+    DisposableEffect(isFullScreen) {
+        val window = activity?.window
+        if (window != null) {
+            val insetsController = WindowCompat.getInsetsController(window, window.decorView)
+            insetsController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
 
-    val backgroundBrush = Brush.verticalGradient(
-        colors = listOf(backgroundColor, surfaceColor)
-    )
+            if (isFullScreen) {
+                insetsController.hide(WindowInsetsCompat.Type.systemBars())
+                WindowCompat.setDecorFitsSystemWindows(window, false)
 
-    BackHandler(enabled = isFullScreen) {
-        isFullScreen = false
-        customView = null
-        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-    }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    window.attributes.layoutInDisplayCutoutMode =
+                        WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+                }
+            } else {
+                insetsController.show(WindowInsetsCompat.Type.systemBars())
+                WindowCompat.setDecorFitsSystemWindows(window, true)
 
-    if (isFullScreen && customView != null) {
-        AndroidView(
-            modifier = Modifier.fillMaxSize().background(Color.Black),
-            factory = {
-                FrameLayout(it).apply {
-                    addView(customView)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    window.attributes.layoutInDisplayCutoutMode =
+                        WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_DEFAULT
                 }
             }
-        )
-    } else {
-        CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(backgroundBrush)
-                    .statusBarsPadding()
-                    .verticalScroll(rememberScrollState())
-            ) {
+        }
+        onDispose {
+            val windowDispose = activity?.window
+            if (windowDispose != null) {
+                WindowCompat.setDecorFitsSystemWindows(windowDispose, true)
+                WindowCompat.getInsetsController(windowDispose, windowDispose.decorView)
+                    .show(WindowInsetsCompat.Type.systemBars())
 
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    windowDispose.attributes.layoutInDisplayCutoutMode =
+                        WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_DEFAULT
+                }
+            }
+        }
+    }
+
+    fun toggleFullScreen() {
+        isFullScreen = !isFullScreen
+        if (isFullScreen) {
+            activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        } else {
+            activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        }
+    }
+
+    BackHandler(enabled = isFullScreen) {
+        toggleFullScreen()
+    }
+
+    val layoutDirection = if (selectedLanguage == "ar") LayoutDirection.Rtl else LayoutDirection.Ltr
+    val backgroundBrush = Brush.verticalGradient(listOf(backgroundColor, surfaceColor))
+    val scrollState = rememberScrollState()
+    var columnModifier = Modifier.fillMaxSize()
+
+    columnModifier = if (isFullScreen) {
+        columnModifier.background(Color.Black)
+    } else {
+        columnModifier.background(backgroundBrush)
+    }
+
+    if (!isFullScreen) {
+        columnModifier = columnModifier.statusBarsPadding()
+    }
+
+    columnModifier = columnModifier.verticalScroll(scrollState, enabled = !isFullScreen)
+
+    CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
+        Column(
+            modifier = columnModifier
+        ) {
+            AnimatedVisibility(
+                visible = !isFullScreen,
+                enter = slideInVertically() + fadeIn(),
+                exit = fadeOut()
+            ) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -170,7 +219,7 @@ fun TrailerScreen(
                         onClick = { navController.popBackStack() },
                         modifier = Modifier
                             .align(Alignment.TopStart)
-                            .padding(top = 8.dp, start = 8.dp)
+                            .padding(8.dp)
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -179,106 +228,102 @@ fun TrailerScreen(
                             modifier = Modifier.size(32.dp)
                         )
                     }
+
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier
-                            .align(Alignment.TopCenter)
-                            .padding(top = 45.dp)
+                        modifier = Modifier.align(Alignment.Center)
                     ) {
-                        TrailerNeonText(
-                            text = "Movie",
-                            neonColor = Color.Cyan.copy(alpha = 0.9f),
-                            textColor = textColor
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        TrailerNeonText(
-                            text = "Discovery",
-                            neonColor = AccentRed.copy(alpha = 0.8f),
-                            textColor = textColor
-                        )
+                        TrailerNeonText("Movie", Color.Cyan.copy(alpha = 0.9f), textColor)
+                        TrailerNeonText("Discovery", AccentRed.copy(alpha = 0.8f), textColor)
                     }
                 }
-                Spacer(modifier = Modifier.height(20.dp))
+            }
 
-                if (videoKey != null) {
-                    Box(
-                        modifier = Modifier
+            if (!isFullScreen) {
+                Spacer(modifier = Modifier.height(20.dp))
+            }
+
+            if (videoKey != null) {
+                Box(
+                    modifier = if (isFullScreen) {
+                        Modifier
+                            .fillMaxSize()
+                            .background(Color.Black)
+                    } else {
+                        Modifier
                             .fillMaxWidth()
                             .aspectRatio(16f / 9f)
-                            .background(Color.Black),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        AndroidView(
-                            modifier = Modifier.fillMaxSize(),
-                            factory = { context ->
-                                WebView(context).apply {
-                                    layoutParams = ViewGroup.LayoutParams(
-                                        ViewGroup.LayoutParams.MATCH_PARENT,
-                                        ViewGroup.LayoutParams.MATCH_PARENT
-                                    )
-                                    settings.javaScriptEnabled = true
-                                    settings.domStorageEnabled = true
-                                    settings.loadWithOverviewMode = true
-                                    settings.useWideViewPort = true
-                                    settings.pluginState = WebSettings.PluginState.ON
+                            .background(Color.Black)
+                    }.pointerInput(Unit) {
+                        detectTapGestures(
+                            onDoubleTap = { toggleFullScreen() }
+                        )
+                    },
+                    contentAlignment = Alignment.Center
+                ) {
+                    AndroidView(
+                        modifier = Modifier.fillMaxSize(),
+                        factory = { ctx ->
+                            val playerView = YouTubePlayerView(ctx).apply {
+                                enableAutomaticInitialization = false
+                                layoutParams = ViewGroup.LayoutParams(
+                                    ViewGroup.LayoutParams.MATCH_PARENT,
+                                    ViewGroup.LayoutParams.MATCH_PARENT
+                                )
+                            }
+                            lifecycleOwner.lifecycle.addObserver(playerView)
 
-                                    webChromeClient = object : WebChromeClient() {
-                                        override fun onShowCustomView(view: View?, callback: CustomViewCallback?) {
-                                            super.onShowCustomView(view, callback)
-                                            customView = view
-                                            isFullScreen = true
-                                            activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-                                        }
-
-                                        override fun onHideCustomView() {
-                                            super.onHideCustomView()
-                                            customView = null
-                                            isFullScreen = false
-                                            activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                            playerView.initialize(
+                                object : AbstractYouTubePlayerListener() {
+                                    override fun onReady(player: YouTubePlayer) {
+                                        if (!videoKey.isNullOrEmpty()) {
+                                            player.loadVideo(videoKey, 0f)
                                         }
                                     }
-                                    webViewClient = WebViewClient()
-                                    loadUrl(videoUrl)
-                                }
-                            }
-                        )
-
-                        IconButton(
-                            onClick = {
-                                isFullScreen = true
-                                activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-                            },
-                            modifier = Modifier
-                                .align(Alignment.BottomEnd)
-                                .padding(8.dp)
-                                .background(Color.Black.copy(alpha = 0.6f), CircleShape)
-                                .size(40.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Fullscreen,
-                                contentDescription = "Fullscreen",
-                                tint = Color.White,
-                                modifier = Modifier.size(24.dp)
+                                },
+                                true
                             )
+                            playerView
                         }
-                    }
-                } else {
-                    Box(
+                    )
+
+                    IconButton(
+                        onClick = { toggleFullScreen() },
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .height(200.dp),
-                        contentAlignment = Alignment.Center
+                            .align(Alignment.BottomEnd)
+                            .padding(16.dp)
+                            .background(Color.Black.copy(alpha = 0.5f), CircleShape)
+                            .size(48.dp)
                     ) {
-                        Text(
-                            text = if (selectedLanguage == "ar") "الفيديو غير متاح" else "Video unavailable",
-                            color = textColor,
-                            fontFamily = customFont,
-                            fontSize = fontSize.sp
+                        Icon(
+                            imageVector = if (isFullScreen) Icons.Default.FullscreenExit else Icons.Default.Fullscreen,
+                            contentDescription = "Fullscreen",
+                            tint = Color.White,
+                            modifier = Modifier.size(28.dp)
                         )
                     }
                 }
-
-                if (castList.isNotEmpty()) {
+            } else {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = if (selectedLanguage == "ar") "الفيديو غير متاح" else "Video unavailable",
+                        color = textColor,
+                        fontFamily = customFont,
+                        fontSize = fontSize.sp
+                    )
+                }
+            }
+            AnimatedVisibility(
+                visible = !isFullScreen && castList.isNotEmpty(),
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                Column {
                     Spacer(modifier = Modifier.height(24.dp))
                     Text(
                         text = if (selectedLanguage == "ar") "طاقم التمثيل" else "Cast & Crew",
@@ -302,7 +347,6 @@ fun TrailerScreen(
         }
     }
 }
-
 @Composable
 fun AnimatedCastMemberItem(actor: CastMember, textColor: Color, customFont: FontFamily) {
     var visible by remember { mutableStateOf(false) }

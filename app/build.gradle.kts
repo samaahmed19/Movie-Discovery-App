@@ -44,7 +44,7 @@ android {
 
 dependencies {
     implementation("com.google.android.gms:play-services-mlkit-text-recognition:19.0.0")
-    implementation("com.pierfrancescosoffritti.androidyoutubeplayer:core:12.1.0")
+    implementation("com.pierfrancescosoffritti.androidyoutubeplayer:core:13.0.0")
     testImplementation("org.mockito:mockito-core:5.6.0")
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.1.0")
     implementation("com.google.firebase:firebase-analytics-ktx:21.3.0")
