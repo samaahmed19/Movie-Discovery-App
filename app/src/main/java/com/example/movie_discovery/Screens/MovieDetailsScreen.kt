@@ -371,8 +371,7 @@ fun MovieDetailsScreen(
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .background(AccentRed.copy(alpha = 0.3f))
-                                .background(Color.Black.copy(alpha = 0.5f))
+                                .background(Color.Black.copy(alpha = 0.3f))
                         )
 
                         Row(verticalAlignment = Alignment.CenterVertically) {
