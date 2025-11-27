@@ -2,6 +2,9 @@ package com.example.movie_discovery.Screens
 
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.EaseOutCubic
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
@@ -11,12 +14,14 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -24,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -32,7 +38,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.example.movie_discovery.ui.theme.AccentRed
 import com.example.movie_discovery.data.MovieDetailsResponse
 import com.example.movie_discovery.Viewmodels.HomeViewModel
 import com.example.movie_discovery.Viewmodels.UserViewModel
@@ -50,7 +55,6 @@ fun HomeScreen(
     navController: NavController,
     userId: String?,
     themeViewModel: ThemeViewModel,
-    onMovieClick: (Int) -> Unit,
     onSearchClick: () -> Unit,
     onProfileClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {}
@@ -63,10 +67,9 @@ fun HomeScreen(
     val trendingMovies by viewModel.trendingMovies.collectAsState()
     val upcomingMovies by viewModel.upcomingMovies.collectAsState()
     val topRatedMovies by viewModel.topRatedMovies.collectAsState()
-    val userData by userViewModel.userData.collectAsState()
+    val userSettings by settingsViewModel.userSettings.collectAsState()
 
     var selectedTab by remember { mutableStateOf(0) }
-    val userSettings by settingsViewModel.userSettings.collectAsState()
 
     val selectedLanguage = userSettings.language
     val fontType = userSettings.fontType
@@ -101,7 +104,7 @@ fun HomeScreen(
             Text(
                 text = if (selectedLanguage == "ar") "اكتشف الأفلام" else "Movie Discovery",
                 style = MaterialTheme.typography.headlineMedium,
-                color = AccentRed,
+                color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.Bold,
                 fontFamily = customFont,
                 fontSize = fontSize.sp
@@ -140,9 +143,9 @@ fun HomeScreen(
         )
 
         when (selectedTab) {
-            0 -> MoviesList(movies = popularMovies, onMovieClick = onMovieClick, userViewModel = userViewModel, userData = userData)
-            1 -> MoviesList(movies = topRatedMovies, onMovieClick = onMovieClick, userViewModel = userViewModel, userData = userData)
-            2 -> MoviesList(movies = upcomingMovies, onMovieClick = onMovieClick, userViewModel = userViewModel, userData = userData)
+            0 -> MoviesList(movies = popularMovies, navController = navController, userViewModel = userViewModel)
+            1 -> MoviesList(movies = topRatedMovies, navController = navController, userViewModel = userViewModel)
+            2 -> MoviesList(movies = upcomingMovies, navController = navController, userViewModel = userViewModel)
         }
     }
 }
@@ -171,12 +174,14 @@ fun SearchBar(onSearchClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surface)
             .clickable { onSearchClick() },
         placeholder = {
             Text(
                 text = if (selectedLanguage == "ar") "ابحث عن فيلم..." else "Search movies...",
                 fontFamily = customFont,
-                fontSize = fontSize.sp
+                fontSize = fontSize.sp,
+                color = MaterialTheme.colorScheme.onSecondary.copy(alpha = 0.5f)
             )
         },
         singleLine = true,
@@ -271,7 +276,7 @@ fun FeaturedHomeCard(
                 Icon(
                     imageVector = Icons.Default.Favorite,
                     contentDescription = "Favorite",
-                    tint = if (isFavorite) Color.Red else Color.White.copy(alpha = 0.8f)
+                    tint = if (isFavorite) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.8f)
                 )
             }
 
@@ -279,14 +284,14 @@ fun FeaturedHomeCard(
                 modifier = Modifier
                     .align(Alignment.BottomStart)
                     .fillMaxWidth()
-                    .background(Color.Black.copy(alpha = 0.5f))
+                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.6f))
                     .padding(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
                     text = movie.title ?: "Unknown",
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -296,13 +301,13 @@ fun FeaturedHomeCard(
                     Icon(
                         imageVector = Icons.Filled.Star,
                         contentDescription = "Rating",
-                        tint = Color(0xFFFFD700),
+                        tint =MaterialTheme.colorScheme.secondary,
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = "${movie.voteAverage ?: 0.0}",
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onSecondary,
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
@@ -329,7 +334,7 @@ fun MovieTabs(selectedTab: Int, onTabSelected: (Int) -> Unit) {
     }
 
     val tabs = listOf("Popular", "Top Rated", "Upcoming")
-    ScrollableTabRow(selectedTabIndex = selectedTab) {
+    ScrollableTabRow(selectedTabIndex = selectedTab , containerColor = MaterialTheme.colorScheme.surface) {
         tabs.forEachIndexed { index, title ->
             Tab(
                 selected = selectedTab == index,
@@ -357,34 +362,42 @@ fun MovieTabs(selectedTab: Int, onTabSelected: (Int) -> Unit) {
 @Composable
 fun MoviesList(
     movies: List<MovieDetailsResponse>,
-    onMovieClick: (Int) -> Unit,
-    userViewModel: UserViewModel,
-    userData: com.example.movie_discovery.data.UserData?
+    navController: NavController,
+    userViewModel: UserViewModel
 ) {
-    LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-        items(movies) { movie ->
-            AnimatedMovieCard(movie = movie, onMovieClick = onMovieClick, userViewModel = userViewModel, userData = userData)
+    var listAnimated by remember { mutableStateOf(false) }
+
+    LaunchedEffect(key1 = movies) {
+        if (movies.isNotEmpty()) {
+            listAnimated = true
+        }
+    }
+
+    LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        itemsIndexed(items = movies, key = { _, movie -> movie.id }) { index, movie ->
+
+            val animatedProgress by animateFloatAsState(
+                targetValue = if (listAnimated) 1f else 0f,
+                animationSpec = tween(
+                    durationMillis = 400,
+                    delayMillis = index * 100,
+                    easing = EaseOutCubic
+                )
+            )
+            MovieCard(
+                movie = movie,
+                userViewModel = userViewModel,
+                onMovieClick = { navController.navigate("details/${movie.id}") },
+                modifier = Modifier
+                    .graphicsLayer {
+                        alpha = animatedProgress
+                        translationX = (-100 * (1 - animatedProgress))
+                        translationY = (-30 * (1 - animatedProgress))
+                    }
+            )
         }
     }
 }
-
-// -------------------------------
-// Animated Movie Card
-// -------------------------------
-@Composable
-fun AnimatedMovieCard(
-    movie: MovieDetailsResponse,
-    onMovieClick: (Int) -> Unit,
-    userViewModel: UserViewModel,
-    userData: com.example.movie_discovery.data.UserData?
-) {
-    var visible by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) { visible = true }
-    AnimatedVisibility(visible = visible) {
-        MovieCard(movie = movie, onMovieClick = onMovieClick, userViewModel = userViewModel, userData = userData)
-    }
-}
-
 // -------------------------------
 // Movie Card
 // -------------------------------
@@ -392,7 +405,6 @@ fun AnimatedMovieCard(
 fun MovieCard(
     movie: MovieDetailsResponse,
     modifier: Modifier = Modifier,
-    userData: com.example.movie_discovery.data.UserData?,
     onMovieClick: (Int) -> Unit = {},
     userViewModel: UserViewModel = viewModel()
 ) {
@@ -427,7 +439,6 @@ fun MovieCard(
                         .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)),
                     contentScale = ContentScale.Crop
                 )
-
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -438,7 +449,8 @@ fun MovieCard(
                         text = movie.title,
                         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Row(
@@ -448,14 +460,14 @@ fun MovieCard(
                         Icon(
                             imageVector = Icons.Filled.Star,
                             contentDescription = "Rating",
-                            tint = Color(0xFFFFD700),
+                            tint = MaterialTheme.colorScheme.secondary,
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = "${movie.voteAverage ?: 0.0}",
                             style = MaterialTheme.typography.bodySmall,
-                            color = Color.Gray
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha=0.7f)
                         )
                     }
                 }
@@ -464,11 +476,9 @@ fun MovieCard(
             // Favorite Icon
             IconButton(
                 onClick = {
-                    if (isFavorite)
-                        userViewModel.removeFromFavourites(movie.id.toString())
-                    else
-                        userViewModel.addToFavourites(movie.id.toString())
-                    isFavorite = !isFavorite
+                    val movieIdStr = movie.id.toString()
+                    if (isFavorite) userViewModel.removeFromFavourites(movieIdStr)
+                    else userViewModel.addToFavourites(movieIdStr)
                 },
                 modifier = Modifier
                     .align(Alignment.TopEnd)
@@ -477,8 +487,7 @@ fun MovieCard(
                 Icon(
                     imageVector = Icons.Filled.Favorite,
                     contentDescription = "Favorite",
-                    tint = if (isFavorite) Color.Red else Color.LightGray,
-                    modifier = Modifier.size(24.dp)
+                    tint = if (isFavorite) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.8f)
                 )
             }
         }

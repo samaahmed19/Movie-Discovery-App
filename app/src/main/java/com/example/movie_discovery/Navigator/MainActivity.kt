@@ -3,16 +3,11 @@ package com.example.movie_discovery.Navigator
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -30,7 +25,6 @@ import com.example.movie_discovery.Screens.SignUpScreen
 import com.example.movie_discovery.Screens.SplashScreen
 import com.example.movie_discovery.Screens.TrailerScreen
 import com.example.movie_discovery.Viewmodels.ThemeViewModel
-import com.example.movie_discovery.ui.theme.DarkNavy
 import com.example.movie_discovery.ui.theme.MoviesTheme
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
@@ -110,9 +104,6 @@ fun MyApp(
                     navController = navController,
                     userId = userId,
                     themeViewModel = themeViewModel,
-                    onMovieClick = { movieId ->
-                        navController.navigate("details/$movieId")
-                    },
                     onSearchClick = {
                         navController.navigate("search_screen")
                     },

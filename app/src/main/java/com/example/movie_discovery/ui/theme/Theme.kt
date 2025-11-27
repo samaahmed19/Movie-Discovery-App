@@ -33,25 +33,25 @@ fun MoviesTheme(
     )
 
     val DarkColorScheme = darkColorScheme(
-        primary = AccentRed,
-        secondary = Gold,
-        background = DarkNavy,
-        surface = CardBackground,
-        onPrimary = TextPrimary,
-        onSecondary = TextPrimary,
-        onBackground = TextPrimary,
-        onSurface = TextPrimary
+        primary = AccentRed, // main color
+        secondary = Gold, // stars
+        background = DarkNavy, //background
+        surface = BluishGrey,  //CardBackground
+        onPrimary = White, //PrimaryTextColor
+        onSecondary = GrayishWhite, // secondaryTextColor
+        onBackground = White,
+        onSurface = White, //PrimaryTextColor
     )
 
     val LightColorScheme = lightColorScheme(
-        primary = AccentRed,
-        secondary = Gold,
-        background = androidx.compose.ui.graphics.Color.White,
-        surface = androidx.compose.ui.graphics.Color(0xFFF5F5F5),
-        onPrimary = androidx.compose.ui.graphics.Color.White,
-        onSecondary = androidx.compose.ui.graphics.Color.Black,
-        onBackground = androidx.compose.ui.graphics.Color.Black,
-        onSurface = androidx.compose.ui.graphics.Color.Black
+        primary = AccentRed,  // main color
+        secondary = Gold,   //stars
+        background = White, //background
+        surface = GrayishWhite, //CardBackground
+        onPrimary = White,  //PrimaryTextColor
+        onSecondary = BluishGrey, // secondaryTextColor
+        onBackground = DarkNavy,
+        onSurface = DarkNavy,  //PrimaryTextColor
     )
 
     val colorScheme = when {

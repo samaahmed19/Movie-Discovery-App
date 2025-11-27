@@ -5,14 +5,11 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.result.launch
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.ui.platform.LocalContext
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
-import android.widget.MediaController
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -31,7 +28,6 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,7 +44,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.example.movie_discovery.R
@@ -74,8 +69,6 @@ fun SearchScreen(
     val focusRequester = remember { androidx.compose.ui.focus.FocusRequester() }
     var showImageSourceDialog by remember { mutableStateOf(false) }
     var query by remember { mutableStateOf("") }
-    var scannedText by remember { mutableStateOf("") }
-    var showConfirmDialog by remember { mutableStateOf(false) }
     val searchResults by viewModel.searchResults.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val userData by userViewModel.userData.collectAsState()
@@ -277,7 +270,7 @@ fun SearchScreen(
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back",
-                        tint = MaterialTheme.colorScheme.onBackground
+                        tint = MaterialTheme.colorScheme.onSurface
                     )
                 }
 
@@ -297,7 +290,7 @@ fun SearchScreen(
                         Icon(
                             imageVector = Icons.Default.Search,
                             contentDescription = null,
-                            tint = TextSecondary
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
                     },
                     trailingIcon = {
@@ -306,7 +299,7 @@ fun SearchScreen(
                                 Icon(
                                     imageVector = Icons.Default.CameraAlt,
                                     contentDescription = "Scan",
-                                    tint = TextSecondary
+                                    tint = MaterialTheme.colorScheme.onSurface
                                 )
                             }
                             if (query.isNotEmpty()) {
@@ -314,7 +307,7 @@ fun SearchScreen(
                                     query = ""
                                     viewModel.clearSearchResults()
                                 }) {
-                                    Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                    Icon(Icons.Default.Clear, contentDescription = "Clear" , tint=MaterialTheme.colorScheme.onSurface)
                                 }
                             }
                         }
@@ -344,7 +337,7 @@ fun SearchScreen(
             ) {
                 Text(
                     text = if (selectedLanguage == "ar") "اكتشف التصنيفات" else "Explore Categories",
-                    color = MaterialTheme.colorScheme.onBackground,
+                    color = MaterialTheme.colorScheme.onSecondary,
                     fontFamily = customFont,
                     fontSize = fontSize.sp,
                     fontWeight = FontWeight.Bold,
@@ -420,7 +413,8 @@ fun SearchScreen(
                                     .clickable { navController.navigate("details/${movie.id}") }
                                     .shadow(8.dp, RoundedCornerShape(16.dp)),
                                 shape = RoundedCornerShape(16.dp),
-                                elevation = CardDefaults.cardElevation(6.dp)
+                                elevation = CardDefaults.cardElevation(6.dp),
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                             ) {
                                 Box {
                                     Column(
@@ -453,6 +447,7 @@ fun SearchScreen(
                                                 style = MaterialTheme.typography.bodyMedium.copy(
                                                     fontWeight = FontWeight.Bold
                                                 ),
+                                                color=MaterialTheme.colorScheme.onSurface,
                                                 maxLines = 1,
                                                 overflow = TextOverflow.Ellipsis
                                             )
@@ -466,14 +461,14 @@ fun SearchScreen(
                                                 Icon(
                                                     imageVector = Icons.Filled.Star,
                                                     contentDescription = "Rating",
-                                                    tint = Color(0xFFFFD700),
+                                                    tint =MaterialTheme.colorScheme.secondary ,
                                                     modifier = Modifier.size(16.dp)
                                                 )
                                                 Spacer(modifier = Modifier.width(4.dp))
                                                 Text(
                                                     text = "${movie.voteAverage ?: 0.0}",
                                                     style = MaterialTheme.typography.bodySmall,
-                                                    color = Color.Gray
+                                                    color = MaterialTheme.colorScheme.onSecondary
                                                 )
                                             }
                                         }
@@ -494,7 +489,7 @@ fun SearchScreen(
                                         Icon(
                                             imageVector = Icons.Filled.Favorite,
                                             contentDescription = "Favorite",
-                                            tint = if (isFavorite) Color.Red else Color.LightGray
+                                            tint = if (isFavorite) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.8f)
                                         )
                                     }
                                 }
@@ -546,7 +541,7 @@ fun CategoryCard(
 
                 Text(
                     text = displayName,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onPrimary,
                     fontFamily = fontFamily,
                     fontSize = fontSize.sp,
                     fontWeight = FontWeight.Bold,
