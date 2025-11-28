@@ -1,7 +1,6 @@
 package com.example.movie_discovery.Screens
 
 import android.content.Intent
-import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,7 +11,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.PlayArrow
@@ -41,8 +39,6 @@ import com.example.movie_discovery.R
 import com.example.movie_discovery.Viewmodels.MovieDetailViewModel
 import com.example.movie_discovery.Viewmodels.SettingsViewModel
 import com.example.movie_discovery.Viewmodels.UserViewModel
-import com.example.movie_discovery.ui.theme.AccentRed
-import com.google.api.Context
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -70,7 +66,6 @@ fun MovieDetailsScreen(
     var watchlistScale by remember { mutableFloatStateOf(1f) }
     var watchedScale by remember { mutableFloatStateOf(1f) }
     val coroutineScope = rememberCoroutineScope()
-    var isShareClicked by remember { mutableStateOf(false) }
 
     val scrollState = rememberScrollState()
     val userSettings by settingsViewModel.userSettings.collectAsState()
@@ -108,7 +103,7 @@ fun MovieDetailsScreen(
 
     if (movieDetail == null) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator(color = AccentRed)
+            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
         }
     } else {
         Column(
@@ -143,7 +138,7 @@ fun MovieDetailsScreen(
                         .size(48.dp)
                         .scale(favoriteScale)
                         .clip(CircleShape)
-                        .background(Color.Black.copy(alpha = 0.25f))
+                        .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.25f))
                         .clickable {
                             movieId?.let { id ->
                                 isFavorite = !isFavorite
@@ -159,7 +154,6 @@ fun MovieDetailsScreen(
                                         movieId = id.toString(),
                                         onFailure = {
                                             isFavorite = false
-                                            Toast.makeText(context, "Failed to add. Check internet.", Toast.LENGTH_SHORT).show()
                                         }
                                     )
                                 } else {
@@ -167,7 +161,6 @@ fun MovieDetailsScreen(
                                         movieId = id.toString(),
                                         onFailure = {
                                             isFavorite = true
-                                            Toast.makeText(context, "Failed to remove. Check internet.", Toast.LENGTH_SHORT).show()
                                         }
                                     )
                                 }
@@ -179,7 +172,7 @@ fun MovieDetailsScreen(
                     Icon(
                         imageVector = Icons.Filled.Favorite,
                         contentDescription = "Favorite",
-                        tint = if (isFavorite) Color.Red else Color.LightGray,
+                        tint = if (isFavorite) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.8f),
                         modifier = Modifier.size(26.dp)
                     )
                 }
@@ -188,13 +181,13 @@ fun MovieDetailsScreen(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .padding(12.dp)
-                        .background(Color.Black.copy(alpha = 0.4f), CircleShape)
+                        .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.4f), CircleShape)
                         .size(48.dp)
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back",
-                        tint = Color.White,
+                        tint = MaterialTheme.colorScheme.onBackground,
                         modifier = Modifier
                             .size(24.dp)
                             .scale(scaleX = -1f, scaleY = 1f)
@@ -202,12 +195,12 @@ fun MovieDetailsScreen(
                 }
                 IconBox(
                     icon = Icons.Filled.Done,
-                    tint = if (isWatched) Color(0xFFFFD700) else Color.LightGray,
+                    tint = if (isWatched) MaterialTheme.colorScheme.secondary else Color.White.copy(alpha = 0.8f),
                     modifier = Modifier
                         .align(Alignment.BottomStart)
                         .padding(12.dp)
                         .scale(watchedScale)
-                        .background(Color.Black.copy(alpha = 0.25f), shape = CircleShape),
+                        .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.25f), CircleShape),
                     onClick = {
                         movieId?.let { id ->
                             isWatched = !isWatched
@@ -222,7 +215,6 @@ fun MovieDetailsScreen(
                                     movieId = id.toString(),
                                     onFailure = {
                                         isWatched = false
-                                        Toast.makeText(context, "Failed. Check internet.", Toast.LENGTH_SHORT).show()
                                     }
                                 )
                                 isWatchlist = false
@@ -231,7 +223,6 @@ fun MovieDetailsScreen(
                                     movieId = id.toString(),
                                     onFailure = {
                                         isWatched = true
-                                        Toast.makeText(context, "Failed. Check internet.", Toast.LENGTH_SHORT).show()
                                     }
                                 )
                             }
@@ -241,12 +232,12 @@ fun MovieDetailsScreen(
 
                 IconBox(
                     icon = Icons.Filled.Visibility,
-                    tint = if (isWatchlist) Color(0xFF00C853) else Color.LightGray,
+                    tint = if (isWatchlist) Color.Green else Color.White.copy(alpha = 0.8f),
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
                         .padding(12.dp)
                         .scale(watchlistScale)
-                        .background(Color.Black.copy(alpha = 0.25f), shape = CircleShape),
+                        .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.25f), CircleShape),
                     onClick = {
                         movieId?.let { id ->
                             isWatchlist = !isWatchlist
@@ -262,7 +253,6 @@ fun MovieDetailsScreen(
                                     movieId = id.toString(),
                                     onFailure = {
                                         isWatchlist = false
-                                        Toast.makeText(context, "Failed. Check internet.", Toast.LENGTH_SHORT).show()
                                     }
                                 )
                                 isWatched = false
@@ -271,7 +261,6 @@ fun MovieDetailsScreen(
                                     movieId = id.toString(),
                                     onFailure = {
                                         isWatchlist = true
-                                        Toast.makeText(context, "Failed. Check internet.", Toast.LENGTH_SHORT).show()
                                     }
                                 )
                             }
@@ -288,7 +277,7 @@ fun MovieDetailsScreen(
                 Icon(
                     imageVector = Icons.Filled.Star,
                     contentDescription = "Rating",
-                    tint = Color(0xFFFFD700),
+                    tint = MaterialTheme.colorScheme.secondary,
                     modifier = Modifier.size(20.dp)
                 )
 
@@ -299,7 +288,7 @@ fun MovieDetailsScreen(
                     else
                         "Rating: ${movieDetail?.voteAverage ?: "N/A"}",
                     style = MaterialTheme.typography.bodyMedium.copy(
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
+                        color = MaterialTheme.colorScheme.onSecondary.copy(alpha = 0.7f),
                         fontFamily = customFont,
                         fontSize = fontSize.sp
                     )
@@ -313,7 +302,7 @@ fun MovieDetailsScreen(
                     else
                         "Release: ${movieDetail?.releaseDate ?: "Unknown"}",
                     style = MaterialTheme.typography.bodyMedium.copy(
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
+                        color = MaterialTheme.colorScheme.onSecondary.copy(alpha = 0.7f),
                         fontFamily = customFont,
                         fontSize = fontSize.sp
                     )
@@ -357,7 +346,7 @@ fun MovieDetailsScreen(
                     modifier = Modifier
                         .weight(1.5f)
                         .fillMaxHeight(),
-                    colors = CardDefaults.cardColors(containerColor = Color.Transparent)
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
 
@@ -371,20 +360,20 @@ fun MovieDetailsScreen(
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .background(Color.Black.copy(alpha = 0.3f))
+                                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.3f))
                         )
 
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
                                 imageVector = Icons.Filled.PlayArrow,
                                 contentDescription = "Watch",
-                                tint = Color.White,
+                                tint = MaterialTheme.colorScheme.onPrimary,
                                 modifier = Modifier.size(20.dp)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
                                 text = if (selectedLanguage == "ar") "شاهد الإعلان" else "Watch Trailer",
-                                color = Color.White,
+                                color = MaterialTheme.colorScheme.onPrimary,
                                 fontFamily = customFont,
                                 fontSize = (fontSize * 0.9f).sp,
                                 fontWeight = FontWeight.Bold

@@ -1,5 +1,9 @@
 package com.example.movie_discovery.Screens
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.EaseOutCubic
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -58,14 +62,15 @@ fun SettingsScreen(
                     Text(
                         text = if (selectedLanguage == "ar") "الإعدادات" else "Settings",
                         fontWeight = FontWeight.Bold,
-                        color = AccentRed,
+                        color = MaterialTheme.colorScheme.primary,
                         fontFamily = customFont,
                         fontSize = 22.sp
                     )
                 },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back" , tint =MaterialTheme.colorScheme.primary)
+
                     }
                 }
             )
@@ -87,7 +92,8 @@ fun SettingsScreen(
                     text = if (selectedLanguage == "ar") "الوضع الداكن" else "Dark Mode",
                     fontFamily = customFont,
                     fontWeight = FontWeight.Bold,
-                    fontSize = fontSize.sp
+                    fontSize = fontSize.sp,
+                    color =MaterialTheme.colorScheme.onBackground
                 )
 
                 DarkModeSwitch(
@@ -102,7 +108,8 @@ fun SettingsScreen(
                 text = if (selectedLanguage == "ar") "اللغة" else "Language",
                 fontFamily = customFont,
                 fontWeight = FontWeight.Bold,
-                fontSize = fontSize.sp
+                fontSize = fontSize.sp,
+                color =MaterialTheme.colorScheme.onBackground
             )
 
             LanguageSelector(
@@ -119,7 +126,8 @@ fun SettingsScreen(
                 text = if (selectedLanguage == "ar") "نوع الخط" else "Font Type",
                 fontFamily = customFont,
                 fontWeight = FontWeight.Bold,
-                fontSize = fontSize.sp
+                fontSize = fontSize.sp,
+                color =MaterialTheme.colorScheme.onBackground
             )
 
             FontTypeSelector(
@@ -136,7 +144,8 @@ fun SettingsScreen(
                 text = if (selectedLanguage == "ar") "حجم الخط" else "Font Size",
                 fontFamily = customFont,
                 fontWeight = FontWeight.Bold,
-                fontSize = fontSize.sp
+                fontSize = fontSize.sp,
+                color =MaterialTheme.colorScheme.onBackground
             )
 
             FontSizeSlider(
@@ -275,18 +284,32 @@ fun FontSizeSlider(
         Text("${fontSize.toInt()} sp", fontFamily = fontFamily, fontSize = fontSize.sp)
     }
 }
-
 @Composable
 fun DarkModeSwitch(
     themeViewModel: ThemeViewModel = viewModel()
 ) {
     val isDarkMode by themeViewModel.isDarkMode.collectAsState()
 
-    val trackColor = if (isDarkMode) MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
-    else MaterialTheme.colorScheme.surfaceVariant
+    val trackColor by animateColorAsState(
+        targetValue = if (isDarkMode)
+            MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+        else
+            MaterialTheme.colorScheme.surfaceVariant,
+        animationSpec = tween(durationMillis = 300, easing = EaseOutCubic)
+    )
 
-    val thumbColor = if (isDarkMode) MaterialTheme.colorScheme.primary
-    else MaterialTheme.colorScheme.onSurfaceVariant
+    val thumbColor by animateColorAsState(
+        targetValue = if (isDarkMode)
+            MaterialTheme.colorScheme.primary
+        else
+            MaterialTheme.colorScheme.onSurfaceVariant,
+        animationSpec = tween(durationMillis = 300, easing = EaseOutCubic)
+    )
+
+    val thumbOffset by animateDpAsState(
+        targetValue = if (isDarkMode) 28.dp else 0.dp,
+        animationSpec = tween(durationMillis = 300, easing = EaseOutCubic)
+    )
 
     val icon = if (isDarkMode) "🌙" else "☀️"
 
@@ -302,7 +325,7 @@ fun DarkModeSwitch(
     ) {
         Box(
             modifier = Modifier
-                .offset(x = if (isDarkMode) 28.dp else 0.dp)
+                .offset(x = thumbOffset)
                 .size(24.dp)
                 .clip(RoundedCornerShape(50))
                 .background(thumbColor),

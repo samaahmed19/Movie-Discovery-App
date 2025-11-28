@@ -1,10 +1,11 @@
 package com.example.movie_discovery.Screens
 
+import android.content.Context
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -32,13 +33,20 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.movie_discovery.R
 import com.example.movie_discovery.Viewmodels.SettingsViewModel
-
+import androidx.compose.foundation.lazy.itemsIndexed
+import kotlinx.coroutines.delay
+import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.platform.LocalContext
+import android.widget.Toast
+import androidx.compose.animation.core.EaseOutCubic
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.ui.graphics.graphicsLayer
 
 @Composable
 fun Profile(
     navController: NavController
 ) {
-
+    val context: Context = LocalContext.current
     val userViewModel: UserViewModel = viewModel()
     val settingsViewModel: SettingsViewModel = viewModel()
 
@@ -64,6 +72,10 @@ fun Profile(
     val watchlistMovies by userViewModel.watchlistMovies.collectAsState()
     val watchedMovies by userViewModel.watchedMovies.collectAsState()
 
+    var animateFavourites by remember { mutableStateOf(true) }
+    var animateWatchlist by remember { mutableStateOf(true) }
+    var animateWatched by remember { mutableStateOf(true) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -78,8 +90,10 @@ fun Profile(
                     .fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
-                IconButton(onClick = { navController.popBackStack() },
-                    modifier = Modifier.align(Alignment.CenterStart)) {
+                IconButton(
+                    onClick = { navController.popBackStack() },
+                    modifier = Modifier.align(Alignment.CenterStart)
+                ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back",
@@ -111,7 +125,8 @@ fun Profile(
                 navController = navController,
                 customFont = customFont,
                 fontSize = fontSize.sp,
-                selectedLanguage = selectedLanguage
+                selectedLanguage = selectedLanguage,
+                animateOnFirstAppearance = animateFavourites
             )
             Spacer(Modifier.height(16.dp))
             MovieListSection(
@@ -121,7 +136,8 @@ fun Profile(
                 navController = navController,
                 customFont = customFont,
                 fontSize = fontSize.sp,
-                selectedLanguage = selectedLanguage
+                selectedLanguage = selectedLanguage,
+                animateOnFirstAppearance = animateWatchlist
             )
             Spacer(Modifier.height(16.dp))
             MovieListSection(
@@ -131,7 +147,8 @@ fun Profile(
                 navController = navController,
                 customFont = customFont,
                 fontSize = fontSize.sp,
-                selectedLanguage = selectedLanguage
+                selectedLanguage = selectedLanguage,
+                animateOnFirstAppearance = animateWatched
             )
         } ?: Box(
             modifier = Modifier.fillMaxWidth(),
@@ -140,7 +157,8 @@ fun Profile(
             Text(
                 text = if (selectedLanguage == "ar") "جارٍ تحميل البيانات..." else "Loading user data...",
                 fontFamily = customFont,
-                fontSize = fontSize.sp
+                fontSize = fontSize.sp,
+                color = MaterialTheme.colorScheme.onSecondary.copy(alpha = 0.7f)
             )
         }
 
@@ -148,6 +166,7 @@ fun Profile(
         Button(
             onClick = {
                 userViewModel.logout {
+                    Toast.makeText(context, "Logged out successfully", Toast.LENGTH_SHORT).show()
                     navController.navigate("signIn") {
                         popUpTo(0) { inclusive = true }
                     }
@@ -167,12 +186,10 @@ fun Profile(
         Button(
             onClick = {
                 userViewModel.deleteAccount { success ->
-                    if (success) {
-                        navController.navigate("signIn") {
-                            popUpTo(0) { inclusive = true }
-                        }
-                    }
+                    Toast.makeText(context, if (success) "Account deleted" else "Failed to delete account", Toast.LENGTH_SHORT).show()
+                    if (success) navController.navigate("signIn") { popUpTo(0) { inclusive = true } }
                 }
+
             },
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
@@ -185,6 +202,26 @@ fun Profile(
             )
         }
     }
+    LaunchedEffect(favouriteMovies) {
+        if (animateFavourites && favouriteMovies.isNotEmpty()) {
+            delay(1000)
+            animateFavourites = false
+        }
+    }
+
+    LaunchedEffect(watchlistMovies) {
+        if (animateWatchlist && watchlistMovies.isNotEmpty()) {
+            delay(1000)
+            animateWatchlist = false
+        }
+    }
+
+    LaunchedEffect(watchedMovies) {
+        if (animateWatched && watchedMovies.isNotEmpty()) {
+            delay(1000)
+            animateWatched = false
+        }
+    }
 }
 
 @Composable
@@ -195,8 +232,18 @@ fun MovieListSection(
     navController: NavController,
     customFont: FontFamily,
     fontSize: androidx.compose.ui.unit.TextUnit,
-    selectedLanguage: String
+    selectedLanguage: String,
+    animateOnFirstAppearance: Boolean
 ) {
+    var listAnimated by remember { mutableStateOf(false) }
+
+    LaunchedEffect(key1 = movies.isNotEmpty()) {
+        if (movies.isNotEmpty() && animateOnFirstAppearance) {
+            delay(150)
+            listAnimated = true
+        }
+    }
+
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = title,
@@ -212,25 +259,63 @@ fun MovieListSection(
                 text = if (selectedLanguage == "ar") "لا توجد أفلام بعد" else "No movies yet",
                 fontFamily = customFont,
                 fontSize = fontSize,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = MaterialTheme.colorScheme.onSecondary.copy(alpha = 0.7f),
                 modifier = Modifier.padding(start = 8.dp)
             )
         } else {
             LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                items(movies, key = { it.id }) { movie ->
-                    ProfileMovieCard(
-                        movie = movie,
-                        userViewModel = userViewModel,
-                        onMovieClick = { id: Int ->
-                            navController.navigate("details/$id")
-                        }
-                    )
+                itemsIndexed(items = movies, key = { _, movie -> movie.id }) { index, movie ->
+                    if (animateOnFirstAppearance) {
+                        AnimatedProfileMovieCard(
+                            movie = movie,
+                            userViewModel = userViewModel,
+                            onMovieClick = { id -> navController.navigate("details/$id") },
+                            index = index,
+                            animate = listAnimated
+                        )
+                    } else {
+                        ProfileMovieCard(
+                            movie = movie,
+                            userViewModel = userViewModel,
+                            onMovieClick = { id -> navController.navigate("details/$id") }
+                        )
+                    }
                 }
             }
         }
     }
 }
-//
+
+@Composable
+fun AnimatedProfileMovieCard(
+    movie: MovieDetailsResponse,
+    userViewModel: UserViewModel,
+    onMovieClick: (Int) -> Unit,
+    index: Int,
+    animate: Boolean
+) {
+    val targetProgress = if (animate) 1f else 0f
+    val animatedProgress by animateFloatAsState(
+        targetValue = targetProgress,
+        animationSpec = tween(
+            durationMillis = 400,
+            delayMillis = index * 100,
+            easing = EaseOutCubic
+        )
+    )
+
+    ProfileMovieCard(
+        movie = movie,
+        userViewModel = userViewModel,
+        onMovieClick = onMovieClick,
+        modifier = Modifier
+            .graphicsLayer {
+                alpha = animatedProgress
+                translationX = (-100 * (1 - animatedProgress))
+                translationY = (-30 * (1 - animatedProgress))
+            }
+    )
+}
 @Composable
 fun ProfileMovieCard(
     movie: MovieDetailsResponse,
@@ -248,7 +333,7 @@ fun ProfileMovieCard(
             .clickable { onMovieClick(movie.id) },
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(6.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background)
     ) {
         Box {
             Column(
@@ -275,7 +360,8 @@ fun ProfileMovieCard(
                         text = movie.title,
                         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                     )
 
                     Spacer(modifier = Modifier.height(4.dp))
@@ -287,20 +373,19 @@ fun ProfileMovieCard(
                         Icon(
                             imageVector = Icons.Filled.Star,
                             contentDescription = "Rating",
-                            tint = Color(0xFFFFD700),
+                            tint = MaterialTheme.colorScheme.secondary.copy(alpha = 0.7f),
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = "${movie.voteAverage ?: 0.0}",
                             style = MaterialTheme.typography.bodySmall,
-                            color = Color.Gray
+                            color = MaterialTheme.colorScheme.onSecondary.copy(alpha = 0.7f)
                         )
                     }
                 }
             }
 
-            // Only one IconButton, fully controlled by userData
             IconButton(
                 onClick = {
                     val movieIdStr = movie.id.toString()
@@ -312,7 +397,9 @@ fun ProfileMovieCard(
                 Icon(
                     imageVector = Icons.Filled.Favorite,
                     contentDescription = "Favorite",
-                    tint = if (isFavorite) Color.Red else Color.LightGray
+                    tint = if (isFavorite) MaterialTheme.colorScheme.primary else Color.White.copy(
+                        alpha = 0.8f
+                    )
                 )
             }
         }

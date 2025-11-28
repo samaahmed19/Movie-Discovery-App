@@ -94,7 +94,7 @@ fun SignInScreen(
 
     val backgroundBrush = if (isSystemInDarkTheme()) {
         Brush.verticalGradient(
-            colors = listOf(DarkNavy, CardBackground.copy(alpha = 0.8f), DarkNavy)
+            colors = listOf(DarkNavy, MaterialTheme.colorScheme.surface.copy(alpha = 0.8f), DarkNavy)
         )
     } else {
         Brush.verticalGradient(
@@ -139,7 +139,7 @@ fun SignInScreen(
         Card(
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(
-                containerColor = if (isSystemInDarkTheme()) CardBackground else Color(0xFFF5F5F5)
+                containerColor = (if (isSystemInDarkTheme()) MaterialTheme.colorScheme.surface else Color(0xFFF5F5F5)) as Color
             ),
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
             modifier = Modifier.fillMaxWidth()
@@ -150,7 +150,7 @@ fun SignInScreen(
             ) {
                 Text(
                     text = if (isArabic) "تسجيل الدخول" else "Sign In",
-                    color = if (isSystemInDarkTheme()) TextPrimary else Color.Black,
+                    color = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.onPrimary else Color.Black,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(bottom = 20.dp)
@@ -162,15 +162,15 @@ fun SignInScreen(
                     label = {
                         Text(
                             if (isArabic) "البريد الإلكتروني" else "Email",
-                            color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.7f)
+                            color = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.onSecondary else Color.Black.copy(alpha = 0.7f)
                         )
                     },
                     isError = isEmailError,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = AccentRed,
-                        unfocusedBorderColor = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.3f),
-                        focusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black,
-                        unfocusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black
+                        unfocusedBorderColor = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.onSecondary else Color.Black.copy(alpha = 0.3f),
+                        focusedTextColor = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.onPrimary else Color.Black,
+                        unfocusedTextColor = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.onPrimary else Color.Black
                     ),
                     singleLine = true,
                     modifier = Modifier
@@ -184,7 +184,7 @@ fun SignInScreen(
                     label = {
                         Text(
                             if (isArabic) "كلمة المرور" else "Password",
-                            color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.7f)
+                            color = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.onSecondary else Color.Black.copy(alpha = 0.7f)
                         )
                     },
                     visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -197,16 +197,16 @@ fun SignInScreen(
                                     (if (isArabic) "إخفاء كلمة المرور" else "Hide password")
                                 else
                                     (if (isArabic) "إظهار كلمة المرور" else "Show password"),
-                                tint = if (isSystemInDarkTheme()) TextSecondary else Color.Gray
+                                tint = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.onSecondary else Color.Gray
                             )
                         }
                     },
                     isError = isPasswordError,
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = AccentRed,
-                        unfocusedBorderColor = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.3f),
-                        focusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black,
-                        unfocusedTextColor = if (isSystemInDarkTheme()) TextPrimary else Color.Black
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.onSecondary else Color.Black.copy(alpha = 0.3f),
+                        focusedTextColor = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.onPrimary else Color.Black,
+                        unfocusedTextColor = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.onPrimary else Color.Black
                     ),
                     singleLine = true,
                     modifier = Modifier
@@ -246,7 +246,7 @@ fun SignInScreen(
                     } else {
                         Text(
                             if (isArabic) "تسجيل الدخول" else "Sign In",
-                            color = TextPrimary,
+                            color = MaterialTheme.colorScheme.onPrimary,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -263,7 +263,7 @@ fun SignInScreen(
         ) {
             Text(
                 if (isArabic) "مستخدم جديد؟ " else "New user? ",
-                color = if (isSystemInDarkTheme()) TextSecondary else Color.Black.copy(alpha = 0.7f),
+                color = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.onSecondary else Color.Black.copy(alpha = 0.7f),
                 fontSize = 16.sp
             )
             Text(

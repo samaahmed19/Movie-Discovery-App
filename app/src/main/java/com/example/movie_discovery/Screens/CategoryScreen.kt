@@ -38,7 +38,6 @@ import com.example.movie_discovery.Viewmodels.SearchViewModel
 import com.example.movie_discovery.Viewmodels.SettingsViewModel
 import com.example.movie_discovery.Viewmodels.UserViewModel
 import com.example.movie_discovery.data.Movie
-import com.example.movie_discovery.ui.theme.AccentRed
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -72,12 +71,13 @@ fun CategoryScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = genreName, fontFamily = customFont, fontSize = fontSize.sp) },
+                title = { Text(text = genreName, fontFamily = customFont, fontSize = fontSize.sp, color = MaterialTheme.colorScheme.primary)  },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = "Back",
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     }
                 }
@@ -232,7 +232,7 @@ fun FeaturedCategoryCardR(movie: Movie, userViewModel: UserViewModel, onClick: (
                 Icon(
                     imageVector = Icons.Default.Favorite,
                     contentDescription = "Favorite",
-                    tint = if (isFavorite) Color.Red else Color.White.copy(alpha = 0.8f)
+                    tint = if (isFavorite)  MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.8f)
                 )
             }
 
@@ -240,30 +240,30 @@ fun FeaturedCategoryCardR(movie: Movie, userViewModel: UserViewModel, onClick: (
                 modifier = Modifier
                     .align(Alignment.BottomStart)
                     .fillMaxWidth()
-                    .background(Color.Black.copy(alpha = 0.5f))
+                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.8f).copy(alpha = 0.5f))
                     .padding(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
                     text = movie.title ?: "Unknown",
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 )
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = Icons.Filled.Star,
                         contentDescription = "Rating",
-                        tint = Color(0xFFFFD700),
+                        tint = MaterialTheme.colorScheme.secondary,
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = "${movie.voteAverage ?: 0.0}",
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onSecondary,
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
@@ -284,7 +284,8 @@ fun MovieCardR(movie: Movie, userViewModel: UserViewModel, onClick: () -> Unit) 
             .clickable { onClick() }
             .shadow(8.dp, RoundedCornerShape(16.dp)),
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(6.dp)
+        elevation = CardDefaults.cardElevation(6.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Box {
             Column(
@@ -311,7 +312,8 @@ fun MovieCardR(movie: Movie, userViewModel: UserViewModel, onClick: () -> Unit) 
                         text = movie.title ?: "Unknown",
                         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
 
                     Spacer(modifier = Modifier.height(4.dp))
@@ -323,14 +325,14 @@ fun MovieCardR(movie: Movie, userViewModel: UserViewModel, onClick: () -> Unit) 
                         Icon(
                             imageVector = Icons.Filled.Star,
                             contentDescription = "Rating",
-                            tint = Color(0xFFFFD700),
+                            tint = MaterialTheme.colorScheme.secondary,
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = "${movie.voteAverage ?: 0.0}",
                             style = MaterialTheme.typography.bodySmall,
-                            color = Color.Gray
+                            color = MaterialTheme.colorScheme.onSecondary
                         )
                     }
                 }
@@ -351,7 +353,7 @@ fun MovieCardR(movie: Movie, userViewModel: UserViewModel, onClick: () -> Unit) 
                 Icon(
                     imageVector = Icons.Filled.Favorite,
                     contentDescription = "Favorite",
-                    tint = if (isFavorite) Color.Red else Color.LightGray
+                    tint = if (isFavorite)  MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.8f)
                 )
             }
         }
